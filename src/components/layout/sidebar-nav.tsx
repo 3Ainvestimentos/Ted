@@ -20,7 +20,7 @@ export function SidebarNav() {
     <SidebarMenu>
       {NAV_ITEMS_CONFIG.map((item: NavItem) => (
         <SidebarMenuItem key={item.title}>
-          <Link href={item.href} passHref legacyBehavior>
+          <Link href={item.href}>
             <SidebarMenuButton
               isActive={pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href))}
               disabled={item.disabled}
