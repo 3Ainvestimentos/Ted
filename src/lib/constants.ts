@@ -1,17 +1,18 @@
-import type { NavItem, UserRole, Initiative } from '@/types';
-import { LayoutDashboard, ShieldAlert, ScrollText, ClipboardList, Target, Briefcase, UserCircle2, LogOut, Settings, TrendingUp, TrendingDown, Minus, CircleCheck, AlertTriangle, Clock, CheckCircle } from 'lucide-react';
+import type { NavItem, UserRole, Initiative, InitiativeStatus, InitiativePriority } from '@/types';
+import { LayoutDashboard, ShieldAlert, ScrollText, ClipboardList, Target, TrendingUp, TrendingDown, Minus, CircleCheck, AlertTriangle, Clock, CheckCircle, ListTodo, User, CalendarDays, FileText, Lightbulb, Bug } from 'lucide-react';
 
 export const NAV_ITEMS_CONFIG: NavItem[] = [
-  { title: 'Painel', href: '/dashboard', icon: LayoutDashboard },
+  { title: 'Quadro de Projetos', href: '/dashboard', icon: LayoutDashboard }, // Renamed to match new focus
   { title: 'Análise de Risco', href: '/risk-assessment', icon: ShieldAlert },
   { title: 'Sumários Executivos', href: '/executive-summaries', icon: ScrollText },
   { title: 'Automação de Reuniões', href: '/meeting-automation', icon: ClipboardList },
-  { title: 'Iniciativas Estratégicas', href: '/initiatives', icon: Target },
+  { title: 'Iniciativas (Lista)', href: '/initiatives', icon: Target }, // Kept for list view if needed
 ];
 
 export const USER_ROLES: UserRole[] = ['PMO', 'Líder', 'Colaborador'];
 
-export const STATUS_ICONS = {
+export const STATUS_ICONS: Record<InitiativeStatus, React.ElementType> = {
+  'A Fazer': ListTodo,
   'Em Dia': CircleCheck,
   'Em Risco': AlertTriangle,
   'Atrasado': Clock,
@@ -24,57 +25,187 @@ export const TREND_ICONS = {
   neutral: Minus,
 };
 
+export const KANBAN_COLUMNS_ORDER: InitiativeStatus[] = ['A Fazer', 'Em Dia', 'Atrasado', 'Em Risco', 'Concluído'];
+
+
 export const MOCK_INITIATIVES: Initiative[] = [
   {
-    id: 'initiative-1',
-    title: 'Transformação Digital T4',
+    id: 'task-1',
+    title: 'Dev Contributor infrastructure',
+    status: 'A Fazer',
+    owner: 'Alice W.',
+    description: 'Setup core infrastructure for developer contributions.',
+    lastUpdate: '2023-12-01',
+    progress: 10,
+    priority: 'P2',
+    keyMetrics: [],
+    icon: Lightbulb,
+  },
+  {
+    id: 'task-2',
+    title: 'Create install package',
+    status: 'A Fazer',
+    owner: 'Bob T.',
+    description: 'Package the application for easy installation.',
+    lastUpdate: '2024-02-01',
+    progress: 0,
+    priority: 'P3',
+    keyMetrics: [],
+    icon: FileText,
+  },
+  {
+    id: 'task-3',
+    title: 'UI Review',
+    status: 'A Fazer',
+    owner: 'Charlie B.',
+    description: 'Conduct a thorough UI review and gather feedback.',
+    lastUpdate: '2024-02-01',
+    progress: 5,
+    priority: 'P3',
+    keyMetrics: [],
+  },
+  {
+    id: 'task-4',
+    title: 'API client libraries',
+    status: 'A Fazer',
+    owner: 'David C.',
+    description: 'Develop client libraries for the public API.',
+    lastUpdate: '2024-01-26',
+    progress: 0,
+    priority: 'P2',
+    keyMetrics: [],
+  },
+  {
+    id: 'task-5',
+    title: 'Bugbash',
     status: 'Em Dia',
-    owner: 'Alice Wonderland',
-    description: 'Liderar a adoção de novas ferramentas e processos digitais em toda a empresa.',
-    lastUpdate: '2024-07-25',
+    owner: 'Anne K.',
+    description: 'Organize and run a company-wide bug bash.',
+    lastUpdate: '2024-02-01',
+    progress: 40,
+    priority: 'P1',
+    keyMetrics: [],
+    icon: Bug,
+  },
+  {
+    id: 'task-6',
+    title: 'Code-sign client binaries',
+    status: 'Em Dia',
+    owner: 'Bob T.',
+    description: 'Implement code signing for all client binaries.',
+    lastUpdate: '2024-01-18',
+    progress: 60,
+    priority: 'P2',
+    keyMetrics: [],
+  },
+  {
+    id: 'task-7',
+    title: 'Create initial help-wanted tickets',
+    status: 'Em Dia',
+    owner: 'Bob T.',
+    description: 'Identify and create good first issues for new contributors.',
+    lastUpdate: '2024-02-01',
     progress: 75,
-    keyMetrics: [
-      { name: 'Taxa de Adoção', value: '60%', trend: 'up' },
-      { name: 'Conclusão de Treinamento', value: '85%', trend: 'neutral' },
-    ],
+    priority: 'P3',
+    keyMetrics: [],
   },
   {
-    id: 'initiative-2',
-    title: 'Expansão para Novos Mercados',
+    id: 'task-8',
+    title: 'Handle forgotten passwords',
     status: 'Em Risco',
-    owner: 'Bob The Builder',
-    description: 'Explorar e estabelecer presença em três novos mercados internacionais.',
-    lastUpdate: '2024-07-22',
+    owner: 'Alice W.',
+    description: 'Design and implement the forgotten password flow.',
+    lastUpdate: '2024-02-01',
     progress: 30,
-    keyMetrics: [
-      { name: 'Leads Gerados', value: '120', trend: 'down' },
-      { name: 'Parcerias Assinadas', value: '2', trend: 'neutral' },
-    ],
+    priority: 'P1',
+    keyMetrics: [],
   },
   {
-    id: 'initiative-3',
-    title: 'Inovação de Produto X',
+    id: 'task-9',
+    title: 'Innovation Program',
     status: 'Atrasado',
-    owner: 'Charlie Brown',
-    description: 'Desenvolver e lançar a próxima geração do Produto X.',
-    lastUpdate: '2024-07-20',
-    progress: 45,
-    keyMetrics: [
-      { name: 'Marcos de P&D', value: '3/7', trend: 'neutral' },
-      { name: 'Variação Orçamentária', value: '+15%', trend: 'down' },
-    ],
+    owner: 'Fred L.',
+    description: 'Launch the new internal innovation program.',
+    lastUpdate: '2024-02-01',
+    progress: 20,
+    priority: 'P2',
+    keyMetrics: [],
+    icon: Lightbulb,
   },
   {
-    id: 'initiative-4',
-    title: 'Melhoria do Sucesso do Cliente',
+    id: 'task-10',
+    title: 'Update license file',
+    status: 'Em Dia',
+    owner: 'Bob T.',
+    description: 'Review and update the project\'s license file.',
+    lastUpdate: '2024-02-01',
+    progress: 90,
+    priority: 'P4',
+    keyMetrics: [],
+    icon: FileText,
+  },
+  {
+    id: 'task-11',
+    title: 'Add help link to docs website',
     status: 'Concluído',
-    owner: 'Diana Prince',
-    description: 'Melhorar os índices de satisfação do cliente em 15% através de novas iniciativas de suporte.',
-    lastUpdate: '2024-06-30',
+    owner: 'Bob T.',
+    description: 'Integrate a dynamic help link into the documentation.',
+    lastUpdate: '2024-01-26',
     progress: 100,
-    keyMetrics: [
-      { name: 'Índice CSAT', value: '92%', trend: 'up' },
-      { name: 'Tempo de Resolução de Tickets', value: '4h', trend: 'up' },
-    ],
+    priority: 'P3',
+    keyMetrics: [],
+  },
+  {
+    id: 'task-12',
+    title: 'Settings flags',
+    status: 'Concluído',
+    owner: 'Fred L.',
+    description: 'Implement feature flags for new settings options.',
+    lastUpdate: '2024-02-01',
+    progress: 100,
+    priority: 'P1',
+    keyMetrics: [],
+  },
+  {
+    id: 'task-13',
+    title: 'Show comment user name',
+    status: 'Concluído',
+    owner: 'Bob T.',
+    description: 'Display the full user name next to comments.',
+    lastUpdate: '2024-01-19',
+    progress: 100,
+    priority: 'P2',
+    keyMetrics: [],
+  },
+  {
+    id: 'task-14',
+    title: 'Update Repo',
+    status: 'Concluído',
+    owner: 'Alice W.',
+    description: 'Update repository with latest security patches.',
+    lastUpdate: '2024-02-01',
+    progress: 100,
+    priority: 'P1',
+    keyMetrics: [],
   },
 ];
+
+export const KANBAN_COLUMN_NAMES: Record<InitiativeStatus, string> = {
+  'A Fazer': 'START NEXT',
+  'Em Dia': 'IN PROGRESS',
+  'Em Risco': 'IN PROGRESS', // Will be visually distinct in card
+  'Atrasado': 'IN PROGRESS', // Will be visually distinct in card
+  'Concluído': 'DONE'
+};
+
+export const KANBAN_COLUMN_DISPLAY_ORDER: InitiativeStatus[] = ['A Fazer', 'Em Dia', 'Concluído'];
+// Note: 'Em Risco' and 'Atrasado' items will appear in 'IN PROGRESS' (Em Dia) column,
+// but their cards will be styled differently. This mapping defines the primary columns shown.
+
+export const STATUS_TO_COLUMN_MAP: Record<InitiativeStatus, InitiativeStatus> = {
+    'A Fazer': 'A Fazer',
+    'Em Dia': 'Em Dia',
+    'Em Risco': 'Em Dia', // Em Risco items go to 'Em Dia' column visually
+    'Atrasado': 'Em Dia', // Atrasado items go to 'Em Dia' column visually
+    'Concluído': 'Concluído',
+};

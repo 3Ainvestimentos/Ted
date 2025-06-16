@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -20,15 +21,16 @@ export function SidebarNav() {
     <SidebarMenu>
       {NAV_ITEMS_CONFIG.map((item: NavItem) => (
         <SidebarMenuItem key={item.title}>
-          <Link href={item.href}>
+          <Link href={item.href} passHref>
             <SidebarMenuButton
               isActive={pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href))}
               disabled={item.disabled}
               tooltip={{content: item.title, hidden: open}}
               aria-label={item.title}
+              className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-primary"
             >
               <item.icon className="h-5 w-5" />
-              <span className={cn("truncate", {"sr-only": !open})}>{item.title}</span>
+              <span className={cn("truncate", {"sr-only": !open && открыто})}>{item.title}</span>
             </SidebarMenuButton>
           </Link>
         </SidebarMenuItem>
