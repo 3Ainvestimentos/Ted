@@ -30,7 +30,7 @@ export function SidebarNav() {
               className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-primary"
             >
               <item.icon className="h-5 w-5" />
-              <span className={cn("truncate", {"sr-only": !open && открыто})}>{item.title}</span>
+              <span className="truncate group-data-[collapsible=icon]:hidden">{item.title}</span>
             </SidebarMenuButton>
           </Link>
         </SidebarMenuItem>
@@ -38,3 +38,4 @@ export function SidebarNav() {
     </SidebarMenu>
   );
 }
+
