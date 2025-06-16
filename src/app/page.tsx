@@ -20,7 +20,7 @@ export default function HomePage() {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-background">
-      <p className="text-foreground">Loading Ted 1.0...</p>
+      <p className="text-foreground">Carregando Ted 1.0...</p>
     </div>
   );
 }

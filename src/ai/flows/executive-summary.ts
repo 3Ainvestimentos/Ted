@@ -1,11 +1,11 @@
 'use server';
 
 /**
- * @fileOverview Generates executive summaries of project progress and key metrics.
+ * @fileOverview Gera sumários executivos do progresso do projeto e métricas chave.
  *
- * - generateExecutiveSummary - A function that generates an executive summary.
- * - ExecutiveSummaryInput - The input type for the generateExecutiveSummary function.
- * - ExecutiveSummaryOutput - The return type for the generateExecutiveSummary function.
+ * - generateExecutiveSummary - Uma função que gera um sumário executivo.
+ * - ExecutiveSummaryInput - O tipo de entrada para a função generateExecutiveSummary.
+ * - ExecutiveSummaryOutput - O tipo de retorno para a função generateExecutiveSummary.
  */
 
 import {ai} from '@/ai/genkit';
@@ -14,9 +14,9 @@ import {z} from 'genkit';
 const ExecutiveSummaryInputSchema = z.object({
   projectDescription: z
     .string()
-    .describe('A description of the project to be summarized.'),
-  keyMetrics: z.string().describe('Key metrics of the project.'),
-  progressDetails: z.string().describe('Details of the project progress.'),
+    .describe('Uma descrição do projeto a ser resumido.'),
+  keyMetrics: z.string().describe('Métricas chave do projeto.'),
+  progressDetails: z.string().describe('Detalhes do progresso do projeto.'),
 });
 
 export type ExecutiveSummaryInput = z.infer<typeof ExecutiveSummaryInputSchema>;
@@ -24,7 +24,7 @@ export type ExecutiveSummaryInput = z.infer<typeof ExecutiveSummaryInputSchema>;
 const ExecutiveSummaryOutputSchema = z.object({
   executiveSummary: z
     .string()
-    .describe('A concise executive summary of the project.'),
+    .describe('Um sumário executivo conciso do projeto.'),
 });
 
 export type ExecutiveSummaryOutput = z.infer<typeof ExecutiveSummaryOutputSchema>;

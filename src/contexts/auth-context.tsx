@@ -17,7 +17,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userRole, setUserRoleState] = useState<UserRole>('Contributor');
+  const [userRole, setUserRoleState] = useState<UserRole>('Colaborador');
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
@@ -27,10 +27,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (storedAuth) {
         const { auth, role } = JSON.parse(storedAuth);
         setIsAuthenticated(auth);
-        setUserRoleState(role || 'Contributor');
+        setUserRoleState(role || 'Colaborador');
       }
     } catch (error) {
-      console.error("Failed to parse auth state from localStorage", error);
+      console.error("Falha ao analisar o estado de autenticação do localStorage", error);
       localStorage.removeItem('tedAppAuthState');
     }
     setIsLoading(false);
@@ -42,18 +42,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       localStorage.setItem('tedAppAuthState', JSON.stringify({ auth: true, role }));
     } catch (error) {
-      console.error("Failed to set auth state in localStorage", error);
+      console.error("Falha ao definir o estado de autenticação no localStorage", error);
     }
     router.push('/dashboard');
   };
 
   const logout = () => {
     setIsAuthenticated(false);
-    setUserRoleState('Contributor');
+    setUserRoleState('Colaborador'); // Default to Contributor on logout
     try {
       localStorage.removeItem('tedAppAuthState');
     } catch (error) {
-      console.error("Failed to remove auth state from localStorage", error);
+      console.error("Falha ao remover o estado de autenticação do localStorage", error);
     }
     router.push('/login');
   };
@@ -64,7 +64,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       try {
         localStorage.setItem('tedAppAuthState', JSON.stringify({ auth: true, role }));
       } catch (error) {
-        console.error("Failed to update role in localStorage", error);
+        console.error("Falha ao atualizar o papel no localStorage", error);
       }
     }
   };
@@ -79,7 +79,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error('useAuth deve ser usado dentro de um AuthProvider');
   }
   return context;
 };

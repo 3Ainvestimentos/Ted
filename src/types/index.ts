@@ -1,7 +1,7 @@
 export interface Initiative {
   id: string;
   title: string;
-  status: 'On Track' | 'At Risk' | 'Delayed' | 'Completed';
+  status: 'Em Dia' | 'Em Risco' | 'Atrasado' | 'Concluído';
   owner: string;
   description: string;
   lastUpdate: string;
@@ -9,7 +9,7 @@ export interface Initiative {
   keyMetrics: { name: string; value: string; trend: 'up' | 'down' | 'neutral' }[];
 }
 
-export type UserRole = 'PMO' | 'Leader' | 'Contributor';
+export type UserRole = 'PMO' | 'Líder' | 'Colaborador';
 
 export interface NavItem {
   title: string;

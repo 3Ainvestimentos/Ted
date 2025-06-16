@@ -15,9 +15,9 @@ import { useToast } from "@/hooks/use-toast";
 
 const FormSchema = z.object({
   boardData: z.string().min(50, {
-    message: "Project data must be at least 50 characters.",
+    message: "Os dados do projeto devem ter pelo menos 50 caracteres.",
   }).max(5000, {
-    message: "Project data must not exceed 5000 characters."
+    message: "Os dados do projeto não devem exceder 5000 caracteres."
   }),
 });
 
@@ -40,11 +40,11 @@ export function RiskAssessmentForm() {
       const assessmentResult = await riskAssessment({ boardData: data.boardData });
       setResult(assessmentResult);
     } catch (error) {
-      console.error("Risk assessment failed:", error);
+      console.error("Falha na análise de risco:", error);
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "Failed to perform risk assessment. Please try again.",
+        title: "Erro",
+        description: "Falha ao realizar a análise de risco. Por favor, tente novamente.",
       });
     } finally {
       setIsLoading(false);
@@ -55,10 +55,10 @@ export function RiskAssessmentForm() {
     <div className="space-y-8">
       <Card className="shadow-lg">
         <CardHeader>
-          <CardTitle className="font-headline">AI-Powered Risk Assessment</CardTitle>
+          <CardTitle className="font-headline">Análise de Risco com IA</CardTitle>
           <CardDescription>
-            Paste your project data (e.g., from Focalboard, task lists, or project updates) below. 
-            The AI will analyze it to identify potential risks and delays.
+            Cole os dados do seu projeto (ex: do Focalboard, listas de tarefas ou atualizações de projeto) abaixo. 
+            A IA irá analisá-los para identificar riscos e atrasos potenciais.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -69,16 +69,16 @@ export function RiskAssessmentForm() {
                 name="boardData"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Project Data</FormLabel>
+                    <FormLabel>Dados do Projeto</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="Paste all relevant project information here. Include task statuses, deadlines, team member concerns, resource allocation, etc."
+                        placeholder="Cole todas as informações relevantes do projeto aqui. Inclua status de tarefas, prazos, preocupações de membros da equipe, alocação de recursos, etc."
                         className="min-h-[200px] resize-y"
                         {...field}
                       />
                     </FormControl>
                     <FormDescription>
-                      Provide as much detail as possible for an accurate assessment. (Min 50, Max 5000 characters)
+                      Forneça o máximo de detalhes possível para uma avaliação precisa. (Mín 50, Máx 5000 caracteres)
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -88,10 +88,10 @@ export function RiskAssessmentForm() {
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Analyzing...
+                    Analisando...
                   </>
                 ) : (
-                  "Assess Risks"
+                  "Analisar Riscos"
                 )}
               </Button>
             </form>
@@ -102,15 +102,15 @@ export function RiskAssessmentForm() {
       {result && (
         <Card className="shadow-lg">
           <CardHeader>
-            <CardTitle className="font-headline text-primary">Assessment Results</CardTitle>
+            <CardTitle className="font-headline text-primary">Resultados da Análise</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <h3 className="text-lg font-semibold mb-2">Summary</h3>
+              <h3 className="text-lg font-semibold mb-2">Resumo</h3>
               <p className="text-sm text-foreground/90 whitespace-pre-wrap">{result.summary}</p>
             </div>
             <div>
-              <h3 className="text-lg font-semibold mb-2">Potential Risks & Delays</h3>
+              <h3 className="text-lg font-semibold mb-2">Riscos e Atrasos Potenciais</h3>
               {result.risks.length > 0 ? (
                 <ul className="list-disc pl-5 space-y-1">
                   {result.risks.map((risk, index) => (
@@ -121,7 +121,7 @@ export function RiskAssessmentForm() {
                   ))}
                 </ul>
               ) : (
-                <p className="text-sm text-muted-foreground">No specific risks identified based on the provided data.</p>
+                <p className="text-sm text-muted-foreground">Nenhum risco específico identificado com base nos dados fornecidos.</p>
               )}
             </div>
           </CardContent>

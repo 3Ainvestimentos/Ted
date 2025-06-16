@@ -2,20 +2,20 @@ import type { NavItem, UserRole, Initiative } from '@/types';
 import { LayoutDashboard, ShieldAlert, ScrollText, ClipboardList, Target, Briefcase, UserCircle2, LogOut, Settings, TrendingUp, TrendingDown, Minus, CircleCheck, AlertTriangle, Clock, CheckCircle } from 'lucide-react';
 
 export const NAV_ITEMS_CONFIG: NavItem[] = [
-  { title: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { title: 'Risk Assessment', href: '/risk-assessment', icon: ShieldAlert },
-  { title: 'Executive Summaries', href: '/executive-summaries', icon: ScrollText },
-  { title: 'Meeting Automation', href: '/meeting-automation', icon: ClipboardList },
-  { title: 'Strategic Initiatives', href: '/initiatives', icon: Target },
+  { title: 'Painel', href: '/dashboard', icon: LayoutDashboard },
+  { title: 'Análise de Risco', href: '/risk-assessment', icon: ShieldAlert },
+  { title: 'Sumários Executivos', href: '/executive-summaries', icon: ScrollText },
+  { title: 'Automação de Reuniões', href: '/meeting-automation', icon: ClipboardList },
+  { title: 'Iniciativas Estratégicas', href: '/initiatives', icon: Target },
 ];
 
-export const USER_ROLES: UserRole[] = ['PMO', 'Leader', 'Contributor'];
+export const USER_ROLES: UserRole[] = ['PMO', 'Líder', 'Colaborador'];
 
 export const STATUS_ICONS = {
-  'On Track': CircleCheck,
-  'At Risk': AlertTriangle,
-  'Delayed': Clock,
-  'Completed': CheckCircle,
+  'Em Dia': CircleCheck,
+  'Em Risco': AlertTriangle,
+  'Atrasado': Clock,
+  'Concluído': CheckCircle,
 };
 
 export const TREND_ICONS = {
@@ -27,54 +27,54 @@ export const TREND_ICONS = {
 export const MOCK_INITIATIVES: Initiative[] = [
   {
     id: 'initiative-1',
-    title: 'Digital Transformation Q4',
-    status: 'On Track',
+    title: 'Transformação Digital T4',
+    status: 'Em Dia',
     owner: 'Alice Wonderland',
-    description: 'Lead the company-wide adoption of new digital tools and processes.',
+    description: 'Liderar a adoção de novas ferramentas e processos digitais em toda a empresa.',
     lastUpdate: '2024-07-25',
     progress: 75,
     keyMetrics: [
-      { name: 'Adoption Rate', value: '60%', trend: 'up' },
-      { name: 'Training Completion', value: '85%', trend: 'neutral' },
+      { name: 'Taxa de Adoção', value: '60%', trend: 'up' },
+      { name: 'Conclusão de Treinamento', value: '85%', trend: 'neutral' },
     ],
   },
   {
     id: 'initiative-2',
-    title: 'New Market Expansion',
-    status: 'At Risk',
+    title: 'Expansão para Novos Mercados',
+    status: 'Em Risco',
     owner: 'Bob The Builder',
-    description: 'Explore and establish presence in three new international markets.',
+    description: 'Explorar e estabelecer presença em três novos mercados internacionais.',
     lastUpdate: '2024-07-22',
     progress: 30,
     keyMetrics: [
-      { name: 'Leads Generated', value: '120', trend: 'down' },
-      { name: 'Partnerships Signed', value: '2', trend: 'neutral' },
+      { name: 'Leads Gerados', value: '120', trend: 'down' },
+      { name: 'Parcerias Assinadas', value: '2', trend: 'neutral' },
     ],
   },
   {
     id: 'initiative-3',
-    title: 'Product Innovation X',
-    status: 'Delayed',
+    title: 'Inovação de Produto X',
+    status: 'Atrasado',
     owner: 'Charlie Brown',
-    description: 'Develop and launch the next-generation Product X.',
+    description: 'Desenvolver e lançar a próxima geração do Produto X.',
     lastUpdate: '2024-07-20',
     progress: 45,
     keyMetrics: [
-      { name: 'R&D Milestones', value: '3/7', trend: 'neutral' },
-      { name: 'Budget Variance', value: '+15%', trend: 'down' },
+      { name: 'Marcos de P&D', value: '3/7', trend: 'neutral' },
+      { name: 'Variação Orçamentária', value: '+15%', trend: 'down' },
     ],
   },
   {
     id: 'initiative-4',
-    title: 'Customer Success Enhancement',
-    status: 'Completed',
+    title: 'Melhoria do Sucesso do Cliente',
+    status: 'Concluído',
     owner: 'Diana Prince',
-    description: 'Improve customer satisfaction scores by 15% through new support initiatives.',
+    description: 'Melhorar os índices de satisfação do cliente em 15% através de novas iniciativas de suporte.',
     lastUpdate: '2024-06-30',
     progress: 100,
     keyMetrics: [
-      { name: 'CSAT Score', value: '92%', trend: 'up' },
-      { name: 'Ticket Resolution Time', value: '4h', trend: 'up' },
+      { name: 'Índice CSAT', value: '92%', trend: 'up' },
+      { name: 'Tempo de Resolução de Tickets', value: '4h', trend: 'up' },
     ],
   },
 ];

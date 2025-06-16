@@ -14,8 +14,8 @@ import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const FormSchema = z.object({
-  cardUpdates: z.string().min(30, "Card updates must be at least 30 characters.").max(3000, "Max 3000 characters."),
-  discussionSummary: z.string().min(30, "Discussion summary must be at least 30 characters.").max(3000, "Max 3000 characters."),
+  cardUpdates: z.string().min(30, "As atualizações dos cartões devem ter pelo menos 30 caracteres.").max(3000, "Máximo de 3000 caracteres."),
+  discussionSummary: z.string().min(30, "O resumo da discussão deve ter pelo menos 30 caracteres.").max(3000, "Máximo de 3000 caracteres."),
 });
 
 export function MeetingMinutesForm() {
@@ -38,11 +38,11 @@ export function MeetingMinutesForm() {
       const minutesResult = await generateMeetingMinutes(data);
       setResult(minutesResult);
     } catch (error) {
-      console.error("Meeting minutes generation failed:", error);
+      console.error("Falha na geração da ata da reunião:", error);
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "Failed to generate meeting minutes. Please try again.",
+        title: "Erro",
+        description: "Falha ao gerar a ata da reunião. Por favor, tente novamente.",
       });
     } finally {
       setIsLoading(false);
@@ -53,9 +53,9 @@ export function MeetingMinutesForm() {
     <div className="space-y-8">
       <Card className="shadow-lg">
         <CardHeader>
-          <CardTitle className="font-headline">AI-Assisted Meeting Minutes</CardTitle>
+          <CardTitle className="font-headline">Atas de Reunião Assistidas por IA</CardTitle>
           <CardDescription>
-            Input summaries of card updates and discussions, and the AI will help structure your meeting minutes.
+            Insira resumos de atualizações de cartões e discussões, e a IA ajudará a estruturar suas atas de reunião.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -66,10 +66,10 @@ export function MeetingMinutesForm() {
                 name="cardUpdates"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Card Updates Summary</FormLabel>
+                    <FormLabel>Resumo das Atualizações dos Cartões</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="Summarize updates from Focalboard cards or tasks discussed. E.g., Task A: Completed by John. Task B: Blocked, needs input from Design. Task C: Progress 70%."
+                        placeholder="Resuma as atualizações dos cartões do Focalboard ou tarefas discutidas. Ex: Tarefa A: Concluída por João. Tarefa B: Bloqueada, precisa de input do Design. Tarefa C: Progresso 70%."
                         className="min-h-[150px] resize-y"
                         {...field}
                       />
@@ -83,10 +83,10 @@ export function MeetingMinutesForm() {
                 name="discussionSummary"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Discussion Summary</FormLabel>
+                    <FormLabel>Resumo da Discussão</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="Summarize key discussion points, decisions made, and action items. E.g., Decision: Proceed with Option X. Action Item: Sarah to follow up on budget by EOD Friday."
+                        placeholder="Resuma os principais pontos de discussão, decisões tomadas e itens de ação. Ex: Decisão: Prosseguir com a Opção X. Item de Ação: Sarah fará o acompanhamento do orçamento até o final do dia de sexta-feira."
                         className="min-h-[150px] resize-y"
                         {...field}
                       />
@@ -99,10 +99,10 @@ export function MeetingMinutesForm() {
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Generating...
+                    Gerando...
                   </>
                 ) : (
-                  "Generate Minutes"
+                  "Gerar Ata"
                 )}
               </Button>
             </form>
@@ -113,7 +113,7 @@ export function MeetingMinutesForm() {
       {result && (
         <Card className="shadow-lg">
           <CardHeader>
-            <CardTitle className="font-headline text-primary">Generated Meeting Minutes</CardTitle>
+            <CardTitle className="font-headline text-primary">Ata de Reunião Gerada</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="prose prose-sm max-w-none dark:prose-invert whitespace-pre-wrap p-4 bg-secondary/30 rounded-md">

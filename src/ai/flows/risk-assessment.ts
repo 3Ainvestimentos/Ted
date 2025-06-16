@@ -1,26 +1,26 @@
 'use server';
 
 /**
- * @fileOverview An AI agent that analyzes project data from Focalboard boards to identify potential risks and delays.
+ * @fileOverview Um agente de IA que analisa dados de projeto de quadros Focalboard para identificar riscos e atrasos potenciais.
  *
- * - riskAssessment - A function that handles the risk assessment process.
- * - RiskAssessmentInput - The input type for the riskAssessment function.
- * - RiskAssessmentOutput - The return type for the riskAssessment function.
+ * - riskAssessment - Uma função que lida com o processo de análise de risco.
+ * - RiskAssessmentInput - O tipo de entrada para a função riskAssessment.
+ * - RiskAssessmentOutput - O tipo de retorno para a função riskAssessment.
  */
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const RiskAssessmentInputSchema = z.object({
-  boardData: z.string().describe('Project data from Focalboard boards.'),
+  boardData: z.string().describe('Dados do projeto de quadros Focalboard.'),
 });
 export type RiskAssessmentInput = z.infer<typeof RiskAssessmentInputSchema>;
 
 const RiskAssessmentOutputSchema = z.object({
   risks: z
     .array(z.string())
-    .describe('List of potential risks and delays identified in the project data.'),
-  summary: z.string().describe('A summary of the risk assessment.'),
+    .describe('Lista de riscos e atrasos potenciais identificados nos dados do projeto.'),
+  summary: z.string().describe('Um resumo da análise de risco.'),
 });
 export type RiskAssessmentOutput = z.infer<typeof RiskAssessmentOutputSchema>;
 

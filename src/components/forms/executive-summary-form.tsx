@@ -15,9 +15,9 @@ import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const FormSchema = z.object({
-  projectDescription: z.string().min(30, "Description must be at least 30 characters.").max(2000, "Max 2000 characters."),
-  keyMetrics: z.string().min(20, "Key metrics must be at least 20 characters.").max(1000, "Max 1000 characters."),
-  progressDetails: z.string().min(30, "Progress details must be at least 30 characters.").max(2000, "Max 2000 characters."),
+  projectDescription: z.string().min(30, "A descrição deve ter pelo menos 30 caracteres.").max(2000, "Máximo de 2000 caracteres."),
+  keyMetrics: z.string().min(20, "As métricas chave devem ter pelo menos 20 caracteres.").max(1000, "Máximo de 1000 caracteres."),
+  progressDetails: z.string().min(30, "Os detalhes do progresso devem ter pelo menos 30 caracteres.").max(2000, "Máximo de 2000 caracteres."),
 });
 
 export function ExecutiveSummaryForm() {
@@ -41,11 +41,11 @@ export function ExecutiveSummaryForm() {
       const summaryResult = await generateExecutiveSummary(data);
       setResult(summaryResult);
     } catch (error) {
-      console.error("Executive summary generation failed:", error);
+      console.error("Falha na geração do sumário executivo:", error);
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "Failed to generate executive summary. Please try again.",
+        title: "Erro",
+        description: "Falha ao gerar o sumário executivo. Por favor, tente novamente.",
       });
     } finally {
       setIsLoading(false);
@@ -56,9 +56,9 @@ export function ExecutiveSummaryForm() {
     <div className="space-y-8">
       <Card className="shadow-lg">
         <CardHeader>
-          <CardTitle className="font-headline">AI-Generated Executive Summaries</CardTitle>
+          <CardTitle className="font-headline">Sumários Executivos Gerados por IA</CardTitle>
           <CardDescription>
-            Provide project details below, and the AI will generate a concise executive summary.
+            Forneça os detalhes do projeto abaixo e a IA gerará um sumário executivo conciso.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -69,10 +69,10 @@ export function ExecutiveSummaryForm() {
                 name="projectDescription"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Project Description</FormLabel>
+                    <FormLabel>Descrição do Projeto</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="Describe the project, its goals, and scope."
+                        placeholder="Descreva o projeto, seus objetivos e escopo."
                         className="min-h-[100px] resize-y"
                         {...field}
                       />
@@ -86,10 +86,10 @@ export function ExecutiveSummaryForm() {
                 name="keyMetrics"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Key Metrics</FormLabel>
+                    <FormLabel>Métricas Chave</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="List key performance indicators (KPIs), targets, and current values. E.g., User Adoption: 75% (Target: 80%), Budget Spent: $50k/$70k."
+                        placeholder="Liste os principais indicadores de desempenho (KPIs), metas e valores atuais. Ex: Adoção de Usuários: 75% (Meta: 80%), Orçamento Gasto: $50k/$70k."
                         className="min-h-[100px] resize-y"
                         {...field}
                       />
@@ -103,10 +103,10 @@ export function ExecutiveSummaryForm() {
                 name="progressDetails"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Progress Details</FormLabel>
+                    <FormLabel>Detalhes do Progresso</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="Summarize recent progress, milestones achieved, and any significant challenges or blockers."
+                        placeholder="Resuma o progresso recente, marcos alcançados e quaisquer desafios ou bloqueios significativos."
                         className="min-h-[120px] resize-y"
                         {...field}
                       />
@@ -119,10 +119,10 @@ export function ExecutiveSummaryForm() {
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Generating...
+                    Gerando...
                   </>
                 ) : (
-                  "Generate Summary"
+                  "Gerar Sumário"
                 )}
               </Button>
             </form>
@@ -133,7 +133,7 @@ export function ExecutiveSummaryForm() {
       {result && (
         <Card className="shadow-lg">
           <CardHeader>
-            <CardTitle className="font-headline text-primary">Generated Executive Summary</CardTitle>
+            <CardTitle className="font-headline text-primary">Sumário Executivo Gerado</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="prose prose-sm max-w-none dark:prose-invert whitespace-pre-wrap p-4 bg-secondary/30 rounded-md">

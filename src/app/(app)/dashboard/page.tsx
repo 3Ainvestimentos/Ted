@@ -9,19 +9,18 @@ import Link from "next/link";
 import { PlusCircle } from "lucide-react";
 
 export default function DashboardPage() {
-  const { userRole } = useAuth(); // Example of using role
+  const { userRole } = useAuth(); 
 
-  // Filter initiatives based on role or show all
-  const initiativesToShow = MOCK_INITIATIVES; // .slice(0, 3); // Show a subset for dashboard
+  const initiativesToShow = MOCK_INITIATIVES; 
 
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-headline font-semibold tracking-tight">Dashboard</h1>
-        { (userRole === 'PMO' || userRole === 'Leader') && (
+        <h1 className="text-3xl font-headline font-semibold tracking-tight">Painel</h1>
+        { (userRole === 'PMO' || userRole === 'Líder') && (
           <Button asChild>
-            <Link href="/initiatives/new"> {/* Placeholder for new initiative form */}
-              <PlusCircle className="mr-2 h-4 w-4" /> Create Initiative
+            <Link href="/initiatives/new"> 
+              <PlusCircle className="mr-2 h-4 w-4" /> Criar Iniciativa
             </Link>
           </Button>
         )}
@@ -32,7 +31,7 @@ export default function DashboardPage() {
       </section>
 
       <section>
-        <h2 className="text-2xl font-headline font-semibold tracking-tight mb-4">Key Initiatives</h2>
+        <h2 className="text-2xl font-headline font-semibold tracking-tight mb-4">Iniciativas Chave</h2>
         {initiativesToShow.length > 0 ? (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {initiativesToShow.map((initiative) => (
@@ -40,19 +39,17 @@ export default function DashboardPage() {
             ))}
           </div>
         ) : (
-          <p className="text-muted-foreground">No key initiatives to display.</p>
+          <p className="text-muted-foreground">Nenhuma iniciativa chave para exibir.</p>
         )}
       </section>
       
-      {/* Placeholder for additional insights or sections */}
       <section>
-          <h2 className="text-2xl font-headline font-semibold tracking-tight mb-4">Recent Activity</h2>
+          <h2 className="text-2xl font-headline font-semibold tracking-tight mb-4">Atividade Recente</h2>
           <div className="p-6 bg-card border rounded-lg shadow-sm">
-            <p className="text-muted-foreground">Activity feed coming soon...</p>
-            {/* Example placeholder items */}
+            <p className="text-muted-foreground">Feed de atividades em breve...</p>
             <ul className="mt-4 space-y-2 text-sm">
-                <li><span className="font-medium">Alice Wonderland</span> updated <span className="text-primary">Digital Transformation Q4</span> status to 'On Track'.</li>
-                <li><span className="font-medium">Bob The Builder</span> added a comment to <span className="text-primary">New Market Expansion</span>.</li>
+                <li><span className="font-medium">Alice Wonderland</span> atualizou o status de <span className="text-primary">Transformação Digital T4</span> para '{MOCK_INITIATIVES[0].status}'.</li>
+                <li><span className="font-medium">Bob The Builder</span> adicionou um comentário em <span className="text-primary">Expansão para Novos Mercados</span>.</li>
             </ul>
           </div>
       </section>

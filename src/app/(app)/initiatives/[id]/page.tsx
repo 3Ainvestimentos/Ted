@@ -15,15 +15,14 @@ export default function InitiativeDossierPage() {
   const params = useParams();
   const id = params.id as string;
 
-  // In a real app, you'd fetch this data.
   const initiative = MOCK_INITIATIVES.find(init => init.id === id);
 
   if (!initiative) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)]">
-        <h1 className="text-2xl font-semibold">Initiative not found</h1>
+        <h1 className="text-2xl font-semibold">Iniciativa não encontrada</h1>
         <Button asChild variant="link" className="mt-4">
-          <Link href="/initiatives">Go back to initiatives</Link>
+          <Link href="/initiatives">Voltar para iniciativas</Link>
         </Button>
       </div>
     );
@@ -36,18 +35,18 @@ export default function InitiativeDossierPage() {
       <div className="flex items-center justify-between">
         <Button variant="outline" size="sm" asChild>
           <Link href="/initiatives">
-            <ArrowLeft className="mr-2 h-4 w-4" /> Back to Initiatives
+            <ArrowLeft className="mr-2 h-4 w-4" /> Voltar para Iniciativas
           </Link>
         </Button>
         <Button size="sm">
-          <Edit3 className="mr-2 h-4 w-4" /> Edit Initiative
+          <Edit3 className="mr-2 h-4 w-4" /> Editar Iniciativa
         </Button>
       </div>
 
       <Card className="shadow-xl overflow-hidden">
         <div className="relative h-48 w-full">
           <Image 
-            src={`https://placehold.co/1200x300.png`} // Placeholder image, could be dynamic
+            src={`https://placehold.co/1200x300.png`} 
             alt={`${initiative.title} banner`}
             layout="fill"
             objectFit="cover"
@@ -57,7 +56,7 @@ export default function InitiativeDossierPage() {
           <div className="absolute bottom-0 left-0 p-6">
             <CardTitle className="text-3xl font-headline text-white">{initiative.title}</CardTitle>
             <div className="mt-1">
-              <Badge variant={initiative.status === 'Completed' ? 'default' : initiative.status === 'At Risk' || initiative.status === 'Delayed' ? 'destructive' : 'secondary'} className="capitalize bg-opacity-80 backdrop-blur-sm">
+              <Badge variant={initiative.status === 'Concluído' ? 'default' : initiative.status === 'Em Risco' || initiative.status === 'Atrasado' ? 'destructive' : 'secondary'} className="capitalize bg-opacity-80 backdrop-blur-sm">
                 <StatusIcon className="mr-1 h-4 w-4" />
                 {initiative.status}
               </Badge>
@@ -68,21 +67,21 @@ export default function InitiativeDossierPage() {
         <CardContent className="p-6 grid md:grid-cols-3 gap-6">
           <div className="md:col-span-2 space-y-6">
             <section>
-              <h3 className="text-xl font-semibold mb-2 text-foreground/90">Description</h3>
+              <h3 className="text-xl font-semibold mb-2 text-foreground/90">Descrição</h3>
               <p className="text-foreground/80 whitespace-pre-line">{initiative.description}</p>
             </section>
 
             <section>
-              <h3 className="text-xl font-semibold mb-2 text-foreground/90">Progress</h3>
+              <h3 className="text-xl font-semibold mb-2 text-foreground/90">Progresso</h3>
               <div className="flex justify-between mb-1">
-                <span className="text-sm font-medium">Overall Progress</span>
+                <span className="text-sm font-medium">Progresso Geral</span>
                 <span className="text-sm font-medium">{initiative.progress}%</span>
               </div>
-              <Progress value={initiative.progress} aria-label={`${initiative.title} progress ${initiative.progress}%`} className="h-3"/>
+              <Progress value={initiative.progress} aria-label={`${initiative.title} progresso ${initiative.progress}%`} className="h-3"/>
             </section>
 
             <section>
-              <h3 className="text-xl font-semibold mb-2 text-foreground/90">Key Metrics</h3>
+              <h3 className="text-xl font-semibold mb-2 text-foreground/90">Métricas Chave</h3>
               {initiative.keyMetrics.length > 0 ? (
                 <div className="grid sm:grid-cols-2 gap-4">
                   {initiative.keyMetrics.map(metric => {
@@ -95,14 +94,14 @@ export default function InitiativeDossierPage() {
                         </CardHeader>
                         <CardFooter>
                            <TrendIcon className={`h-4 w-4 mr-1 ${metric.trend === 'up' ? 'text-green-500' : metric.trend === 'down' ? 'text-red-500' : ''}`} />
-                           <p className="text-xs text-muted-foreground">{metric.trend === 'up' ? 'Improving' : metric.trend === 'down' ? 'Declining' : 'Stable'}</p>
+                           <p className="text-xs text-muted-foreground">{metric.trend === 'up' ? 'Melhorando' : metric.trend === 'down' ? 'Piorando' : 'Estável'}</p>
                         </CardFooter>
                       </Card>
                     );
                   })}
                 </div>
               ) : (
-                 <p className="text-sm text-muted-foreground">No key metrics defined for this initiative.</p>
+                 <p className="text-sm text-muted-foreground">Nenhuma métrica chave definida para esta iniciativa.</p>
               )}
             </section>
           </div>
@@ -110,22 +109,21 @@ export default function InitiativeDossierPage() {
           <aside className="space-y-6">
             <Card className="bg-secondary/30">
               <CardHeader>
-                <CardTitle className="text-lg">Details</CardTitle>
+                <CardTitle className="text-lg">Detalhes</CardTitle>
               </CardHeader>
               <CardContent className="text-sm space-y-2">
-                <p><strong className="text-foreground/80">Owner:</strong> {initiative.owner}</p>
-                <p><strong className="text-foreground/80">Last Update:</strong> {new Date(initiative.lastUpdate).toLocaleDateString()}</p>
-                {/* Add more details if available, e.g. start/end dates, budget */}
-                 <p><strong className="text-foreground/80">Team Members:</strong> <span className="text-muted-foreground">John D., Jane S., Mike L.</span></p>
-                 <p><strong className="text-foreground/80">Target Completion:</strong> <span className="text-muted-foreground">Dec 31, 2024</span></p>
+                <p><strong className="text-foreground/80">Responsável:</strong> {initiative.owner}</p>
+                <p><strong className="text-foreground/80">Última Atualização:</strong> {new Date(initiative.lastUpdate).toLocaleDateString()}</p>
+                 <p><strong className="text-foreground/80">Membros da Equipe:</strong> <span className="text-muted-foreground">John D., Jane S., Mike L.</span></p>
+                 <p><strong className="text-foreground/80">Conclusão Alvo:</strong> <span className="text-muted-foreground">31 de Dez, 2024</span></p>
               </CardContent>
             </Card>
             
             <div className="space-y-2">
-                <Button variant="outline" className="w-full justify-start"><Users className="mr-2 h-4 w-4" /> Team & Stakeholders</Button>
-                <Button variant="outline" className="w-full justify-start"><BarChart3 className="mr-2 h-4 w-4" /> Detailed Reports</Button>
-                <Button variant="outline" className="w-full justify-start"><Paperclip className="mr-2 h-4 w-4" /> Documents (3)</Button>
-                <Button variant="outline" className="w-full justify-start"><MessageSquare className="mr-2 h-4 w-4" /> Discussions (12)</Button>
+                <Button variant="outline" className="w-full justify-start"><Users className="mr-2 h-4 w-4" /> Equipe e Partes Interessadas</Button>
+                <Button variant="outline" className="w-full justify-start"><BarChart3 className="mr-2 h-4 w-4" /> Relatórios Detalhados</Button>
+                <Button variant="outline" className="w-full justify-start"><Paperclip className="mr-2 h-4 w-4" /> Documentos (3)</Button>
+                <Button variant="outline" className="w-full justify-start"><MessageSquare className="mr-2 h-4 w-4" /> Discussões (12)</Button>
             </div>
           </aside>
         </CardContent>

@@ -34,9 +34,10 @@ export function UserNav() {
     return name.substring(0, 2).toUpperCase();
   }
 
-  // Simulated user data
-  const userName = userRole === "PMO" ? "Patricia M. Oliveira" : userRole === "Leader" ? "Leo Dirigente" : "Carlos Contribuidor";
-  const userEmail = userRole.toLowerCase() + "@tedapp.com";
+  // Dados de usuário simulados
+  const userName = userRole === "PMO" ? "Patricia M. Oliveira" : userRole === "Líder" ? "Leo Dirigente" : "Carlos Contribuidor";
+  const userEmail = userRole.toLowerCase().replace('ç', 'c').replace('í', 'i') + "@tedapp.com";
+
 
   return (
     <DropdownMenu>
@@ -63,7 +64,7 @@ export function UserNav() {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuLabel>Role</DropdownMenuLabel>
+        <DropdownMenuLabel>Papel</DropdownMenuLabel>
         <DropdownMenuRadioGroup value={userRole} onValueChange={(value) => setUserRole(value as UserRole)}>
           {USER_ROLES.map((role) => (
             <DropdownMenuRadioItem key={role} value={role}>
@@ -74,16 +75,16 @@ export function UserNav() {
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem asChild>
-            <Link href="/settings" className="cursor-pointer"> {/* Placeholder settings page */}
+            <Link href="/settings" className="cursor-pointer">
               <Settings className="mr-2 h-4 w-4" />
-              <span>Settings</span>
+              <span>Configurações</span>
             </Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={logout} className="cursor-pointer">
           <LogOut className="mr-2 h-4 w-4" />
-          <span>Log out</span>
+          <span>Sair</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

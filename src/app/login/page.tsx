@@ -21,15 +21,13 @@ import { USER_ROLES } from "@/lib/constants";
 
 export default function LoginPage() {
   const { login } = useAuth();
-  const [email, setEmail] = useState("demo.user@tedapp.com"); // Mocked email
-  const [selectedRole, setSelectedRole] = useState<UserRole>("Contributor");
+  const [email, setEmail] = useState("demo.user@tedapp.com"); 
+  const [selectedRole, setSelectedRole] = useState<UserRole>("Colaborador");
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    // Password is not required for this mock login
     if (!email) {
-      // Basic validation in case email is cleared
-      alert("Please enter an email.");
+      alert("Por favor, insira um e-mail.");
       return;
     }
     login(selectedRole);
@@ -42,15 +40,15 @@ export default function LoginPage() {
           <div className="flex justify-center mb-4">
             <Logo className="w-12 h-12 text-primary" />
           </div>
-          <CardTitle className="text-2xl font-headline">Welcome to Ted 1.0</CardTitle>
+          <CardTitle className="text-2xl font-headline">Bem-vindo ao Ted 1.0</CardTitle>
           <CardDescription>
-            Select your role and enter your email to access your dashboard.
+            Selecione seu papel e insira seu e-mail para acessar seu painel.
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleLogin}>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">E-mail</Label>
               <Input 
                 id="email" 
                 type="email" 
@@ -61,10 +59,10 @@ export default function LoginPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="role">Select Role (Demo)</Label>
+              <Label htmlFor="role">Selecione o Papel (Demo)</Label>
               <Select value={selectedRole} onValueChange={(value) => setSelectedRole(value as UserRole)}>
                 <SelectTrigger id="role">
-                  <SelectValue placeholder="Select a role" />
+                  <SelectValue placeholder="Selecione um papel" />
                 </SelectTrigger>
                 <SelectContent>
                   {USER_ROLES.map(role => (
@@ -76,7 +74,7 @@ export default function LoginPage() {
           </CardContent>
           <CardFooter>
             <Button type="submit" className="w-full">
-              Sign In
+              Entrar
             </Button>
           </CardFooter>
         </form>

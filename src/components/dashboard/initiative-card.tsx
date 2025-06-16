@@ -22,25 +22,25 @@ export function InitiativeCard({ initiative, showDetailsLink = false }: Initiati
       <CardHeader>
         <div className="flex justify-between items-start">
           <CardTitle className="text-lg font-headline">{initiative.title}</CardTitle>
-          <Badge variant={initiative.status === 'Completed' ? 'default' : initiative.status === 'At Risk' || initiative.status === 'Delayed' ? 'destructive' : 'secondary'} className="capitalize">
+          <Badge variant={initiative.status === 'Concluído' ? 'default' : initiative.status === 'Em Risco' || initiative.status === 'Atrasado' ? 'destructive' : 'secondary'} className="capitalize">
             <StatusIcon className="mr-1 h-4 w-4" />
             {initiative.status}
           </Badge>
         </div>
-        <CardDescription>Owner: {initiative.owner}</CardDescription>
+        <CardDescription>Responsável: {initiative.owner}</CardDescription>
       </CardHeader>
       <CardContent className="flex-grow space-y-3">
         <p className="text-sm text-muted-foreground line-clamp-3">{initiative.description}</p>
         <div>
           <div className="flex justify-between mb-1">
-            <span className="text-sm font-medium">Progress</span>
+            <span className="text-sm font-medium">Progresso</span>
             <span className="text-sm font-medium">{initiative.progress}%</span>
           </div>
-          <Progress value={initiative.progress} aria-label={`${initiative.title} progress ${initiative.progress}%`} />
+          <Progress value={initiative.progress} aria-label={`${initiative.title} progresso ${initiative.progress}%`} />
         </div>
         {initiative.keyMetrics.length > 0 && (
           <div>
-            <h4 className="text-sm font-medium mb-1">Key Metrics</h4>
+            <h4 className="text-sm font-medium mb-1">Métricas Chave</h4>
             <ul className="space-y-1">
               {initiative.keyMetrics.slice(0,2).map(metric => {
                 const TrendIcon = TREND_ICONS[metric.trend];
@@ -59,11 +59,11 @@ export function InitiativeCard({ initiative, showDetailsLink = false }: Initiati
         {showDetailsLink ? (
            <Button variant="outline" size="sm" asChild className="w-full">
              <Link href={`/initiatives/${initiative.id}`}>
-               View Dossier <ExternalLink className="ml-2 h-4 w-4" />
+               Ver Dossiê <ExternalLink className="ml-2 h-4 w-4" />
              </Link>
            </Button>
         ) : (
-          <p className="text-xs text-muted-foreground">Last updated: {new Date(initiative.lastUpdate).toLocaleDateString()}</p>
+          <p className="text-xs text-muted-foreground">Última atualização: {new Date(initiative.lastUpdate).toLocaleDateString()}</p>
         )}
       </CardFooter>
     </Card>

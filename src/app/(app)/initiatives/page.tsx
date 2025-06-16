@@ -30,17 +30,17 @@ export default function InitiativesPage() {
   return (
     <div className="space-y-8">
       <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-        <h1 className="text-3xl font-headline font-semibold tracking-tight">Strategic Initiatives</h1>
+        <h1 className="text-3xl font-headline font-semibold tracking-tight">Iniciativas Estratégicas</h1>
         <Button asChild>
-          <Link href="/initiatives/new"> {/* Placeholder */}
-            <PlusCircle className="mr-2 h-4 w-4" /> Create New Initiative
+          <Link href="/initiatives/new"> 
+            <PlusCircle className="mr-2 h-4 w-4" /> Criar Nova Iniciativa
           </Link>
         </Button>
       </div>
 
       <div className="flex flex-col sm:flex-row gap-4 p-4 border rounded-lg bg-card shadow-sm">
         <Input 
-          placeholder="Search initiatives..." 
+          placeholder="Buscar iniciativas..." 
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="flex-grow"
@@ -49,11 +49,11 @@ export default function InitiativesPage() {
           <Filter className="h-5 w-5 text-muted-foreground" />
           <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger className="w-full sm:w-[180px]">
-              <SelectValue placeholder="Filter by status" />
+              <SelectValue placeholder="Filtrar por status" />
             </SelectTrigger>
             <SelectContent>
               {initiativeStatuses.map(status => (
-                <SelectItem key={status} value={status} className="capitalize">{status === "all" ? "All Statuses" : status}</SelectItem>
+                <SelectItem key={status} value={status} className="capitalize">{status === "all" ? "Todos os Status" : status}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -68,8 +68,8 @@ export default function InitiativesPage() {
         </div>
       ) : (
         <div className="text-center py-10">
-          <p className="text-xl text-muted-foreground">No initiatives found matching your criteria.</p>
-          <p className="text-sm text-muted-foreground mt-2">Try adjusting your search or filters.</p>
+          <p className="text-xl text-muted-foreground">Nenhuma iniciativa encontrada com seus critérios.</p>
+          <p className="text-sm text-muted-foreground mt-2">Tente ajustar sua busca ou filtros.</p>
         </div>
       )}
     </div>

@@ -6,30 +6,30 @@ import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent, ChartLe
 import type { Initiative } from "@/types"
 
 const chartData = [
-  { status: "On Track", count: 0, fill: "var(--color-onTrack)" },
-  { status: "At Risk", count: 0, fill: "var(--color-atRisk)" },
-  { status: "Delayed", count: 0, fill: "var(--color-delayed)" },
-  { status: "Completed", count: 0, fill: "var(--color-completed)" },
+  { status: "Em Dia", count: 0, fill: "var(--color-onTrack)" },
+  { status: "Em Risco", count: 0, fill: "var(--color-atRisk)" },
+  { status: "Atrasado", count: 0, fill: "var(--color-delayed)" },
+  { status: "Concluído", count: 0, fill: "var(--color-completed)" },
 ]
 
 const chartConfig = {
   count: {
-    label: "Initiatives",
+    label: "Iniciativas",
   },
   onTrack: {
-    label: "On Track",
+    label: "Em Dia",
     color: "hsl(var(--chart-2))",
   },
   atRisk: {
-    label: "At Risk",
+    label: "Em Risco",
     color: "hsl(var(--chart-4))",
   },
   delayed: {
-    label: "Delayed",
+    label: "Atrasado",
     color: "hsl(var(--chart-5))",
   },
   completed: {
-    label: "Completed",
+    label: "Concluído",
     color: "hsl(var(--chart-1))",
   },
 } satisfies ChartConfig
@@ -39,7 +39,7 @@ interface ProjectStatusChartProps {
 }
 
 export function ProjectStatusChart({ initiatives }: ProjectStatusChartProps) {
-  const processedData = chartData.map(item => ({ ...item, count: 0 })); // Reset counts
+  const processedData = chartData.map(item => ({ ...item, count: 0 })); 
 
   initiatives.forEach(initiative => {
     const item = processedData.find(d => d.status === initiative.status);
@@ -51,8 +51,8 @@ export function ProjectStatusChart({ initiatives }: ProjectStatusChartProps) {
   return (
     <Card className="shadow-lg">
       <CardHeader>
-        <CardTitle className="font-headline">Initiatives Status Overview</CardTitle>
-        <CardDescription>Distribution of strategic initiatives by current status.</CardDescription>
+        <CardTitle className="font-headline">Visão Geral do Status das Iniciativas</CardTitle>
+        <CardDescription>Distribuição das iniciativas estratégicas por status atual.</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
