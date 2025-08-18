@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -16,13 +17,13 @@ import {
 import { useAuth } from "@/contexts/auth-context";
 import { USER_ROLES } from "@/lib/constants";
 import type { UserRole } from "@/types";
-import { LogOut, Settings, ChevronUp } from "lucide-react";
+import { Settings, ChevronUp } from "lucide-react";
 import Link from "next/link";
 import { useSidebar } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 
 export function UserNav() {
-  const { userRole, setUserRole, logout, isAuthenticated } = useAuth();
+  const { userRole, setUserRole, isAuthenticated } = useAuth();
   const { open } = useSidebar();
 
   if (!isAuthenticated) {
@@ -77,21 +78,8 @@ export function UserNav() {
             </DropdownMenuRadioItem>
           ))}
         </DropdownMenuRadioGroup>
-        <DropdownMenuSeparator />
-        <DropdownMenuGroup>
-          <DropdownMenuItem asChild>
-            <Link href="/settings" className="cursor-pointer">
-              <Settings className="mr-2 h-4 w-4" />
-              <span>Configurações</span>
-            </Link>
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={logout} className="cursor-pointer">
-          <LogOut className="mr-2 h-4 w-4" />
-          <span>Sair</span>
-        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
 }
+

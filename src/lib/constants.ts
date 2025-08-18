@@ -1,12 +1,18 @@
+
 import type { NavItem, UserRole, Initiative, InitiativeStatus, InitiativePriority } from '@/types';
-import { LayoutDashboard, ScrollText, ClipboardList, Target, TrendingUp, TrendingDown, Minus, CircleCheck, AlertTriangle, Clock, CheckCircle, ListTodo, User, CalendarDays, FileText, Lightbulb, Bug } from 'lucide-react';
+import { LayoutDashboard, ScrollText, ClipboardList, Target, TrendingUp, TrendingDown, Minus, CircleCheck, AlertTriangle, Clock, CheckCircle, ListTodo, User, CalendarDays, FileText, Lightbulb, Bug, Settings, LogOut } from 'lucide-react';
 
 export const NAV_ITEMS_CONFIG: NavItem[] = [
   { title: 'Quadro de Projetos', href: '/dashboard', icon: LayoutDashboard }, // Renamed to match new focus
   { title: 'Sumários Executivos', href: '/executive-summaries', icon: ScrollText },
   { title: 'Automação de Reuniões', href: '/meeting-automation', icon: ClipboardList },
   { title: 'Iniciativas (Lista)', href: '/initiatives', icon: Target }, // Kept for list view if needed
+  { title: 'Configurações', href: '/settings', icon: Settings },
 ];
+
+export const NAV_ITEMS_FOOTER: NavItem[] = [
+    { title: 'Sair', href: '/login', icon: LogOut },
+]
 
 export const USER_ROLES: UserRole[] = ['PMO', 'Líder', 'Colaborador'];
 

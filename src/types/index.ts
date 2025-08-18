@@ -1,3 +1,4 @@
+
 export type InitiativeStatus = 'A Fazer' | 'Em Dia' | 'Em Risco' | 'Atrasado' | 'Concluído';
 export type InitiativePriority = 'P0' | 'P1' | 'P2' | 'P3' | 'P4';
 
@@ -21,4 +22,5 @@ export interface NavItem {
   href: string;
   icon: React.ElementType;
   disabled?: boolean;
+  onClick?: () => void;
 }
