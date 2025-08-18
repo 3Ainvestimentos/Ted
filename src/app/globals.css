@@ -16,7 +16,7 @@ body {
     --card-foreground: 220 10% 23%;
     --popover: 0 0% 100%;
     --popover-foreground: 220 10% 23%;
-    --primary: 214 79% 51%; /* Azul vibrante */
+    --primary: 170 60% 45%; /* Verde - Alterado de Azul */
     --primary-foreground: 0 0% 100%; /* Branco puro */
     --secondary: 220 16% 94%; /* Cinza claro */
     --secondary-foreground: 220 10% 20%; 
@@ -28,11 +28,11 @@ body {
     --destructive-foreground: 0 0% 100%;
     --border: 220 15% 88%; /* Cinza claro e sutil */
     --input: 220 16% 94%;
-    --ring: 214 79% 61%; /* Tom de azul levemente mais claro que o primário */
+    --ring: 170 60% 50%; /* Verde para anel de foco - Alterado de Azul */
     --radius: 0.5rem; /* Default radius */
 
     /* Chart colors */
-    --chart-1: 214 79% 51%;
+    --chart-1: 170 60% 45%;
     --chart-2: 180 65% 55%;
     --chart-3: 45 85% 60%;
     --chart-4: 0 75% 60%;
@@ -57,7 +57,7 @@ body {
     --card-foreground: 0 0% 98%;
     --popover: 220 10% 12%;
     --popover-foreground: 0 0% 98%;
-    --primary: 214 79% 61%; /* Lighter blue for dark mode */
+    --primary: 170 60% 50%; /* Verde mais claro para modo escuro */
     --primary-foreground: 0 0% 100%;
     --secondary: 220 10% 18%; 
     --secondary-foreground: 0 0% 98%;
@@ -69,10 +69,10 @@ body {
     --destructive-foreground: 0 0% 100%;
     --border: 220 10% 25%; 
     --input: 220 10% 15%; 
-    --ring: 214 79% 71%; 
+    --ring: 170 60% 55%; 
 
     /* Chart colors */
-    --chart-1: 214 79% 61%;
+    --chart-1: 170 60% 50%;
     --chart-2: 180 65% 60%;
     --chart-3: 45 85% 65%;
     --chart-4: 0 70% 55%;
