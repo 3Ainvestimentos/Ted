@@ -11,6 +11,7 @@ import { SidebarNav } from '@/components/layout/sidebar-nav';
 import { Logo } from '@/components/icons/logo';
 import { NAV_ITEMS_FOOTER } from '@/lib/constants';
 import Link from 'next/link';
+import { Settings } from 'lucide-react';
 
 export default function AppLayout({
   children,
@@ -41,7 +42,7 @@ export default function AppLayout({
           <SidebarNav />
         </SidebarContent>
         <SidebarFooter className="p-2 mt-auto">
-           <UserNav />
+           {/* UserNav component was here and has been removed */}
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>
