@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -7,12 +8,36 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/contexts/auth-context";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { NAV_ITEMS_CONFIG } from '@/lib/constants';
+
+// Mock data for collaborators
+const initialCollaborators = [
+  { id: 1, name: 'Patricia M. Oliveira', email: 'pmo@tedapp.com', area: 'PMO', cargo: 'Gerente de Projetos' },
+  { id: 2, name: 'Leo Dirigente', email: 'lider@tedapp.com', area: 'Liderança', cargo: 'Diretor de Estratégia' },
+  { id: 3, name: 'Carlos Contribuidor', email: 'colaborador@tedapp.com', area: 'Desenvolvimento', cargo: 'Desenvolvedor Sênior' },
+  { id: 4, name: 'Ana Silva', email: 'ana.silva@tedapp.com', area: 'Marketing', cargo: 'Analista de Marketing' },
+];
+
+// Mock data for permissions
+const initialPermissions = initialCollaborators.reduce((acc, user) => {
+  acc[user.id] = NAV_ITEMS_CONFIG.reduce((userPermissions, navItem) => {
+    userPermissions[navItem.href] = true; // All enabled by default
+    return userPermissions;
+  }, {} as Record<string, boolean>);
+  return acc;
+}, {} as Record<number, Record<string, boolean>>);
+
 
 export default function SettingsPage() {
   const { userRole } = useAuth(); 
   const userName = userRole === "PMO" ? "Patricia M. Oliveira" : userRole === "Líder" ? "Leo Dirigente" : "Carlos Contribuidor";
   const userEmail = userRole.toLowerCase().replace('ç', 'c').replace('í', 'i') + "@tedapp.com";
   
+  const [collaborators, setCollaborators] = useState(initialCollaborators);
+  const [permissions, setPermissions] = useState(initialPermissions);
+
   const getInitials = (name: string) => {
     const parts = name.split(' ');
     if (parts.length > 1) {
@@ -20,87 +45,184 @@ export default function SettingsPage() {
     }
     return name.substring(0, 2).toUpperCase();
   }
+  
+  const handleAddCollaborator = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const newCollaborator = {
+      id: collaborators.length + 1,
+      name: formData.get('name') as string,
+      email: formData.get('email') as string,
+      area: formData.get('area') as string,
+      cargo: formData.get('cargo') as string,
+    };
+    setCollaborators([...collaborators, newCollaborator]);
+    
+    // Set default permissions for new user
+    const newUserPermissions = NAV_ITEMS_CONFIG.reduce((acc, navItem) => {
+        acc[navItem.href] = true;
+        return acc;
+    }, {} as Record<string, boolean>);
+    setPermissions({...permissions, [newCollaborator.id]: newUserPermissions});
+
+    event.currentTarget.reset();
+  };
+  
+  const handlePermissionChange = (userId: number, pageHref: string, isEnabled: boolean) => {
+      setPermissions(prev => ({
+          ...prev,
+          [userId]: {
+              ...prev[userId],
+              [pageHref]: isEnabled
+          }
+      }));
+  };
+
+  const pagesForPermissions = NAV_ITEMS_CONFIG.filter(item => item.href !== '/dashboard');
 
   return (
-    <div className="space-y-8 max-w-3xl mx-auto">
+    <div className="space-y-8 max-w-5xl mx-auto">
       <h1 className="text-3xl font-headline font-semibold tracking-tight">Configurações</h1>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Perfil</CardTitle>
-          <CardDescription>Gerencie suas informações pessoais.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-           <div className="flex items-center gap-4">
-            <Avatar className="h-20 w-20">
-              <AvatarImage src={`https://placehold.co/80x80.png?text=${getInitials(userName)}`} alt={userName} data-ai-hint="user avatar" />
-              <AvatarFallback>{getInitials(userName)}</AvatarFallback>
-            </Avatar>
-            <Button variant="outline" size="sm">Mudar Avatar</Button>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <Label htmlFor="fullName">Nome Completo</Label>
-              <Input id="fullName" defaultValue={userName} />
-            </div>
-            <div className="space-y-1">
-              <Label htmlFor="email">E-mail</Label>
-              <Input id="email" type="email" defaultValue={userEmail} />
-            </div>
-          </div>
-          <Button>Salvar Perfil</Button>
-        </CardContent>
-      </Card>
+      <Tabs defaultValue="profile">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="profile">Perfil</TabsTrigger>
+          <TabsTrigger value="collaborators">Gerenciar Colaboradores</TabsTrigger>
+          <TabsTrigger value="permissions">Permissões</TabsTrigger>
+        </TabsList>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Notificações</CardTitle>
-          <CardDescription>Configure suas preferências de notificação.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <Label htmlFor="emailNotifications" className="font-medium">Notificações por E-mail</Label>
-              <p className="text-sm text-muted-foreground">Receba atualizações por e-mail.</p>
-            </div>
-            <Switch id="emailNotifications" defaultChecked />
-          </div>
-          <div className="flex items-center justify-between">
-            <div>
-              <Label htmlFor="appNotifications" className="font-medium">Notificações no Aplicativo</Label>
-              <p className="text-sm text-muted-foreground">Mostrar notificações dentro do aplicativo.</p>
-            </div>
-            <Switch id="appNotifications" defaultChecked />
-          </div>
-           <div className="flex items-center justify-between">
-            <div>
-              <Label htmlFor="weeklySummary" className="font-medium">E-mail de Resumo Semanal</Label>
-              <p className="text-sm text-muted-foreground">Receba um resumo do progresso das iniciativas toda semana.</p>
-            </div>
-            <Switch id="weeklySummary" />
-          </div>
-          <Button>Salvar Configurações de Notificação</Button>
-        </CardContent>
-      </Card>
-      
-      <Card>
-        <CardHeader>
-          <CardTitle>Aparência</CardTitle>
-          <CardDescription>Personalize a aparência do aplicativo.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <Label htmlFor="darkMode" className="font-medium">Modo Escuro</Label>
-              <p className="text-sm text-muted-foreground">Alterne entre os temas claro e escuro.</p>
-            </div>
-            <Switch id="darkMode" />
-          </div>
-           <p className="text-sm text-muted-foreground">A troca completa de tema (claro/escuro) usando next-themes pode ser implementada aqui.</p>
-          <Button>Salvar Configurações de Aparência</Button>
-        </CardContent>
-      </Card>
+        {/* Profile Tab */}
+        <TabsContent value="profile">
+          <Card>
+            <CardHeader>
+              <CardTitle>Perfil</CardTitle>
+              <CardDescription>Gerencie suas informações pessoais.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center gap-4">
+                <Avatar className="h-20 w-20">
+                  <AvatarImage src={`https://placehold.co/80x80.png?text=${getInitials(userName)}`} alt={userName} data-ai-hint="user avatar" />
+                  <AvatarFallback>{getInitials(userName)}</AvatarFallback>
+                </Avatar>
+                <Button variant="outline" size="sm">Mudar Avatar</Button>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <Label htmlFor="fullName">Nome Completo</Label>
+                  <Input id="fullName" defaultValue={userName} />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="email">E-mail</Label>
+                  <Input id="email" type="email" defaultValue={userEmail} readOnly />
+                </div>
+              </div>
+              <Button>Salvar Perfil</Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
+        {/* Collaborators Tab */}
+        <TabsContent value="collaborators" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Adicionar Novo Colaborador</CardTitle>
+              <CardDescription>Insira os detalhes abaixo para adicionar um novo usuário ao sistema.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleAddCollaborator} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
+                <div className="space-y-1 lg:col-span-1">
+                  <Label htmlFor="name">Nome</Label>
+                  <Input id="name" name="name" placeholder="Nome do Colaborador" required />
+                </div>
+                <div className="space-y-1 lg:col-span-1">
+                  <Label htmlFor="email">Email</Label>
+                  <Input id="email" name="email" type="email" placeholder="email@tedapp.com" required />
+                </div>
+                <div className="space-y-1 lg:col-span-1">
+                  <Label htmlFor="area">Área</Label>
+                  <Input id="area" name="area" placeholder="Ex: Marketing" required />
+                </div>
+                 <div className="space-y-1 lg:col-span-1">
+                  <Label htmlFor="cargo">Cargo</Label>
+                  <Input id="cargo" name="cargo" placeholder="Ex: Analista" required />
+                </div>
+                <Button type="submit" className="w-full lg:w-auto">Adicionar</Button>
+              </form>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Colaboradores Cadastrados</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nome</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Área</TableHead>
+                    <TableHead>Cargo</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {collaborators.map(user => (
+                    <TableRow key={user.id}>
+                      <TableCell className="font-medium">{user.name}</TableCell>
+                      <TableCell>{user.email}</TableCell>
+                      <TableCell>{user.area}</TableCell>
+                      <TableCell>{user.cargo}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Permissions Tab */}
+        <TabsContent value="permissions">
+          <Card>
+            <CardHeader>
+              <CardTitle>Permissões de Acesso</CardTitle>
+              <CardDescription>Controle o acesso de cada colaborador às diferentes seções da aplicação.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <div className="overflow-x-auto">
+                    <Table>
+                        <TableHeader>
+                        <TableRow>
+                            <TableHead className="w-[200px]">Colaborador</TableHead>
+                            {/* O Dashboard é fixo, não pode ser desabilitado */}
+                            {pagesForPermissions.map(page => (
+                                <TableHead key={page.href} className="text-center">{page.title}</TableHead>
+                            ))}
+                        </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                        {collaborators.map(user => (
+                            <TableRow key={user.id}>
+                            <TableCell className="font-medium">{user.name}</TableCell>
+                            {pagesForPermissions.map(page => (
+                                <TableCell key={page.href} className="text-center">
+                                    <Switch
+                                        checked={permissions[user.id]?.[page.href] ?? false}
+                                        onCheckedChange={(checked) => handlePermissionChange(user.id, page.href, checked)}
+                                        aria-label={`Permissão para ${user.name} em ${page.title}`}
+                                    />
+                                </TableCell>
+                            ))}
+                            </TableRow>
+                        ))}
+                        </TableBody>
+                    </Table>
+                </div>
+                <div className="mt-6 flex justify-end">
+                    <Button>Salvar Permissões</Button>
+                </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
