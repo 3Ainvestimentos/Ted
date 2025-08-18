@@ -9,7 +9,7 @@ import { SidebarProvider, Sidebar, SidebarContent, SidebarFooter, SidebarTrigger
 import { UserNav } from '@/components/layout/user-nav';
 import { SidebarNav } from '@/components/layout/sidebar-nav';
 import { Logo } from '@/components/icons/logo';
-import { NAV_ITEMS_FOOTER } from '@/lib/constants';
+import { NAV_ITEMS_FOOTER, NAV_ITEMS_CONFIG } from '@/lib/constants';
 import Link from 'next/link';
 import { Settings } from 'lucide-react';
 
@@ -34,6 +34,8 @@ export default function AppLayout({
       </div>
     );
   }
+
+  const settingsItem = NAV_ITEMS_CONFIG.find(item => item.href === '/settings');
   
   return (
     <SidebarProvider defaultOpen>
@@ -42,7 +44,22 @@ export default function AppLayout({
           <SidebarNav />
         </SidebarContent>
         <SidebarFooter className="p-2 mt-auto">
-           {/* UserNav component was here and has been removed */}
+           {settingsItem && (
+            <SidebarMenu>
+                 <SidebarMenuItem>
+                    <Link href={settingsItem.href} passHref>
+                        <SidebarMenuButton
+                        tooltip={{content: settingsItem.title, hidden: true}}
+                        aria-label={settingsItem.title}
+                        className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-primary"
+                        >
+                        <settingsItem.icon className="h-5 w-5" />
+                        <span className="truncate group-data-[collapsible=icon]:hidden">{settingsItem.title}</span>
+                        </SidebarMenuButton>
+                    </Link>
+                </SidebarMenuItem>
+            </SidebarMenu>
+           )}
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>

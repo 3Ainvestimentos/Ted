@@ -16,10 +16,13 @@ import type { NavItem } from "@/types";
 export function SidebarNav() {
   const pathname = usePathname();
   const { open } = useSidebar();
+  
+  // Filter out the settings item so it's not rendered here
+  const navItems = NAV_ITEMS_CONFIG.filter(item => item.href !== '/settings');
 
   return (
     <SidebarMenu>
-      {NAV_ITEMS_CONFIG.map((item: NavItem) => (
+      {navItems.map((item: NavItem) => (
         <SidebarMenuItem key={item.title}>
           <Link href={item.href} passHref>
             <SidebarMenuButton
