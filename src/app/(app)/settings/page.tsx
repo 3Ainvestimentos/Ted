@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from 'react';
@@ -88,43 +89,12 @@ export default function SettingsPage() {
     <div className="space-y-8 max-w-5xl mx-auto">
       <h1 className="text-3xl font-headline font-semibold tracking-tight">Configurações</h1>
 
-      <Tabs defaultValue="profile">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="profile">Perfil</TabsTrigger>
+      <Tabs defaultValue="collaborators">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="collaborators">Gerenciar Colaboradores</TabsTrigger>
           <TabsTrigger value="permissions">Permissões</TabsTrigger>
           <TabsTrigger value="maintenance">Modo de Manutenção</TabsTrigger>
         </TabsList>
-
-        {/* Profile Tab */}
-        <TabsContent value="profile">
-          <Card>
-            <CardHeader>
-              <CardTitle>Perfil</CardTitle>
-              <CardDescription>Gerencie suas informações pessoais.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center gap-4">
-                <Avatar className="h-20 w-20">
-                  <AvatarImage src={`https://placehold.co/80x80.png?text=${getInitials(userName)}`} alt={userName} data-ai-hint="user avatar" />
-                  <AvatarFallback>{getInitials(userName)}</AvatarFallback>
-                </Avatar>
-                <Button variant="outline" size="sm">Mudar Avatar</Button>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <Label htmlFor="fullName">Nome Completo</Label>
-                  <Input id="fullName" defaultValue={userName} />
-                </div>
-                <div className="space-y-1">
-                  <Label htmlFor="email">E-mail</Label>
-                  <Input id="email" type="email" defaultValue={userEmail} readOnly />
-                </div>
-              </div>
-              <Button>Salvar Perfil</Button>
-            </CardContent>
-          </Card>
-        </TabsContent>
 
         {/* Collaborators Tab */}
         <TabsContent value="collaborators" className="space-y-6">
