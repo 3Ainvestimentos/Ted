@@ -1,16 +1,17 @@
 
 "use client";
 
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useMemo, useCallback } from "react";
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { KanbanColumn } from "@/components/dashboard/kanban-column";
-import { MOCK_INITIATIVES, KANBAN_COLUMN_DISPLAY_ORDER, KANBAN_COLUMN_NAMES, STATUS_TO_COLUMN_MAP } from "@/lib/constants";
+import { KANBAN_COLUMN_DISPLAY_ORDER, KANBAN_COLUMN_NAMES, STATUS_TO_COLUMN_MAP } from "@/lib/constants";
 import type { Initiative, InitiativeStatus } from "@/types";
 import { Plus, MoreHorizontal, Search, Filter as FilterIcon, ChevronDown, GripVertical, List } from "lucide-react";
+import { useInitiatives } from "@/contexts/initiatives-context";
 
 interface Column {
   id: InitiativeStatus;
@@ -19,20 +20,32 @@ interface Column {
 }
 
 export default function DashboardPage() {
-  const [initiatives, setInitiatives] = useState<Initiative[]>(MOCK_INITIATIVES);
+  const { initiatives, updateInitiativeStatus } = useInitiatives();
 
   const handleDropTask = useCallback((taskId: string, newColumnId: InitiativeStatus) => {
-    // In a real app, this would also involve finding the correct status string
-    // based on the column ID if they differ (e.g., 'Em Dia' column can have 'Em Risco' status)
-    // For this implementation, we'll map the column ID directly to a status.
-    const newStatus = newColumnId; // Simplified for this example
+    // The status for 'Em Risco' and 'Atrasado' cards is preserved when moved,
+    // unless they are moved to a column that forces a status change (e.g., 'Concluído').
+    // This logic assumes dropping into 'A Fazer' or 'Concluído' columns updates the status.
+    // Dropping into 'Em Dia' doesn't change 'Em Risco' or 'Atrasado' statuses.
+    
+    const task = initiatives.find(t => t.id === taskId);
+    if (!task) return;
 
-    setInitiatives(prevInitiatives => {
-        return prevInitiatives.map(task => 
-            task.id === taskId ? { ...task, status: newStatus } : task
-        );
-    });
-  }, []);
+    let newStatus = task.status;
+
+    if (newColumnId === 'A Fazer') {
+        newStatus = 'A Fazer';
+    } else if (newColumnId === 'Concluído') {
+        newStatus = 'Concluído';
+    } else if (newColumnId === 'Em Dia' && (task.status === 'A Fazer' || task.status === 'Concluído')) {
+        // Only change to 'Em Dia' if it wasn't already in a sub-status of the "In Progress" column.
+        newStatus = 'Em Dia';
+    }
+    
+    if (newStatus !== task.status) {
+        updateInitiativeStatus(taskId, newStatus);
+    }
+  }, [initiatives, updateInitiativeStatus]);
 
   const columns: Column[] = useMemo(() => {
     const groupedTasks: Record<InitiativeStatus, Initiative[]> = {

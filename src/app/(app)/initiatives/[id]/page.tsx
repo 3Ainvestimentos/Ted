@@ -1,8 +1,9 @@
+
 "use client";
 
 import { useParams } from 'next/navigation';
-import { MOCK_INITIATIVES, STATUS_ICONS, TREND_ICONS } from '@/lib/constants';
-import type { Initiative } from '@/types';
+import { STATUS_ICONS, TREND_ICONS } from '@/lib/constants';
+import { useInitiatives } from '@/contexts/initiatives-context';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -14,8 +15,9 @@ import Image from 'next/image';
 export default function InitiativeDossierPage() {
   const params = useParams();
   const id = params.id as string;
+  const { initiatives } = useInitiatives();
 
-  const initiative = MOCK_INITIATIVES.find(init => init.id === id);
+  const initiative = initiatives.find(init => init.id === id);
 
   if (!initiative) {
     return (

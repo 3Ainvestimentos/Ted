@@ -1,7 +1,7 @@
 
 "use client";
 
-import { MOCK_INITIATIVES, STATUS_ICONS } from "@/lib/constants";
+import { STATUS_ICONS } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { PlusCircle, Filter, ExternalLink, ChevronDown, ChevronRight } from "lucide-react";
@@ -14,8 +14,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { useInitiatives } from "@/contexts/initiatives-context";
 
 export default function InitiativesPage() {
+  const { initiatives: MOCK_INITIATIVES } = useInitiatives();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [expandedTopics, setExpandedTopics] = useState<Set<string>>(() => 
@@ -52,13 +54,13 @@ export default function InitiativesPage() {
         return expandedTopics.has(parentTopic); // Show sub-topic only if parent is expanded
     });
 
-  }, [searchTerm, statusFilter, expandedTopics]);
+  }, [searchTerm, statusFilter, expandedTopics, MOCK_INITIATIVES]);
 
   const initiativeStatuses = ["all", ...new Set(MOCK_INITIATIVES.map(i => i.status))] as const;
   
   const parentTopics = useMemo(() => 
       new Set(MOCK_INITIATIVES.filter(i => i.topicNumber.includes('.')).map(i => i.topicNumber.split('.')[0]))
-  , []);
+  , [MOCK_INITIATIVES]);
 
 
   return (

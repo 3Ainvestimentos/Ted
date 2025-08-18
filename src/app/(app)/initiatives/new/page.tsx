@@ -18,7 +18,8 @@ import { format } from "date-fns";
 import { ArrowLeft, CalendarIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
-import type { InitiativeStatus } from "@/types";
+import type { InitiativeStatus, InitiativePriority } from "@/types";
+import { useInitiatives } from "@/contexts/initiatives-context";
 
 const initiativeSchema = z.object({
   title: z.string().min(5, "O título deve ter pelo menos 5 caracteres."),
@@ -28,6 +29,7 @@ const initiativeSchema = z.object({
   deadline: z.date({
     required_error: "A data de prazo é obrigatória.",
   }),
+  priority: z.enum(['P0', 'P1', 'P2', 'P3', 'P4'])
 });
 
 type InitiativeFormData = z.infer<typeof initiativeSchema>;
@@ -38,6 +40,7 @@ const MOCK_OWNERS = ["Alice W.", "Bob T.", "Charlie B.", "David C.", "Anne K.", 
 export default function NewInitiativePage() {
   const router = useRouter();
   const { toast } = useToast();
+  const { addInitiative } = useInitiatives();
   const [isLoading, setIsLoading] = useState(false);
 
   const {
@@ -49,21 +52,32 @@ export default function NewInitiativePage() {
     resolver: zodResolver(initiativeSchema),
     defaultValues: {
       status: 'A Fazer',
+      priority: 'P3',
     }
   });
 
   const onSubmit = (data: InitiativeFormData) => {
     setIsLoading(true);
-    console.log("Nova iniciativa submetida:", data);
-    // Here you would typically send the data to your backend/API
-    // For now, we'll just show a success toast and redirect.
+    
+    // Map form data to the structure expected by addInitiative
+    const initiativeDataForContext = {
+      title: data.title,
+      owner: data.owner,
+      description: data.description,
+      status: data.status,
+      priority: data.priority,
+      // The context will handle id, lastUpdate, topicNumber, progress, and keyMetrics
+    };
+
+    addInitiative(initiativeDataForContext as any);
+
     setTimeout(() => {
         toast({
-        title: "Iniciativa Criada!",
-        description: `A iniciativa "${data.title}" foi criada com sucesso.`,
+            title: "Iniciativa Criada!",
+            description: `A iniciativa "${data.title}" foi criada com sucesso.`,
         });
         router.push("/initiatives");
-    }, 1000);
+    }, 500); // Short delay to allow state update
   };
 
   return (
@@ -141,28 +155,52 @@ export default function NewInitiativePage() {
                     {errors.owner && <p className="text-sm text-destructive">{errors.owner.message}</p>}
                 </div>
             </div>
-            
-            <div className="space-y-2">
-                <Label htmlFor="status">Execução (Status)</Label>
-                <Controller
-                    name="status"
-                    control={control}
-                    render={({ field }) => (
-                         <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <SelectTrigger>
-                                <SelectValue placeholder="Selecione o status inicial" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="A Fazer">A Fazer</SelectItem>
-                                <SelectItem value="Em Dia">Em Dia</SelectItem>
-                                <SelectItem value="Em Risco">Em Risco</SelectItem>
-                                <SelectItem value="Atrasado">Atrasado</SelectItem>
-                                <SelectItem value="Concluído">Concluído</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    )}
-                />
-                 {errors.status && <p className="text-sm text-destructive">{errors.status.message}</p>}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                    <Label htmlFor="status">Execução (Status)</Label>
+                    <Controller
+                        name="status"
+                        control={control}
+                        render={({ field }) => (
+                             <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Selecione o status inicial" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="A Fazer">A Fazer</SelectItem>
+                                    <SelectItem value="Em Dia">Em Dia</SelectItem>
+                                    <SelectItem value="Em Risco">Em Risco</SelectItem>
+                                    <SelectItem value="Atrasado">Atrasado</SelectItem>
+                                    <SelectItem value="Concluído">Concluído</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        )}
+                    />
+                     {errors.status && <p className="text-sm text-destructive">{errors.status.message}</p>}
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="priority">Prioridade</Label>
+                    <Controller
+                        name="priority"
+                        control={control}
+                        render={({ field }) => (
+                             <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Selecione a prioridade" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="P0">P0 (Crítica)</SelectItem>
+                                    <SelectItem value="P1">P1 (Alta)</SelectItem>
+                                    <SelectItem value="P2">P2 (Média)</SelectItem>
+                                    <SelectItem value="P3">P3 (Baixa)</SelectItem>
+                                    <SelectItem value="P4">P4 (Mais Baixa)</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        )}
+                    />
+                     {errors.priority && <p className="text-sm text-destructive">{errors.priority.message}</p>}
+                </div>
             </div>
 
             <div className="space-y-2">
