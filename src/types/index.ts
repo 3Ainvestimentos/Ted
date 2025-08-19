@@ -25,3 +25,16 @@ export interface NavItem {
   disabled?: boolean;
   onClick?: () => void;
 }
+
+// Types for Content Calendar
+export type ContentStatus = 'Idea' | 'Draft' | 'In Review' | 'Ready to Publish' | 'Published';
+
+export interface ContentItem {
+  id: string;
+  title: string;
+  status: ContentStatus;
+  lastUpdate: string;
+  tags?: string[];
+  icon?: string;
+  author?: string;
+}
