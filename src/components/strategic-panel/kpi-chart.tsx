@@ -24,12 +24,14 @@ interface KpiChartProps {
 }
 
 export function KpiChart({ data }: KpiChartProps) {
-  const chartData = data.map(item => ({
-    name: item.name,
-    value: item.value,
-    fill: `var(--color-${item.name})`,
-    label: item.label
-  }));
+    const chartData = data.map(item => {
+        const capitalizedName = item.name.charAt(0).toUpperCase() + item.name.slice(1);
+        return {
+            ...item,
+            name: capitalizedName,
+            fill: `var(--color-${capitalizedName})`,
+        };
+    });
 
   return (
     <div className="h-48 w-full">
@@ -55,11 +57,14 @@ export function KpiChart({ data }: KpiChartProps) {
                         cursor={{ fill: 'hsl(var(--accent))' }}
                         content={
                            <ChartTooltipContent
-                                formatter={(value, name) => {
+                                formatter={(value, name, props) => {
                                     const item = chartData.find(d => d.name === name);
+                                    // Use the color from the item's fill property
+                                    const color = props.payload?.fill;
+
                                     return (
                                         <div className="flex items-center">
-                                            <div className="w-2.5 h-2.5 rounded-full mr-2" style={{backgroundColor: `hsl(var(--chart-${chartData.indexOf(item!)+1}))`}}></div>
+                                            {color && <div className="w-2.5 h-2.5 rounded-full mr-2" style={{backgroundColor: color}}></div>}
                                             <span className="capitalize mr-2 text-muted-foreground">{name}:</span>
                                             <span className="font-bold">{item?.label}</span>
                                         </div>
