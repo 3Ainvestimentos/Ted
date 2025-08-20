@@ -204,26 +204,6 @@ export const MOCK_INITIATIVES: Initiative[] = [
   },
 ];
 
-export const KANBAN_COLUMN_NAMES: Record<InitiativeStatus, string> = {
-  'A Fazer': 'START NEXT',
-  'Em Dia': 'IN PROGRESS',
-  'Em Risco': 'IN PROGRESS', // Will be visually distinct in card
-  'Atrasado': 'IN PROGRESS', // Will be visually distinct in card
-  'Concluído': 'DONE'
-};
-
-export const KANBAN_COLUMN_DISPLAY_ORDER: InitiativeStatus[] = ['A Fazer', 'Em Dia', 'Concluído'];
-// Note: 'Em Risco' and 'Atrasado' items will appear in 'IN PROGRESS' (Em Dia) column,
-// but their cards will be styled differently. This defines the primary columns shown.
-
-export const STATUS_TO_COLUMN_MAP: Record<InitiativeStatus, InitiativeStatus> = {
-    'A Fazer': 'A Fazer',
-    'Em Dia': 'Em Dia',
-    'Em Risco': 'Em Dia', // Em Risco items go to 'Em Dia' column visually
-    'Atrasado': 'Em Dia', // Atrasado items go to 'Em Dia' column visually
-    'Concluído': 'Concluído',
-};
-
 // Mock data for collaborators
 export const initialCollaborators = [
   { id: 1, name: 'Patricia M. Oliveira', email: 'pmo@tedapp.com', area: 'PMO', cargo: 'Gerente de Projetos' },
