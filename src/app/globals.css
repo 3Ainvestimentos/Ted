@@ -51,7 +51,7 @@ h1, h2, h3, h4, h5, h6 {
     --sidebar-accent: 0 0% 94%;
     --sidebar-accent-foreground: 0 0% 13%;
     --sidebar-border: 0 0% 89%;
-    --sidebar-ring: 38 59% 68%;
+    --sidebar-ring: transparent;
   }
 
   .dark {
@@ -91,7 +91,7 @@ h1, h2, h3, h4, h5, h6 {
     --sidebar-accent: 210 15% 22%;
     --sidebar-accent-foreground: 210 20% 95%;
     --sidebar-border: 210 20% 12%;
-    --sidebar-ring: 38 59% 68%;
+    --sidebar-ring: transparent;
   }
 }
 
