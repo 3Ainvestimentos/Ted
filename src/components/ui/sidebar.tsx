@@ -379,7 +379,7 @@ const SidebarMenuButton = React.forwardRef<
         className={cn(
             sidebarMenuButtonVariants({ variant, size }), 
             "group-data-[state=collapsed]/sidebar-wrapper:h-10 group-data-[state=collapsed]/sidebar-wrapper:w-10 group-data-[state=collapsed]/sidebar-wrapper:justify-center group-data-[state=collapsed]/sidebar-wrapper:px-0",
-            "group-data-[state=collapsed]/sidebar-wrapper:[&>svg]:size-5",
+            "group-data-[state=collapsed]/sidebar-wrapper:[&>svg]:size-4",
             "group-data-[state=collapsed]/sidebar-wrapper:[&>span]:hidden",
             className
         )}
