@@ -38,7 +38,7 @@ export default function LoginPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin} className="flex justify-center py-4">
-            <Button type="submit" variant="outline" className="w-full max-w-xs h-12 text-base">
+            <Button type="submit" variant="outline" className="w-full max-w-xs h-12 text-base hover:bg-card">
                 <GoogleIcon className="mr-3"/>
                 Entrar com Google
             </Button>
