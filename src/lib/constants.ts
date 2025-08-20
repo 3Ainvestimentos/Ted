@@ -3,9 +3,10 @@ import type { NavItem, UserRole, Initiative, InitiativeStatus, InitiativePriorit
 import { LayoutDashboard, ScrollText, ClipboardList, Target, TrendingUp, TrendingDown, Minus, CircleCheck, AlertTriangle, Clock, CheckCircle, ListTodo, User, CalendarDays, FileText, Lightbulb, Bug, Settings, LogOut, Calendar, CalendarClock } from 'lucide-react';
 
 export const NAV_ITEMS_CONFIG: NavItem[] = [
-  { title: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+  { title: 'Painel Estratégico', href: '/dashboard', icon: LayoutDashboard },
   { title: 'Iniciativas Estratégicas', href: '/initiatives', icon: Target },
   { title: 'Calendário de Conteúdo', href: '/content-calendar', icon: Calendar },
+  { title: 'Agenda de Reuniões', href: '/meeting-agenda', icon: CalendarClock },
   { title: 'Configurações', href: '/settings', icon: Settings },
 ];
 
