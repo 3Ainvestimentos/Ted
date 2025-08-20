@@ -1,13 +1,11 @@
 
-import type { NavItem, UserRole, Initiative, InitiativeStatus, InitiativePriority, ContentItem, ContentStatus } from '@/types';
-import { LayoutDashboard, Target, Calendar, CalendarClock, Settings, Shield, User, BarChart3, ListTodo, CircleCheck, AlertTriangle, Clock, CheckCircle, TrendingUp, TrendingDown, Minus, Lightbulb, FileText, Bug } from 'lucide-react';
+import type { NavItem, UserRole, Initiative, InitiativeStatus, InitiativePriority } from '@/types';
+import { LayoutDashboard, Target, CalendarClock, Settings, Shield, User, BarChart3, ListTodo, CircleCheck, AlertTriangle, Clock, CheckCircle, TrendingUp, TrendingDown, Minus, Lightbulb, FileText, Bug } from 'lucide-react';
 
 export const NAV_ITEMS_CONFIG: NavItem[] = [
   { title: 'Painel Estratégico', href: '/strategic-panel', icon: LayoutDashboard },
   { title: 'Iniciativas Estratégicas', href: '/strategic-initiatives', icon: Target },
-  { title: 'Calendário de Conteúdo', href: '/content-calendar', icon: Calendar },
   { title: 'Agenda de Reuniões', href: '/meeting-agenda', icon: CalendarClock },
-  { title: 'Configurações', href: '/settings', icon: Settings, isFooter: true },
 ];
 
 
@@ -225,61 +223,6 @@ export const STATUS_TO_COLUMN_MAP: Record<InitiativeStatus, InitiativeStatus> = 
     'Atrasado': 'Em Dia', // Atrasado items go to 'Em Dia' column visually
     'Concluído': 'Concluído',
 };
-
-
-// Content Calendar Mock Data & Constants
-export const MOCK_CONTENT_ITEMS: ContentItem[] = [
-    {
-        id: 'content-1',
-        title: 'New Project and Workflow Management Solutions for Developers',
-        status: 'Idea',
-        lastUpdate: '2024-07-28',
-        tags: ['WEBSITE', 'BLOG', 'EMAIL'],
-        icon: 'target'
-    },
-    {
-        id: 'content-2',
-        title: '[Tweet] Mattermost v6.1 includes card @-mention notifications in Boards',
-        status: 'Draft',
-        lastUpdate: '2024-07-28',
-        tags: ['TWITTER'],
-        icon: 'tweet'
-    },
-     {
-        id: 'content-3',
-        title: 'Top 10 Must-Have DevOps Tools in 2021',
-        status: 'Draft',
-        lastUpdate: '2024-07-28',
-        tags: ['WEBSITE'],
-        icon: 'news'
-    },
-    {
-        id: 'content-4',
-        title: 'Unblocking Workflows: The Guide to Developer Productivity',
-        status: 'In Review',
-        lastUpdate: '2024-07-28',
-        tags: ['BLOG'],
-        icon: 'news'
-    },
-     {
-        id: 'content-5',
-        title: 'Podcast Interview: The Future of AI in Project Management',
-        status: 'Published',
-        lastUpdate: '2024-07-25',
-        tags: ['PODCAST'],
-        icon: 'podcast'
-    },
-];
-
-export const CONTENT_COLUMN_NAMES: Record<ContentStatus, string> = {
-  'Idea': 'Idea',
-  'Draft': 'Draft',
-  'In Review': 'In Review',
-  'Ready to Publish': 'Ready to Publish',
-  'Published': 'Published',
-};
-
-export const CONTENT_COLUMN_DISPLAY_ORDER: ContentStatus[] = ['Idea', 'Draft', 'In Review', 'Ready to Publish', 'Published'];
 
 // Mock data for collaborators
 export const initialCollaborators = [

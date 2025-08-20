@@ -7,7 +7,6 @@ import { useRouter } from 'next/navigation';
 import { SidebarProvider, Sidebar, SidebarContent, SidebarFooter, SidebarTrigger } from "@/components/ui/sidebar";
 import { SidebarNav } from '@/components/layout/sidebar-nav';
 import { InitiativesProvider } from '@/contexts/initiatives-context';
-import { ContentCalendarProvider } from '@/contexts/content-calendar-context';
 import { UserNav } from '@/components/layout/user-nav';
 
 export default function AppLayout({
@@ -34,7 +33,6 @@ export default function AppLayout({
   
   return (
     <InitiativesProvider>
-      <ContentCalendarProvider>
         <SidebarProvider>
           <div className="flex h-screen bg-background">
             <Sidebar>
@@ -58,7 +56,6 @@ export default function AppLayout({
             </div>
           </div>
         </SidebarProvider>
-      </ContentCalendarProvider>
     </InitiativesProvider>
   );
 }
