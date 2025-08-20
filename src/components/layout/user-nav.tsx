@@ -19,7 +19,7 @@ import { useTheme } from "next-themes";
 import Link from 'next/link';
 
 export function UserNav() {
-  const { logout, userRole } = useAuth();
+  const { logout, isAdmin } = useAuth();
   const { setTheme } = useTheme();
 
   return (
@@ -54,7 +54,7 @@ export function UserNav() {
             </DropdownMenuSubContent>
           </DropdownMenuPortal>
         </DropdownMenuSub>
-        {userRole === 'PMO' && (
+        {isAdmin && (
           <>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>

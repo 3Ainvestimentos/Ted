@@ -25,9 +25,13 @@ export default function LoginPage() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    // For demo purposes, we log in with a default role. 
-    // In a real app, you'd get the user role from your auth provider.
-    login('Colaborador'); 
+    // For demo purposes, we log in with a default admin user.
+    // In a real app, you'd get the user from your auth provider (e.g., Firebase Auth).
+    login({
+        name: 'Matheus Admin',
+        email: 'matheus@3ainvestimentos.com.br',
+        role: 'PMO'
+    }); 
   };
 
   return (
