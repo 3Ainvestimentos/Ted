@@ -66,7 +66,7 @@ export default function InitiativesPage() {
   return (
     <div className="space-y-8">
       <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-        <h1 className="text-3xl font-headline font-semibold tracking-tight">Iniciativas Estratégicas</h1>
+        <h1 className="font-headline text-3xl font-semibold tracking-tight">Iniciativas Estratégicas</h1>
         <Button asChild>
           <Link href="/initiatives/new"> 
             <PlusCircle className="mr-2 h-4 w-4" /> Criar Nova Iniciativa

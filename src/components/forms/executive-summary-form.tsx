@@ -56,7 +56,7 @@ export function ExecutiveSummaryForm() {
     <div className="space-y-8">
       <Card className="shadow-lg">
         <CardHeader>
-          <CardTitle className="font-headline">Sumários Executivos Gerados por IA</CardTitle>
+          <CardTitle>Sumários Executivos Gerados por IA</CardTitle>
           <CardDescription>
             Forneça os detalhes do projeto abaixo e a IA gerará um sumário executivo conciso.
           </CardDescription>
@@ -133,7 +133,7 @@ export function ExecutiveSummaryForm() {
       {result && (
         <Card className="shadow-lg">
           <CardHeader>
-            <CardTitle className="font-headline text-primary">Sumário Executivo Gerado</CardTitle>
+            <CardTitle className="text-primary">Sumário Executivo Gerado</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="prose prose-sm max-w-none dark:prose-invert whitespace-pre-wrap p-4 bg-secondary/30 rounded-md">

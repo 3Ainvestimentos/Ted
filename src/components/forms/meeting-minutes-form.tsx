@@ -53,7 +53,7 @@ export function MeetingMinutesForm() {
     <div className="space-y-8">
       <Card className="shadow-lg">
         <CardHeader>
-          <CardTitle className="font-headline">Atas de Reunião Assistidas por IA</CardTitle>
+          <CardTitle>Atas de Reunião Assistidas por IA</CardTitle>
           <CardDescription>
             Insira resumos de atualizações de cartões e discussões, e a IA ajudará a estruturar suas atas de reunião.
           </CardDescription>
@@ -113,7 +113,7 @@ export function MeetingMinutesForm() {
       {result && (
         <Card className="shadow-lg">
           <CardHeader>
-            <CardTitle className="font-headline text-primary">Ata de Reunião Gerada</CardTitle>
+            <CardTitle className="text-primary">Ata de Reunião Gerada</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="prose prose-sm max-w-none dark:prose-invert whitespace-pre-wrap p-4 bg-secondary/30 rounded-md">

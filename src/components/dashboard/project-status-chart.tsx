@@ -51,7 +51,7 @@ export function ProjectStatusChart({ initiatives }: ProjectStatusChartProps) {
   return (
     <Card className="shadow-lg">
       <CardHeader>
-        <CardTitle className="font-headline">Visão Geral do Status das Iniciativas</CardTitle>
+        <CardTitle>Visão Geral do Status das Iniciativas</CardTitle>
         <CardDescription>Distribuição das iniciativas estratégicas por status atual.</CardDescription>
       </CardHeader>
       <CardContent>

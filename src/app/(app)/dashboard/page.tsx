@@ -20,7 +20,7 @@ export default function DashboardPage() {
             <section className="grid grid-cols-1 gap-6">
                 <Card className="flex flex-col w-full shadow-sm">
                     <CardHeader>
-                        <CardTitle className="font-headline">Card de Exemplo</CardTitle>
+                        <CardTitle>Card de Exemplo</CardTitle>
                         <CardDescription>Este é um card de exemplo para conteúdo variado.</CardDescription>
                     </CardHeader>
                     <CardContent className="flex-1 min-h-[300px]">

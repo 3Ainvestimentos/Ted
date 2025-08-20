@@ -13,7 +13,6 @@ export default {
       fontFamily: {
         body: ['Archivo', 'sans-serif'],
         headline: ['Roboto', 'sans-serif'],
-        code: ['monospace'],
       },
       colors: {
         background: 'hsl(var(--background))',
@@ -99,5 +98,3 @@ export default {
   },
   plugins: [require('tailwindcss-animate')],
 } satisfies Config;
-
-    

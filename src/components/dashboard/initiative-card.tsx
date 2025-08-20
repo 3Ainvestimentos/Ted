@@ -21,7 +21,7 @@ export function InitiativeCard({ initiative, showDetailsLink = false }: Initiati
     <Card className="flex flex-col h-full shadow-lg hover:shadow-xl transition-shadow duration-300">
       <CardHeader>
         <div className="flex justify-between items-start">
-          <CardTitle className="text-lg font-headline">{initiative.title}</CardTitle>
+          <CardTitle className="text-lg">{initiative.title}</CardTitle>
           <Badge variant={initiative.status === 'Concluído' ? 'default' : initiative.status === 'Em Risco' || initiative.status === 'Atrasado' ? 'destructive' : 'secondary'} className="capitalize">
             <StatusIcon className="mr-1 h-4 w-4" />
             {initiative.status}

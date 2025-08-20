@@ -87,7 +87,7 @@ export default function SettingsPage() {
 
   return (
     <div className="space-y-8 max-w-5xl mx-auto">
-      <h1 className="text-3xl font-headline font-semibold tracking-tight">Configurações</h1>
+      <h1 className="font-headline text-3xl font-semibold tracking-tight">Configurações</h1>
 
       <Tabs defaultValue="collaborators">
         <TabsList className="grid w-full grid-cols-3">

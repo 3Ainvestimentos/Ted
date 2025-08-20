@@ -89,7 +89,7 @@ export default function NewInitiativePage() {
                 Voltar
             </Link>
         </Button>
-        <h1 className="text-3xl font-headline font-semibold tracking-tight">Criar Nova Iniciativa</h1>
+        <h1 className="font-headline text-3xl font-semibold tracking-tight">Criar Nova Iniciativa</h1>
       </div>
       <Card className="shadow-lg">
         <CardHeader>
