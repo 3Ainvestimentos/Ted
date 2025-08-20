@@ -16,10 +16,11 @@ import {
   DropdownMenuSubContent
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/contexts/auth-context";
-import { LogOut, Monitor, Moon, Sun } from "lucide-react";
+import { LogOut, Monitor, Moon, Sun, Settings } from "lucide-react";
 import { useSidebar } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import { useTheme } from "next-themes";
+import Link from 'next/link';
 
 export function UserNav() {
   const { userRole, isAuthenticated, logout } = useAuth();
@@ -94,6 +95,12 @@ export function UserNav() {
               </DropdownMenuSubContent>
             </DropdownMenuPortal>
           </DropdownMenuSub>
+           <DropdownMenuItem asChild>
+              <Link href="/settings">
+                <Settings className="mr-2 h-4 w-4" />
+                <span>Sistema</span>
+              </Link>
+           </DropdownMenuItem>
           <DropdownMenuSeparator />
            <DropdownMenuItem onClick={logout}>
               <LogOut className="mr-2 h-4 w-4" />
