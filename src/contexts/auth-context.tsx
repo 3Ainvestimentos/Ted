@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { UserRole } from '@/types';
@@ -44,7 +45,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } catch (error) {
       console.error("Falha ao definir o estado de autenticação no localStorage", error);
     }
-    router.push('/dashboard');
+    router.push('/strategic-panel');
   };
 
   const logout = () => {
