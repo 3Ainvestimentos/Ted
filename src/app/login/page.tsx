@@ -8,7 +8,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Logo } from "@/components/icons/logo";
 import { useAuth } from "@/contexts/auth-context";
 
 const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -35,13 +34,10 @@ export default function LoginPage() {
     <div className="flex items-center justify-center min-h-screen p-4" style={{ backgroundColor: '#2B2A27' }}>
       <Card className="w-full max-w-md shadow-xl bg-card text-card-foreground">
         <CardHeader className="space-y-4 text-center">
-          <div className="flex justify-center mb-4">
-            <Logo className="w-48 h-auto text-primary" />
-          </div>
-          <CardTitle className="text-2xl font-headline">Bem-vindo ao Ted 1.0</CardTitle>
+          <CardTitle className="text-2xl font-headline mt-6">Bem-vindo ao Ted 1.0</CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleLogin} className="flex justify-center">
+          <form onSubmit={handleLogin} className="flex justify-center py-4">
             <Button type="submit" variant="outline" className="w-full max-w-xs h-12 text-base">
                 <GoogleIcon className="mr-3"/>
                 Entrar com Google
