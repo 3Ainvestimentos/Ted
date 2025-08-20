@@ -19,7 +19,7 @@ import { useTheme } from "next-themes";
 import Link from 'next/link';
 
 export function UserNav() {
-  const { logout } = useAuth();
+  const { logout, userRole } = useAuth();
   const { setTheme } = useTheme();
 
   return (
@@ -54,12 +54,17 @@ export function UserNav() {
             </DropdownMenuSubContent>
           </DropdownMenuPortal>
         </DropdownMenuSub>
-         <DropdownMenuItem asChild>
-            <Link href="/settings" className="text-[hsl(0,72%,51%)] focus:text-[hsl(0,72%,51%)]">
-              <Shield className="mr-2 h-4 w-4" />
-              <span>Sistema</span>
-            </Link>
-         </DropdownMenuItem>
+        {userRole === 'PMO' && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link href="/settings" className="text-[hsl(0,72%,51%)] focus:text-[hsl(0,72%,51%)]">
+                <Shield className="mr-2 h-4 w-4" />
+                <span>Sistema</span>
+              </Link>
+            </DropdownMenuItem>
+          </>
+        )}
         <DropdownMenuSeparator />
          <DropdownMenuItem onClick={logout}>
             <LogOut className="mr-2 h-4 w-4" />
