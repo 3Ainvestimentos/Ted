@@ -3,7 +3,7 @@
 
 import React, { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, LayoutGrid, List, Upload, Download } from "lucide-react";
+import { PlusCircle, LayoutGrid, List, Upload, Download, Loader2 } from "lucide-react";
 import { useInitiatives } from "@/contexts/initiatives-context";
 import { InitiativesTable } from "@/components/initiatives/initiatives-table";
 import { InitiativesKanban } from "@/components/initiatives/initiatives-kanban";
@@ -14,11 +14,12 @@ import Papa from 'papaparse';
 import { useToast } from "@/hooks/use-toast";
 import type { Initiative, InitiativePriority, InitiativeStatus } from "@/types";
 import { CreateInitiativeModal } from "@/components/initiatives/create-initiative-modal";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type ViewMode = "table" | "kanban";
 
 export default function InitiativesPage() {
-  const { initiatives, bulkAddInitiatives } = useInitiatives();
+  const { initiatives, bulkAddInitiatives, isLoading } = useInitiatives();
   const [viewMode, setViewMode] = useState<ViewMode>("table");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
@@ -139,7 +140,12 @@ export default function InitiativesPage() {
           </div>
         </div>
         
-        {viewMode === 'table' ? (
+        {isLoading ? (
+            <div className="space-y-4">
+                <Skeleton className="h-12 w-full" />
+                <Skeleton className="h-48 w-full" />
+            </div>
+        ) : viewMode === 'table' ? (
           <InitiativesTable initiatives={initiatives} />
         ) : (
           <InitiativesKanban initiatives={initiatives} />
