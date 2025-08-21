@@ -6,10 +6,13 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { useRouter, usePathname } from 'next/navigation';
 import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut, User as FirebaseUser } from 'firebase/auth';
 import { app } from '@/lib/firebase';
+import { useToast } from '@/hooks/use-toast';
 
 
 // Lista de e-mails com permissão de administrador
 const ADMIN_EMAILS = ['matheus@3ainvestimentos.com.br'];
+// Lista de domínios autorizados a fazer login
+const ALLOWED_DOMAINS = ['3ainvestimentos.com.br'];
 
 interface User {
   uid: string;
@@ -34,6 +37,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
+  const { toast } = useToast();
   
   const auth = getAuth(app);
   const provider = new GoogleAuthProvider();
@@ -44,13 +48,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser: FirebaseUser | null) => {
       if (firebaseUser) {
-        const appUser: User = {
-          uid: firebaseUser.uid,
-          name: firebaseUser.displayName,
-          email: firebaseUser.email,
-          role: ADMIN_EMAILS.includes(firebaseUser.email || '') ? 'PMO' : 'Colaborador',
-        };
-        setUser(appUser);
+        const userEmail = firebaseUser.email || '';
+        const userDomain = userEmail.split('@')[1];
+
+        if (ALLOWED_DOMAINS.includes(userDomain)) {
+          const appUser: User = {
+            uid: firebaseUser.uid,
+            name: firebaseUser.displayName,
+            email: firebaseUser.email,
+            role: ADMIN_EMAILS.includes(userEmail) ? 'PMO' : 'Colaborador',
+          };
+          setUser(appUser);
+        } else {
+          // Se o usuário logado não for de um domínio permitido, desloga-o.
+          signOut(auth);
+          setUser(null);
+        }
       } else {
         setUser(null);
       }
@@ -73,17 +86,36 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const result = await signInWithPopup(auth, provider);
       const firebaseUser = result.user;
        if (firebaseUser) {
-          const appUser: User = {
-            uid: firebaseUser.uid,
-            name: firebaseUser.displayName,
-            email: firebaseUser.email,
-            role: ADMIN_EMAILS.includes(firebaseUser.email || '') ? 'PMO' : 'Colaborador',
-          };
-          setUser(appUser);
-          router.push('/strategic-panel');
+          const userEmail = firebaseUser.email || '';
+          const userDomain = userEmail.split('@')[1];
+
+          if (ALLOWED_DOMAINS.includes(userDomain)) {
+            const appUser: User = {
+                uid: firebaseUser.uid,
+                name: firebaseUser.displayName,
+                email: firebaseUser.email,
+                role: ADMIN_EMAILS.includes(userEmail) ? 'PMO' : 'Colaborador',
+            };
+            setUser(appUser);
+            router.push('/strategic-panel');
+          } else {
+            // Se o domínio não for permitido, desloga o usuário imediatamente e exibe uma mensagem.
+            await signOut(auth);
+            setUser(null);
+            toast({
+                variant: 'destructive',
+                title: 'Acesso Negado',
+                description: 'O seu domínio de e-mail não tem permissão para acessar esta aplicação.',
+            });
+          }
        }
     } catch (error) {
       console.error("Falha na autenticação com o Google", error);
+       toast({
+          variant: 'destructive',
+          title: 'Erro de Autenticação',
+          description: 'Não foi possível fazer o login. Por favor, tente novamente.',
+      });
     }
   };
 
