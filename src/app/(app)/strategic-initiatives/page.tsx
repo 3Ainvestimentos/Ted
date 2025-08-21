@@ -10,86 +10,22 @@ import { InitiativesKanban } from "@/components/initiatives/initiatives-kanban";
 import { PageHeader } from "@/components/layout/page-header";
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import Papa from 'papaparse';
 import { useToast } from "@/hooks/use-toast";
-import type { Initiative, InitiativePriority, InitiativeStatus } from "@/types";
+import type { Initiative } from "@/types";
 import { CreateInitiativeModal } from "@/components/initiatives/create-initiative-modal";
 import { Skeleton } from "@/components/ui/skeleton";
 import { InitiativeDossierModal } from "@/components/initiatives/initiative-dossier-modal";
+import { ImportInitiativesModal } from "@/components/initiatives/import-initiatives-modal";
 
 
 type ViewMode = "table" | "kanban";
 
 export default function InitiativesPage() {
-  const { initiatives, bulkAddInitiatives, isLoading } = useInitiatives();
+  const { initiatives, isLoading } = useInitiatives();
   const [viewMode, setViewMode] = useState<ViewMode>("table");
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const { toast } = useToast();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [selectedInitiative, setSelectedInitiative] = useState<Initiative | null>(null);
-
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      Papa.parse(file, {
-        header: true,
-        skipEmptyLines: true,
-        complete: (results) => {
-          try {
-            const requiredFields = ['title', 'owner', 'description', 'status', 'priority'];
-            const fileFields = results.meta.fields || [];
-            
-            if (!requiredFields.every(field => fileFields.includes(field))) {
-              throw new Error(`O arquivo CSV deve conter as colunas: ${requiredFields.join(', ')}.`);
-            }
-
-            const newInitiatives = results.data.map((row: any) => {
-               if (!row.title || !row.owner || !row.description || !row.status || !row.priority) {
-                  throw new Error(`Linha inválida encontrada no CSV. Todos os campos são obrigatórios. Linha: ${JSON.stringify(row)}`);
-                }
-              
-              return {
-                title: row.title,
-                owner: row.owner,
-                description: row.description,
-                status: row.status as InitiativeStatus,
-                priority: row.priority as InitiativePriority,
-                // Context will handle the rest
-              } as Omit<Initiative, 'id' | 'lastUpdate' | 'topicNumber' | 'progress' | 'keyMetrics'>;
-            });
-            
-            bulkAddInitiatives(newInitiatives as any);
-            toast({
-              title: "Importação bem-sucedida!",
-              description: `${newInitiatives.length} iniciativas foram adicionadas.`,
-            });
-          } catch (error: any) {
-             toast({
-              variant: "destructive",
-              title: "Erro na Importação",
-              description: error.message || "Não foi possível processar o arquivo CSV.",
-            });
-          }
-        },
-        error: (error: any) => {
-           toast({
-            variant: "destructive",
-            title: "Erro de Leitura",
-            description: `Falha ao ler o arquivo: ${error.message}`,
-          });
-        }
-      });
-    }
-     // Reset file input
-    if(fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-  };
-
-
-  const triggerFileUpload = () => {
-    fileInputRef.current?.click();
-  };
 
   const openDossier = (initiative: Initiative) => {
     setSelectedInitiative(initiative);
@@ -102,6 +38,8 @@ export default function InitiativesPage() {
   return (
     <DndProvider backend={HTML5Backend}>
       <CreateInitiativeModal isOpen={isCreateModalOpen} onOpenChange={setIsCreateModalOpen} />
+      <ImportInitiativesModal isOpen={isImportModalOpen} onOpenChange={setIsImportModalOpen} />
+      
       {selectedInitiative && (
         <InitiativeDossierModal
           isOpen={!!selectedInitiative}
@@ -139,21 +77,8 @@ export default function InitiativesPage() {
             <Button onClick={() => setIsCreateModalOpen(true)}>
               <PlusCircle className="mr-2 h-4 w-4" /> Criar
             </Button>
-            <input 
-              type="file" 
-              ref={fileInputRef}
-              onChange={handleFileUpload}
-              accept=".csv"
-              className="hidden"
-            />
-             <Button variant="outline" onClick={triggerFileUpload}>
+             <Button variant="outline" onClick={() => setIsImportModalOpen(true)}>
               <Upload className="mr-2 h-4 w-4" /> Importar CSV
-            </Button>
-            <Button variant="link" size="sm" asChild>
-                <a href="/template_iniciativas.csv" download>
-                    <Download className="mr-2 h-4 w-4" />
-                    Baixar Modelo
-                </a>
             </Button>
           </div>
         </div>
