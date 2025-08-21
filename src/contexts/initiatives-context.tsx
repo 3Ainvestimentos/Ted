@@ -2,7 +2,6 @@
 "use client";
 
 import type { Initiative, InitiativeStatus } from '@/types';
-import { MOCK_INITIATIVES } from '@/lib/constants';
 import React, { createContext, useContext, useState, ReactNode, useCallback } from 'react';
 
 type InitiativeData = Omit<Initiative, 'id' | 'lastUpdate' | 'topicNumber' | 'progress' | 'keyMetrics'>;
@@ -17,7 +16,7 @@ interface InitiativesContextType {
 const InitiativesContext = createContext<InitiativesContextType | undefined>(undefined);
 
 export const InitiativesProvider = ({ children }: { children: ReactNode }) => {
-  const [initiatives, setInitiatives] = useState<Initiative[]>(MOCK_INITIATIVES);
+  const [initiatives, setInitiatives] = useState<Initiative[]>([]);
 
   const getNextMainTopicNumber = (currentInitiatives: Initiative[]) => {
       const mainTopics = currentInitiatives.filter(i => !i.topicNumber.includes('.'));

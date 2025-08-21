@@ -17,11 +17,11 @@ import { cn } from "@/lib/utils";
 import { useInitiatives } from "@/contexts/initiatives-context";
 
 export default function InitiativesPage() {
-  const { initiatives: MOCK_INITIATIVES } = useInitiatives();
+  const { initiatives } = useInitiatives();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [expandedTopics, setExpandedTopics] = useState<Set<string>>(() => 
-    new Set(MOCK_INITIATIVES.filter(i => !i.topicNumber.includes('.')).map(i => i.topicNumber))
+    new Set(initiatives.filter(i => !i.topicNumber.includes('.')).map(i => i.topicNumber))
   );
 
   const toggleTopic = (topicNumber: string) => {
@@ -37,7 +37,7 @@ export default function InitiativesPage() {
   };
 
   const filteredInitiatives = useMemo(() => {
-    const baseFiltered = MOCK_INITIATIVES.filter(initiative => {
+    const baseFiltered = initiatives.filter(initiative => {
       const matchesSearch = initiative.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                             initiative.owner.toLowerCase().includes(searchTerm.toLowerCase()) ||
                             initiative.description.toLowerCase().includes(searchTerm.toLowerCase());
@@ -54,13 +54,13 @@ export default function InitiativesPage() {
         return expandedTopics.has(parentTopic); // Show sub-topic only if parent is expanded
     });
 
-  }, [searchTerm, statusFilter, expandedTopics, MOCK_INITIATIVES]);
+  }, [searchTerm, statusFilter, expandedTopics, initiatives]);
 
-  const initiativeStatuses = ["all", ...new Set(MOCK_INITIATIVES.map(i => i.status))] as const;
+  const initiativeStatuses = ["all", "A Fazer", "Em Dia", "Em Risco", "Atrasado", "Concluído"] as const;
   
   const parentTopics = useMemo(() => 
-      new Set(MOCK_INITIATIVES.filter(i => i.topicNumber.includes('.')).map(i => i.topicNumber.split('.')[0]))
-  , [MOCK_INITIATIVES]);
+      new Set(initiatives.filter(i => i.topicNumber.includes('.')).map(i => i.topicNumber.split('.')[0]))
+  , [initiatives]);
 
 
   return (
