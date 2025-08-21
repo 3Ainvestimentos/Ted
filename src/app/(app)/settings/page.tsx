@@ -301,8 +301,8 @@ const adminModules = [
     },
     {
         name: "collaborators",
-        title: "Gerenciamento de Colaboradores",
-        description: "A funcionalidade de gerenciamento de colaboradores, incluindo importação via CSV e configuração de links de Power BI, está sendo desenvolvida.",
+        title: "Colaboradores",
+        description: "Adicione, edite ou importe a lista de colaboradores da plataforma.",
         icon: Users,
         component: <CollaboratorsTabContent />
     },
