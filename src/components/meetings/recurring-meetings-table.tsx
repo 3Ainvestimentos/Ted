@@ -45,31 +45,37 @@ export function RecurringMeetingsTable({ meetings, setMeetings }: RecurringMeeti
   };
 
   const handleMarkAsDone = (meetingId: string) => {
+    const meeting = meetings.find(m => m.id === meetingId);
+    if (!meeting) return;
+
+    if (!meeting.executedDate) {
+      toast({
+        variant: "destructive",
+        title: "Data não selecionada",
+        description: "Por favor, selecione a data em que a reunião foi realizada.",
+      });
+      return;
+    }
+
+    const nextDueDate = calculateNextDueDate(meeting);
+
     setMeetings(prevMeetings => {
       return prevMeetings.map(m => {
         if (m.id === meetingId) {
-          if (!m.executedDate) {
-            toast({
-              variant: "destructive",
-              title: "Data não selecionada",
-              description: "Por favor, selecione a data em que a reunião foi realizada.",
-            });
-            return m; 
-          }
-          const nextDueDate = calculateNextDueDate(m);
-          toast({
-            title: "Reunião Concluída!",
-            description: `A reunião "${m.name}" foi marcada como feita. Próxima data: ${format(nextDueDate, 'dd/MM/yyyy')}`,
-          });
           return {
             ...m,
-            lastOccurrence: m.executedDate,
+            lastOccurrence: m.executedDate!,
             executedDate: undefined,
             isDone: false, // Reset for the next cycle
           };
         }
         return m;
       });
+    });
+
+    toast({
+        title: "Reunião Concluída!",
+        description: `A reunião "${meeting.name}" foi marcada como feita. Próxima data: ${format(nextDueDate, 'dd/MM/yyyy')}`,
     });
   };
 
