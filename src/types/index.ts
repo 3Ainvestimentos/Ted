@@ -67,3 +67,12 @@ export interface BusinessArea {
     okrs: Okr[];
     kpis: Kpi[];
 }
+
+// Type for Collaborators
+export interface Collaborator {
+    id: string;
+    name: string;
+    email: string;
+    cargo: string; // Role/Position
+    powerBiLink?: string;
+}

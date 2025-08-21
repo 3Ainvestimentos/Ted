@@ -1,10 +1,11 @@
 
+
 "use client";
 
 import { PageHeader } from '@/components/layout/page-header';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
-import { Users, GanttChartSquare, BarChart2, History, HardHat, PlusCircle, MoreVertical, ArrowLeft, Mail, X, BadgeAlert, CheckCircle } from 'lucide-react';
+import { Users, GanttChartSquare, BarChart2, History, HardHat, PlusCircle, MoreVertical, ArrowLeft, Mail, X, BadgeAlert, CheckCircle, Upload } from 'lucide-react';
 import Link from 'next/link';
 
 // Permissions Component (moved from its own page)
@@ -23,6 +24,10 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { CollaboratorsTable } from '@/components/settings/collaborators-table';
+import { UpsertCollaboratorModal } from '@/components/settings/upsert-collaborator-modal';
+import { ImportCollaboratorsModal } from '@/components/settings/import-collaborators-modal';
+import type { Collaborator } from '@/types';
 
 
 const getInitials = (name: string) => {
@@ -237,18 +242,51 @@ function PlaceholderTabContent({ title, description, icon: Icon }: {title: strin
 }
 
 function CollaboratorsTabContent() {
+    const [isUpsertModalOpen, setIsUpsertModalOpen] = useState(false);
+    const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+    const [selectedCollaborator, setSelectedCollaborator] = useState<Collaborator | null>(null);
+
+    const handleOpenCreateModal = () => {
+        setSelectedCollaborator(null);
+        setIsUpsertModalOpen(true);
+    };
+
+    const handleOpenEditModal = (collaborator: Collaborator) => {
+        setSelectedCollaborator(collaborator);
+        setIsUpsertModalOpen(true);
+    };
+
     return (
-        <Card className="mt-6">
-            <CardContent className="pt-6">
-            <div className="flex flex-col items-center justify-center text-center p-12 border-2 border-dashed rounded-lg">
-                <Users className="h-12 w-12 text-muted-foreground mb-4" />
-                <h3 className="text-xl font-semibold">Gerenciamento de Colaboradores</h3>
-                <p className="text-muted-foreground mt-2 max-w-md">
-                    A funcionalidade de gerenciamento de colaboradores, incluindo importação via CSV, adição, edição e configuração de links de Power BI, está sendo desenvolvida e estará disponível em breve.
-                </p>
-            </div>
-            </CardContent>
-      </Card>
+        <>
+            <UpsertCollaboratorModal 
+                isOpen={isUpsertModalOpen}
+                onOpenChange={setIsUpsertModalOpen}
+                collaborator={selectedCollaborator}
+            />
+            <ImportCollaboratorsModal
+                isOpen={isImportModalOpen}
+                onOpenChange={setIsImportModalOpen}
+            />
+            <Card className="shadow-lg mt-6">
+                <CardContent className="pt-6">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+                    <div>
+                        <h3 className="text-lg font-medium">Lista de Colaboradores</h3>
+                        <p className="text-muted-foreground text-sm">Adicione, edite ou importe a lista de colaboradores da plataforma.</p>
+                    </div>
+                    <div className="flex gap-2">
+                        <Button variant="outline" onClick={() => setIsImportModalOpen(true)}>
+                            <Upload className="mr-2 h-4 w-4" /> Importar CSV
+                        </Button>
+                        <Button onClick={handleOpenCreateModal}>
+                            <PlusCircle className="mr-2 h-4 w-4" /> Adicionar Colaborador
+                        </Button>
+                    </div>
+                </div>
+                <CollaboratorsTable onEdit={handleOpenEditModal} />
+                </CardContent>
+            </Card>
+        </>
     )
 }
 
@@ -300,7 +338,7 @@ export default function SettingsHubPage() {
             description="Gerencie os módulos e configurações da plataforma em um local central."
         />
 
-        <Tabs defaultValue="permissions" className="w-full">
+        <Tabs defaultValue="collaborators" className="w-full">
             <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-5 h-auto">
                  {adminModules.map((mod) => (
                     <TabsTrigger key={mod.name} value={mod.name} className="py-2 flex-col h-auto">
