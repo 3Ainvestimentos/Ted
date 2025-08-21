@@ -61,9 +61,13 @@ export function EditInitiativeModal({ isOpen, onOpenChange, initiative }: EditIn
         router.push('/strategic-initiatives');
     }
 
+    // Fix for "Invalid time value" by parsing date string correctly
+    const [year, month, day] = initiative.deadline.split('-').map(Number);
+    const deadlineDate = new Date(year, month - 1, day);
+
     const initialData = {
         ...initiative,
-        deadline: new Date(initiative.deadline),
+        deadline: deadlineDate,
     };
 
     return (
