@@ -10,7 +10,7 @@ import Link from 'next/link';
 // Permissions Component (moved from its own page)
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Switch } from '@/components/ui/switch';
-import { NAV_ITEMS_CONFIG, initialCollaborators, initialPermissions } from '@/lib/constants';
+import { NAV_ITEMS_CONFIG } from '@/lib/constants';
 import React, { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -33,9 +33,12 @@ const getInitials = (name: string) => {
 }
 
 function PermissionsTabContent() {
-  const [permissions, setPermissions] = useState(initialPermissions);
+  const [collaborators, setCollaborators] = useState<any[]>([]); // Will be fetched from Firestore
+  const [permissions, setPermissions] = useState<Record<number, Record<string, boolean>>>({}); // Will be fetched from Firestore
+
 
   const handlePermissionChange = (userId: number, navHref: string, isEnabled: boolean) => {
+    // This will be updated to write to Firestore
     setPermissions(prev => ({
       ...prev,
       [userId]: {
@@ -68,44 +71,52 @@ function PermissionsTabContent() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {initialCollaborators.map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-9 w-9">
-                          <AvatarImage src={`https://placehold.co/40x40.png?text=${getInitials(user.name)}`} alt={user.name} data-ai-hint="profile avatar" />
-                          <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="font-medium">{user.name}</p>
-                          <p className="text-xs text-muted-foreground">{user.cargo}</p>
+                {collaborators.length > 0 ? (
+                  collaborators.map((user) => (
+                    <TableRow key={user.id}>
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          <Avatar className="h-9 w-9">
+                            <AvatarImage src={`https://placehold.co/40x40.png?text=${getInitials(user.name)}`} alt={user.name} data-ai-hint="profile avatar" />
+                            <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <p className="font-medium">{user.name}</p>
+                            <p className="text-xs text-muted-foreground">{user.cargo}</p>
+                          </div>
                         </div>
-                      </div>
-                    </TableCell>
-                    {navItemsForPermissions.map((navItem) => (
-                      <TableCell key={navItem.href} className="text-center">
-                        <Switch
-                          checked={permissions[user.id]?.[navItem.href] ?? false}
-                          onCheckedChange={(checked) => handlePermissionChange(user.id, navItem.href, checked)}
-                          aria-label={`Permissão para ${navItem.title} para ${user.name}`}
-                        />
                       </TableCell>
-                    ))}
-                    <TableCell className="text-right">
-                       <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                           <Button variant="ghost" size="icon">
-                              <MoreVertical className="h-4 w-4" />
-                           </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            <DropdownMenuItem>Editar</DropdownMenuItem>
-                            <DropdownMenuItem className="text-destructive">Remover</DropdownMenuItem>
-                        </DropdownMenuContent>
-                       </DropdownMenu>
+                      {navItemsForPermissions.map((navItem) => (
+                        <TableCell key={navItem.href} className="text-center">
+                          <Switch
+                            checked={permissions[user.id]?.[navItem.href] ?? false}
+                            onCheckedChange={(checked) => handlePermissionChange(user.id, navItem.href, checked)}
+                            aria-label={`Permissão para ${navItem.title} para ${user.name}`}
+                          />
+                        </TableCell>
+                      ))}
+                      <TableCell className="text-right">
+                         <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                             <Button variant="ghost" size="icon">
+                                <MoreVertical className="h-4 w-4" />
+                             </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                              <DropdownMenuItem>Editar</DropdownMenuItem>
+                              <DropdownMenuItem className="text-destructive">Remover</DropdownMenuItem>
+                          </DropdownMenuContent>
+                         </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={navItemsForPermissions.length + 2} className="h-24 text-center">
+                      Nenhum colaborador encontrado. Comece convidando um novo colaborador.
                     </TableCell>
                   </TableRow>
-                ))}
+                )}
               </TableBody>
             </Table>
           </div>
