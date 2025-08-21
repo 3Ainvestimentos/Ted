@@ -9,6 +9,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useAuth } from "@/contexts/auth-context";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { Loader2 } from "lucide-react";
+
 
 const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="24px" height="24px" {...props}>
@@ -21,18 +25,22 @@ const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 
 export default function LoginPage() {
-  const { login } = useAuth();
+  const { login, isAuthenticated, isLoading } = useAuth();
+  const router = useRouter();
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    // For demo purposes, we log in with a default admin user.
-    // In a real app, you'd get the user from your auth provider (e.g., Firebase Auth).
-    login({
-        name: 'Matheus Admin',
-        email: 'matheus@3ainvestimentos.com.br',
-        role: 'PMO'
-    }); 
-  };
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+        router.replace('/strategic-panel');
+    }
+  }, [isLoading, isAuthenticated, router]);
+
+  if (isLoading || isAuthenticated) {
+    return (
+        <div className="flex items-center justify-center min-h-screen bg-background">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+    );
+  }
 
   return (
     <div className="flex items-center justify-center min-h-screen p-4" style={{ backgroundColor: '#2B2A27' }}>
@@ -41,12 +49,12 @@ export default function LoginPage() {
           <CardTitle className="text-2xl font-headline mt-6">Bem-vindo ao Ted 1.0</CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleLogin} className="flex justify-center py-4">
-            <Button type="submit" variant="outline" className="w-full max-w-xs h-12 text-base hover:bg-card">
+          <div className="flex justify-center py-4">
+            <Button onClick={login} variant="outline" className="w-full max-w-xs h-12 text-base hover:bg-card">
                 <GoogleIcon className="mr-3"/>
                 Entrar com Google
             </Button>
-          </form>
+          </div>
         </CardContent>
       </Card>
     </div>

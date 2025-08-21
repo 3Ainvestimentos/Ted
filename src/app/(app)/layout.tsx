@@ -10,6 +10,7 @@ import { InitiativesProvider } from '@/contexts/initiatives-context';
 import { MeetingsProvider } from '@/contexts/meetings-context';
 import { StrategicPanelProvider } from '@/contexts/strategic-panel-context';
 import { UserNav } from '@/components/layout/user-nav';
+import { Loader2 } from 'lucide-react';
 
 export default function AppLayout({
   children,
@@ -28,7 +29,7 @@ export default function AppLayout({
   if (isLoading || !isAuthenticated) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
-        <div className="p-4 rounded-lg text-foreground">Carregando...</div>
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }

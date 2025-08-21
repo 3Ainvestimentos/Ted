@@ -3,14 +3,18 @@
 
 import type { UserRole } from '@/types';
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
+import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut, User as FirebaseUser } from 'firebase/auth';
+import { app } from '@/lib/firebase';
+
 
 // Lista de e-mails com permissão de administrador
 const ADMIN_EMAILS = ['matheus@3ainvestimentos.com.br'];
 
 interface User {
-  name: string;
-  email: string;
+  uid: string;
+  name: string | null;
+  email: string | null;
   role: UserRole;
 }
 
@@ -18,8 +22,8 @@ interface AuthContextType {
   isAuthenticated: boolean;
   user: User | null;
   isAdmin: boolean;
-  login: (user: User) => void;
-  logout: () => void;
+  login: () => Promise<void>;
+  logout: () => Promise<void>;
   isLoading: boolean;
 }
 
@@ -29,42 +33,68 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+  const pathname = usePathname();
+  
+  const auth = getAuth(app);
+  const provider = new GoogleAuthProvider();
 
   const isAuthenticated = !!user;
-  const isAdmin = user ? ADMIN_EMAILS.includes(user.email) : false;
+  const isAdmin = user ? ADMIN_EMAILS.includes(user.email || '') : false;
 
   useEffect(() => {
-    try {
-      const storedAuth = localStorage.getItem('tedAppUser');
-      if (storedAuth) {
-        const storedUser = JSON.parse(storedAuth);
-        setUser(storedUser);
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser: FirebaseUser | null) => {
+      if (firebaseUser) {
+        const appUser: User = {
+          uid: firebaseUser.uid,
+          name: firebaseUser.displayName,
+          email: firebaseUser.email,
+          role: ADMIN_EMAILS.includes(firebaseUser.email || '') ? 'PMO' : 'Colaborador',
+        };
+        setUser(appUser);
+      } else {
+        setUser(null);
       }
-    } catch (error) {
-      console.error("Falha ao analisar o estado de autenticação do localStorage", error);
-      localStorage.removeItem('tedAppUser');
-    }
-    setIsLoading(false);
-  }, []);
+      setIsLoading(false);
+    });
 
-  const login = (userData: User) => {
-    setUser(userData);
-    try {
-      localStorage.setItem('tedAppUser', JSON.stringify(userData));
-    } catch (error) {
-      console.error("Falha ao definir o estado de autenticação no localStorage", error);
+    return () => unsubscribe();
+  }, [auth]);
+  
+  
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated && pathname !== '/login') {
+        router.push('/login');
     }
-    router.push('/strategic-panel');
+  }, [isAuthenticated, isLoading, router, pathname]);
+
+
+  const login = async () => {
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const firebaseUser = result.user;
+       if (firebaseUser) {
+          const appUser: User = {
+            uid: firebaseUser.uid,
+            name: firebaseUser.displayName,
+            email: firebaseUser.email,
+            role: ADMIN_EMAILS.includes(firebaseUser.email || '') ? 'PMO' : 'Colaborador',
+          };
+          setUser(appUser);
+          router.push('/strategic-panel');
+       }
+    } catch (error) {
+      console.error("Falha na autenticação com o Google", error);
+    }
   };
 
-  const logout = () => {
-    setUser(null);
+  const logout = async () => {
     try {
-      localStorage.removeItem('tedAppUser');
+      await signOut(auth);
+      setUser(null);
+      router.push('/login');
     } catch (error) {
-      console.error("Falha ao remover o estado de autenticação do localStorage", error);
+      console.error("Falha ao fazer logout", error);
     }
-    router.push('/login');
   };
   
   return (
