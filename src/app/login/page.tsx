@@ -28,17 +28,13 @@ export default function LoginPage() {
   const { login, isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
 
-  // This useEffect was causing a redirect loop with the middleware.
-  // The middleware is now the single source of truth for routing decisions.
-  /*
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
         router.replace('/strategic-panel');
     }
   }, [isLoading, isAuthenticated, router]);
-  */
 
-  if (isLoading) {
+  if (isLoading || isAuthenticated) {
     return (
         <div className="flex items-center justify-center min-h-screen bg-background">
             <LoadingSpinner className="h-8 w-8" />

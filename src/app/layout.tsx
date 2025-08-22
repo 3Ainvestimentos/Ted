@@ -7,6 +7,7 @@ import { ThemeProvider } from '@/components/layout/theme-provider';
 import { AuditLogProvider } from '@/contexts/audit-log-context';
 import { SettingsProvider } from '@/contexts/settings-context';
 
+
 export const metadata: Metadata = {
   title: 'Ted 1.0',
   description: 'Plataforma de Gestão de Iniciativas Estratégicas',
@@ -32,12 +33,12 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AuthProvider>
-            <AuditLogProvider>
-              <SettingsProvider>
+            <SettingsProvider>
+              <AuditLogProvider>
                   {children}
                 <Toaster />
-              </SettingsProvider>
-            </AuditLogProvider>
+              </AuditLogProvider>
+            </SettingsProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>
