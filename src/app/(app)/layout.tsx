@@ -1,9 +1,7 @@
 
 "use client";
 
-import React, { useEffect } from 'react';
-import { useAuth } from '@/contexts/auth-context';
-import { useRouter } from 'next/navigation';
+import React from 'react';
 import { SidebarProvider, Sidebar, SidebarContent, SidebarFooter, SidebarTrigger } from "@/components/ui/sidebar";
 import { SidebarNav } from '@/components/layout/sidebar-nav';
 import { InitiativesProvider } from '@/contexts/initiatives-context';
@@ -11,38 +9,12 @@ import { MeetingsProvider } from '@/contexts/meetings-context';
 import { StrategicPanelProvider } from '@/contexts/strategic-panel-context';
 import { CollaboratorsProvider } from '@/contexts/collaborators-context';
 import { UserNav } from '@/components/layout/user-nav';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
 
 export default function AppLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!isAuthLoading && !isAuthenticated) {
-      router.replace('/login');
-    }
-  }, [isAuthenticated, isAuthLoading, router]);
-
-  // The main loading spinner is now in the MaintenanceMiddleware,
-  // but we keep one here for the auth-check phase for this specific layout.
-  if (isAuthLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-background">
-        <LoadingSpinner />
-      </div>
-    );
-  }
-
-  // If not authenticated, we return null and the useEffect will handle the redirect.
-  // This prevents rendering the layout for non-authed users.
-  if (!isAuthenticated) {
-      return null;
-  }
-
   return (
     <CollaboratorsProvider>
       <InitiativesProvider>

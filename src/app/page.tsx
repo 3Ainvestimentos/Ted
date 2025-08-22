@@ -3,27 +3,17 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/contexts/auth-context';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
 
+// This page now acts as a simple redirector to the main entry point of the app.
+// The actual authentication and maintenance checks are handled by middleware and layouts.
 export default function HomePage() {
   const router = useRouter();
-  const { isAuthenticated, isLoading } = useAuth();
 
   useEffect(() => {
-    if (!isLoading) {
-      if (isAuthenticated) {
-        router.replace('/strategic-panel');
-      } else {
-        router.replace('/login');
-      }
-    }
-  }, [router, isAuthenticated, isLoading]);
+    router.replace('/strategic-panel');
+  }, [router]);
 
-  return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-background gap-4">
-      <LoadingSpinner className="h-12 w-12" />
-      <p className="text-muted-foreground">Carregando Ted 1.0...</p>
-    </div>
-  );
+  // Render nothing, as the redirect will happen instantly.
+  // A spinner could be placed here if there was a delay.
+  return null;
 }
