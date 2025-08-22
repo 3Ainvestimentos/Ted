@@ -81,7 +81,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       
       const maintenanceDocRef = doc(db, 'settings', 'maintenance');
       const maintenanceSnap = await getDoc(maintenanceDocRef);
-      const maintenanceSettings = maintenanceSnap.exists() ? (maintenanceSnap.data() as MaintenanceSettings) : { isEnabled: false, adminEmails: [] };
+      const maintenanceSettings = maintenanceSnap.exists() ? (maintenanceSnap.data() as MaintenanceSettings) : { isEnabled: false, adminEmails: ADMIN_EMAILS };
 
       if (firebaseUser && firebaseUser.email) {
         
@@ -91,6 +91,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             await signOut(auth);
             setUser(null);
             setIsLoading(false);
+            router.push('/login');
             return;
         }
 

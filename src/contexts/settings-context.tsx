@@ -6,6 +6,9 @@ import { db } from '@/lib/firebase';
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import type { MaintenanceSettings } from '@/types';
 
+// Hardcoded admin emails as a fallback
+const ADMIN_EMAILS = ['matheus@3ainvestimentos.com.br'];
+
 interface SettingsContextType {
   maintenanceSettings: MaintenanceSettings | null;
   isLoading: boolean;
@@ -28,7 +31,7 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
         setMaintenanceSettings(docSnap.data() as MaintenanceSettings);
       } else {
         // If settings don't exist, create them with default values
-        const defaultSettings: MaintenanceSettings = { isEnabled: false, adminEmails: [] };
+        const defaultSettings: MaintenanceSettings = { isEnabled: false, adminEmails: ADMIN_EMAILS };
         await setDoc(settingsDocRef, defaultSettings);
         setMaintenanceSettings(defaultSettings);
       }
