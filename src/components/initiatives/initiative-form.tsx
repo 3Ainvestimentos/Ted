@@ -13,7 +13,6 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { CalendarIcon, PlusCircle, Trash2 } from "lucide-react";
-import { MOCK_OWNERS } from "@/lib/constants";
 import { Checkbox } from "../ui/checkbox";
 import { cn } from "@/lib/utils";
 import type { InitiativePriority } from "@/types";
@@ -68,6 +67,7 @@ export function InitiativeForm({ onSubmit, onCancel, initialData, isLoading }: I
 
   const watchSubItems = watch("subItems");
   const hasSubItems = watchSubItems && watchSubItems.length > 0;
+  const isProgressDisabled = hasSubItems;
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 pt-4">
@@ -109,22 +109,7 @@ export function InitiativeForm({ onSubmit, onCancel, initialData, isLoading }: I
           </div>
           <div className="space-y-2">
               <Label htmlFor="owner">Responsável</Label>
-               <Controller
-                  name="owner"
-                  control={control}
-                  render={({ field }) => (
-                       <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <SelectTrigger>
-                              <SelectValue placeholder="Selecione um responsável" />
-                          </SelectTrigger>
-                          <SelectContent>
-                              {MOCK_OWNERS.map(owner => (
-                                  <SelectItem key={owner} value={owner}>{owner}</SelectItem>
-                              ))}
-                          </SelectContent>
-                      </Select>
-                  )}
-              />
+              <Input id="owner" {...register("owner")} placeholder="Ex: João da Silva" />
               {errors.owner && <p className="text-sm text-destructive">{errors.owner.message}</p>}
           </div>
       </div>

@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { useState } from "react";
@@ -29,13 +30,10 @@ const initiativeSchema = z.object({
   deadline: z.date({
     required_error: "A data de prazo é obrigatória.",
   }),
-  priority: z.enum(['P0', 'P1', 'P2', 'P3', 'P4'])
+  priority: z.enum(['Baixa', 'Média', 'Alta'])
 });
 
 type InitiativeFormData = z.infer<typeof initiativeSchema>;
-
-// Mock owners for the select dropdown
-const MOCK_OWNERS = ["Alice W.", "Bob T.", "Charlie B.", "David C.", "Anne K.", "Fred L."];
 
 export default function NewInitiativePage() {
   const router = useRouter();
@@ -52,24 +50,14 @@ export default function NewInitiativePage() {
     resolver: zodResolver(initiativeSchema),
     defaultValues: {
       status: 'A Fazer',
-      priority: 'P3',
+      priority: 'Baixa',
     }
   });
 
   const onSubmit = (data: InitiativeFormData) => {
     setIsLoading(true);
     
-    // Map form data to the structure expected by addInitiative
-    const initiativeDataForContext = {
-      title: data.title,
-      owner: data.owner,
-      description: data.description,
-      status: data.status,
-      priority: data.priority,
-      // The context will handle id, lastUpdate, topicNumber, progress, and keyMetrics
-    };
-
-    addInitiative(initiativeDataForContext as any);
+    addInitiative(data as any);
 
     setTimeout(() => {
         toast({
@@ -136,22 +124,7 @@ export default function NewInitiativePage() {
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="owner">Responsável</Label>
-                     <Controller
-                        name="owner"
-                        control={control}
-                        render={({ field }) => (
-                             <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Selecione um responsável" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {MOCK_OWNERS.map(owner => (
-                                        <SelectItem key={owner} value={owner}>{owner}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        )}
-                    />
+                    <Input id="owner" {...register("owner")} placeholder="Ex: João da Silva" />
                     {errors.owner && <p className="text-sm text-destructive">{errors.owner.message}</p>}
                 </div>
             </div>
@@ -190,11 +163,9 @@ export default function NewInitiativePage() {
                                     <SelectValue placeholder="Selecione a prioridade" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="P0">P0 (Crítica)</SelectItem>
-                                    <SelectItem value="P1">P1 (Alta)</SelectItem>
-                                    <SelectItem value="P2">P2 (Média)</SelectItem>
-                                    <SelectItem value="P3">P3 (Baixa)</SelectItem>
-                                    <SelectItem value="P4">P4 (Mais Baixa)</SelectItem>
+                                    <SelectItem value="Alta">Alta</SelectItem>
+                                    <SelectItem value="Média">Média</SelectItem>
+                                    <SelectItem value="Baixa">Baixa</SelectItem>
                                 </SelectContent>
                             </Select>
                         )}
