@@ -1,7 +1,7 @@
 
 "use client";
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { SidebarProvider, Sidebar, SidebarContent, SidebarFooter, SidebarTrigger } from "@/components/ui/sidebar";
 import { SidebarNav } from '@/components/layout/sidebar-nav';
 import { InitiativesProvider } from '@/contexts/initiatives-context';
@@ -9,17 +9,56 @@ import { MeetingsProvider } from '@/contexts/meetings-context';
 import { StrategicPanelProvider } from '@/contexts/strategic-panel-context';
 import { CollaboratorsProvider } from '@/contexts/collaborators-context';
 import { UserNav } from '@/components/layout/user-nav';
+import { useAuth } from '@/contexts/auth-context';
+import { useSettings } from '@/contexts/settings-context';
+import { usePathname, useRouter } from 'next/navigation';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 
-export default function AppLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+function AppContent({ children }: { children: React.ReactNode }) {
+    const { maintenanceSettings, isLoading: isSettingsLoading } = useSettings();
+    const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth();
+    const router = useRouter();
+    const pathname = usePathname();
+
+    const isLoading = isSettingsLoading || isAuthLoading;
+
+    useEffect(() => {
+        if (isLoading) return;
+
+        // Redirect to maintenance if enabled and user is not an admin
+        if (maintenanceSettings?.isEnabled && !maintenanceSettings.adminEmails.includes(user?.email || '')) {
+            if (pathname !== '/maintenance') {
+                router.replace('/maintenance');
+            }
+            return;
+        }
+
+        // Redirect to login if user is not authenticated and not on a public page
+        if (!isAuthenticated && pathname !== '/login') {
+            router.replace('/login');
+            return;
+        }
+
+    }, [isLoading, isAuthenticated, maintenanceSettings, user, pathname, router]);
+
+    if (isLoading) {
+        return (
+            <div className="flex h-screen w-full items-center justify-center bg-background">
+                <LoadingSpinner className="h-12 w-12" />
+            </div>
+        );
+    }
+    
+    // Only show sidebar layout if authenticated and not in maintenance for the current user
+    if (!isAuthenticated || (maintenanceSettings?.isEnabled && !maintenanceSettings.adminEmails.includes(user?.email || ''))) {
+        return (
+            <div className="flex h-screen w-full items-center justify-center bg-background">
+                <LoadingSpinner className="h-12 w-12" />
+            </div>
+        );
+    }
+    
   return (
-    <CollaboratorsProvider>
-      <InitiativesProvider>
-        <MeetingsProvider>
-          <StrategicPanelProvider>
             <SidebarProvider>
               <div className="flex h-screen bg-background">
                 <Sidebar>
@@ -43,6 +82,21 @@ export default function AppLayout({
                 </div>
               </div>
             </SidebarProvider>
+  );
+}
+
+
+export default function AppLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <CollaboratorsProvider>
+      <InitiativesProvider>
+        <MeetingsProvider>
+          <StrategicPanelProvider>
+              <AppContent>{children}</AppContent>
           </StrategicPanelProvider>
         </MeetingsProvider>
       </InitiativesProvider>
