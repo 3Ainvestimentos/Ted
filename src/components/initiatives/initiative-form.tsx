@@ -27,10 +27,8 @@ const initiativeSchema = z.object({
   title: z.string().min(5, "O título deve ter pelo menos 5 caracteres."),
   owner: z.string().min(2, "O nome do responsável é obrigatório."),
   description: z.string().min(10, "A descrição deve ter pelo menos 10 caracteres."),
-  status: z.enum(['A Fazer', 'Em Dia', 'Em Risco', 'Atrasado', 'Concluído']),
-  deadline: z.date({
-    required_error: "A data de prazo é obrigatória.",
-  }),
+  status: z.enum(['Pendente', 'Em execução', 'Etapa concluída', 'Concluído', 'Suspenso']),
+  deadline: z.date().optional(),
   priority: z.enum(['Baixa', 'Média', 'Alta']),
   subItems: z.array(subItemSchema).optional(),
 });
@@ -54,7 +52,7 @@ export function InitiativeForm({ onSubmit, onCancel, initialData, isLoading }: I
   } = useForm<InitiativeFormData>({
     resolver: zodResolver(initiativeSchema),
     defaultValues: initialData || {
-      status: 'A Fazer',
+      status: 'Pendente',
       priority: 'Baixa',
       subItems: [],
     }
@@ -126,11 +124,11 @@ export function InitiativeForm({ onSubmit, onCancel, initialData, isLoading }: I
                               <SelectValue placeholder="Selecione o status inicial" />
                           </SelectTrigger>
                           <SelectContent>
-                              <SelectItem value="A Fazer">A Fazer</SelectItem>
-                              <SelectItem value="Em Dia">Em Dia</SelectItem>
-                              <SelectItem value="Em Risco">Em Risco</SelectItem>
-                              <SelectItem value="Atrasado">Atrasado</SelectItem>
+                              <SelectItem value="Pendente">Pendente</SelectItem>
+                              <SelectItem value="Em execução">Em execução</SelectItem>
+                              <SelectItem value="Etapa concluída">Etapa concluída</SelectItem>
                               <SelectItem value="Concluído">Concluído</SelectItem>
+                              <SelectItem value="Suspenso">Suspenso</SelectItem>
                           </SelectContent>
                       </Select>
                   )}

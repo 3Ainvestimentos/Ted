@@ -86,7 +86,7 @@ export const InitiativesProvider = ({ children }: { children: ReactNode }) => {
     
     const newInitiative = {
         ...initiativeData,
-        deadline: initiativeData.deadline.toISOString().split('T')[0],
+        deadline: initiativeData.deadline?.toISOString().split('T')[0],
         lastUpdate: new Date().toISOString(),
         topicNumber: nextTopicNumber,
         progress: 0, 
@@ -138,7 +138,7 @@ export const InitiativesProvider = ({ children }: { children: ReactNode }) => {
     try {
       const updatedData = {
           ...data,
-          deadline: data.deadline.toISOString().split('T')[0],
+          deadline: data.deadline?.toISOString().split('T')[0],
           lastUpdate: new Date().toISOString(),
           subItems: data.subItems?.map(si => ({...si, id: si.id || doc(collection(db, 'dummy')).id})) || [],
       };

@@ -7,7 +7,7 @@ import { ExternalLink, ChevronDown, ChevronRight, Filter, CornerDownRight } from
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import React, { useState, useMemo } from "react";
-import type { Initiative, InitiativePriority } from "@/types";
+import type { Initiative, InitiativePriority, InitiativeStatus } from "@/types";
 import { Card } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Progress } from "@/components/ui/progress";
@@ -52,7 +52,7 @@ export function InitiativesTable({ initiatives, onInitiativeClick }: Initiatives
     });
   }, [searchTerm, statusFilter, initiatives]);
 
-  const initiativeStatuses: (string | InitiativeStatus)[] = ["all", "A Fazer", "Em Dia", "Em Risco", "Atrasado", "Concluído"];
+  const initiativeStatuses: (string | InitiativeStatus)[] = ["all", "Pendente", "Em execução", "Etapa concluída", "Concluído", "Suspenso"];
   const initiativePriorities: (string | InitiativePriority)[] = ["all", "Alta", "Média", "Baixa"];
   
   return (
@@ -121,7 +121,7 @@ export function InitiativesTable({ initiatives, onInitiativeClick }: Initiatives
                     <TableCell className="font-body">{initiative.owner}</TableCell>
                     <TableCell>
                       <Badge variant={initiative.status === 'Concluído' ? 'default' : initiative.status === 'Em Risco' || initiative.status === 'Atrasado' ? 'destructive' : 'secondary'} className="capitalize flex items-center w-fit">
-                        <StatusIcon className="mr-1.5 h-3.5 w-3.5" />
+                        {StatusIcon && <StatusIcon className="mr-1.5 h-3.5 w-3.5" />}
                         {initiative.status}
                       </Badge>
                     </TableCell>

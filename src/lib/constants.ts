@@ -1,6 +1,6 @@
 
 import type { NavItem, UserRole, Initiative, InitiativeStatus, InitiativePriority, RecurringMeeting } from '@/types';
-import { LayoutDashboard, Target, CalendarClock, Settings, Shield, User, BarChart3, ListTodo, CircleCheck, AlertTriangle, Clock, CheckCircle, TrendingUp, TrendingDown, Minus, Lightbulb, FileText, Bug } from 'lucide-react';
+import { LayoutDashboard, Target, CalendarClock, Settings, Shield, User, BarChart3, ListTodo, CircleCheck, AlertTriangle, Clock, CheckCircle, TrendingUp, TrendingDown, Minus, Lightbulb, FileText, Bug, PlayCircle, PauseCircle, CheckSquare } from 'lucide-react';
 
 export const NAV_ITEMS_CONFIG: NavItem[] = [
   { title: 'Painel Estratégico', href: '/strategic-panel', icon: LayoutDashboard },
@@ -17,6 +17,10 @@ export const STATUS_ICONS: Record<InitiativeStatus, React.ElementType> = {
   'Em Risco': AlertTriangle,
   'Atrasado': Clock,
   'Concluído': CheckCircle,
+  'Pendente': ListTodo,
+  'Em execução': PlayCircle,
+  'Etapa concluída': CheckSquare,
+  'Suspenso': PauseCircle
 };
 
 export const TREND_ICONS = {
@@ -25,7 +29,7 @@ export const TREND_ICONS = {
   neutral: Minus,
 };
 
-export const KANBAN_COLUMNS_ORDER: InitiativeStatus[] = ['A Fazer', 'Em Dia', 'Atrasado', 'Em Risco', 'Concluído'];
+export const KANBAN_COLUMNS_ORDER: InitiativeStatus[] = ['Pendente', 'Em execução', 'Etapa concluída', 'Suspenso', 'Concluído'];
 
 
 export const MOCK_INITIATIVES: Initiative[] = [];

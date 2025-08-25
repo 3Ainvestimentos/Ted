@@ -26,13 +26,10 @@ export function InitiativesKanban({ initiatives, onInitiativeClick }: Initiative
     };
 
     const columns: Column[] = useMemo(() => {
-        const groupedTasks: Record<InitiativeStatus, Initiative[]> = {
-            'A Fazer': [],
-            'Em Dia': [],
-            'Em Risco': [],
-            'Atrasado': [],
-            'Concluído': [],
-        };
+        const groupedTasks = KANBAN_COLUMNS_ORDER.reduce((acc, status) => {
+            acc[status] = [];
+            return acc;
+        }, {} as Record<InitiativeStatus, Initiative[]>);
         
         initiatives.forEach(task => {
             if (groupedTasks[task.status]) {
@@ -40,7 +37,6 @@ export function InitiativesKanban({ initiatives, onInitiativeClick }: Initiative
             }
         });
 
-        // Use the order defined in constants to create the columns
         return KANBAN_COLUMNS_ORDER.map(status => ({
             id: status,
             title: status,
