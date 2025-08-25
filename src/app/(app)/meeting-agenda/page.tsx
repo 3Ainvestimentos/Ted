@@ -2,9 +2,9 @@
 "use client";
 
 import { PageHeader } from '@/components/layout/page-header';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Link as LinkIcon } from 'lucide-react';
+import { PlusCircle } from 'lucide-react';
 import { useState } from 'react';
 import { RecurringMeetingsTable } from '@/components/meetings/recurring-meetings-table';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -12,7 +12,6 @@ import { useMeetings } from '@/contexts/meetings-context';
 import { UpsertMeetingModal } from '@/components/meetings/upsert-meeting-modal';
 
 export default function MeetingAgendaPage() {
-  const calendarUrl = "https://calendar.google.com/calendar/embed?src=primary&ctz=America/Sao_Paulo";
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { isLoading } = useMeetings();
 
@@ -24,9 +23,6 @@ export default function MeetingAgendaPage() {
             description="Visualize e gerencie seus compromissos e comitês."
         />
         <div className="flex items-center gap-2">
-            <Button variant="outline">
-                <LinkIcon className="mr-2 h-4 w-4" /> Integrar Calendário
-            </Button>
             <Button onClick={() => setIsModalOpen(true)}>
                 <PlusCircle className="mr-2 h-4 w-4" /> Nova Reunião Recorrente
             </Button>
@@ -51,25 +47,6 @@ export default function MeetingAgendaPage() {
       ) : (
         <RecurringMeetingsTable />
       )}
-
-
-      <Card className="flex-grow flex flex-col shadow-lg">
-        <CardHeader>
-            <CardTitle>Google Calendar</CardTitle>
-            <CardDescription>Sua agenda integrada para visualização e planejamento.</CardDescription>
-        </CardHeader>
-        <CardContent className="flex-grow p-0 rounded-b-lg overflow-hidden">
-            <iframe
-                src={calendarUrl}
-                style={{ border: 0 }}
-                width="100%"
-                height="100%"
-                frameBorder="0"
-                scrolling="no"
-                title="Google Calendar"
-            ></iframe>
-        </CardContent>
-      </Card>
     </div>
   );
 }
