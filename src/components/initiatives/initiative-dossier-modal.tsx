@@ -3,13 +3,13 @@
 
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { STATUS_ICONS, TREND_ICONS } from '@/lib/constants';
+import { STATUS_ICONS } from '@/lib/constants';
 import { useInitiatives } from '@/contexts/initiatives-context';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
-import { Edit3, MessageSquare, Paperclip, Users, BarChart3, CheckCircle, ListChecks } from 'lucide-react';
+import { Edit3, Paperclip, ListChecks } from 'lucide-react';
 import type { Initiative } from "@/types";
 import { EditInitiativeModal } from './edit-initiative-modal';
 import { Checkbox } from '../ui/checkbox';
@@ -102,31 +102,6 @@ export function InitiativeDossierModal({ isOpen, onOpenChange, initiative }: Ini
                         </section>
                     )}
 
-
-                    <section>
-                      <h3 className="text-xl font-headline mb-2 text-foreground/90">Métricas Chave</h3>
-                      {initiative.keyMetrics.length > 0 ? (
-                        <div className="grid sm:grid-cols-2 gap-4">
-                          {initiative.keyMetrics.map(metric => {
-                            const TrendIcon = TREND_ICONS[metric.trend];
-                            return (
-                              <Card key={metric.name} className="bg-secondary/50">
-                                <CardHeader className="pb-2">
-                                  <CardDescription className="text-xs">{metric.name}</CardDescription>
-                                  <CardTitle className="text-2xl">{metric.value}</CardTitle>
-                                </CardHeader>
-                                <CardFooter>
-                                  <TrendIcon className={`h-4 w-4 mr-1 ${metric.trend === 'up' ? 'text-green-500' : metric.trend === 'down' ? 'text-red-500' : ''}`} />
-                                  <p className="text-xs text-muted-foreground">{metric.trend === 'up' ? 'Melhorando' : metric.trend === 'down' ? 'Piorando' : 'Estável'}</p>
-                                </CardFooter>
-                              </Card>
-                            );
-                          })}
-                        </div>
-                      ) : (
-                        <p className="text-sm text-muted-foreground">Nenhuma métrica chave definida para esta iniciativa.</p>
-                      )}
-                    </section>
                   </div>
 
                   <aside className="space-y-6">
@@ -141,10 +116,6 @@ export function InitiativeDossierModal({ isOpen, onOpenChange, initiative }: Ini
                         <p><strong className="text-foreground/80">Conclusão Alvo:</strong> <span className="text-muted-foreground">{initiative.deadline ? new Date(initiative.deadline).toLocaleDateString('pt-BR', {timeZone: 'UTC'}) : 'N/D'}</span></p>
                       </CardContent>
                     </Card>
-                    
-                    <div className="space-y-2">
-                        <Button variant="outline" className="w-full justify-start"><Paperclip className="mr-2 h-4 w-4" /> Documentos (3)</Button>
-                    </div>
                   </aside>
                 </div>
 
