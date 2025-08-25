@@ -117,7 +117,7 @@ export function RecurringMeetingsTable() {
                   scheduledDateObj.setTime(scheduledDateObj.valueOf() + scheduledDateObj.getTimezoneOffset() * 60 * 1000);
               }
 
-              const hasAgenda = meeting.currentOccurrenceAgenda && meeting.currentOccurrenceAgenda.length > 0;
+              const hasAgenda = meeting.agenda && meeting.agenda.length > 0;
 
               return (
                 <React.Fragment key={meeting.id}>
