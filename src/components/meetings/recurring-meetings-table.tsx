@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import React, { useState } from 'react';
@@ -9,19 +8,19 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
-import { Calendar as CalendarIcon, CheckCircle2, ChevronDown, ChevronRight, Settings } from 'lucide-react';
+import { Calendar as CalendarIcon, CheckCircle2, ListChecks, Settings } from 'lucide-react';
 import { format, addDays, addMonths, addWeeks } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { useMeetings } from '@/contexts/meetings-context';
 import { UpsertMeetingModal } from './upsert-meeting-modal';
-import { Checkbox } from '../ui/checkbox';
+import { CurrentAgendaModal } from './current-agenda-modal';
 
 export function RecurringMeetingsTable() {
   const { toast } = useToast();
-  const { meetings, updateMeeting, updateAgendaItemStatus, isLoading } = useMeetings();
+  const { meetings, updateMeeting } = useMeetings();
   const [editingMeeting, setEditingMeeting] = useState<RecurringMeeting | null>(null);
-  const [expandedAgendas, setExpandedAgendas] = useState<Set<string>>(new Set());
+  const [agendaMeeting, setAgendaMeeting] = useState<RecurringMeeting | null>(null);
 
   const handleDateChange = (meetingId: string, newDate: Date | undefined) => {
     if (!newDate) return;
@@ -75,18 +74,6 @@ export function RecurringMeetingsTable() {
     });
   };
 
-  const toggleAgenda = (meetingId: string) => {
-    setExpandedAgendas(prev => {
-        const newSet = new Set(prev);
-        if (newSet.has(meetingId)) {
-            newSet.delete(meetingId);
-        } else {
-            newSet.add(meetingId);
-        }
-        return newSet;
-    })
-  }
-
   return (
     <>
     {editingMeeting && (
@@ -94,6 +81,13 @@ export function RecurringMeetingsTable() {
             isOpen={!!editingMeeting}
             onOpenChange={() => setEditingMeeting(null)}
             meeting={editingMeeting}
+        />
+    )}
+    {agendaMeeting && (
+        <CurrentAgendaModal
+            isOpen={!!agendaMeeting}
+            onOpenChange={() => setAgendaMeeting(null)}
+            meeting={agendaMeeting}
         />
     )}
     <Card className="shadow-lg">
@@ -123,21 +117,13 @@ export function RecurringMeetingsTable() {
                   scheduledDateObj.setTime(scheduledDateObj.valueOf() + scheduledDateObj.getTimezoneOffset() * 60 * 1000);
               }
 
-              const isAgendaExpanded = expandedAgendas.has(meeting.id);
               const hasAgenda = meeting.currentOccurrenceAgenda && meeting.currentOccurrenceAgenda.length > 0;
 
               return (
                 <React.Fragment key={meeting.id}>
                     <TableRow>
                     <TableCell className="font-medium">
-                        <div className="flex items-center gap-1">
-                             {hasAgenda && (
-                                <Button variant="ghost" size="icon" className="h-6 w-6 -ml-2" onClick={() => toggleAgenda(meeting.id)}>
-                                    {isAgendaExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                                </Button>
-                            )}
-                            {meeting.name}
-                        </div>
+                        {meeting.name}
                     </TableCell>
                     <TableCell>{format(lastOccurrenceLocal, 'dd/MM/yyyy')}</TableCell>
                     <TableCell>{format(nextDueDate, 'dd/MM/yyyy')}</TableCell>
@@ -166,6 +152,15 @@ export function RecurringMeetingsTable() {
                         </Popover>
                     </TableCell>
                     <TableCell className="text-center space-x-2">
+                        {hasAgenda && (
+                            <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => setAgendaMeeting(meeting)}
+                            >
+                                <ListChecks className="mr-2 h-4 w-4" /> Pauta
+                            </Button>
+                        )}
                         <Button
                         size="sm"
                         variant="secondary"
@@ -185,32 +180,6 @@ export function RecurringMeetingsTable() {
                         </Button>
                     </TableCell>
                     </TableRow>
-                    {isAgendaExpanded && hasAgenda && (
-                        <TableRow>
-                            <TableCell colSpan={5} className="p-0">
-                                <div className="p-4 bg-muted/50">
-                                    <h4 className="font-semibold mb-2 text-sm">Pauta da Reunião</h4>
-                                    <div className="space-y-2">
-                                        {meeting.currentOccurrenceAgenda.map(item => (
-                                            <div key={item.id} className="flex items-center gap-3 ml-4">
-                                                <Checkbox
-                                                    id={`agenda-${meeting.id}-${item.id}`}
-                                                    checked={item.completed}
-                                                    onCheckedChange={(checked) => updateAgendaItemStatus(meeting.id, item.id, !!checked)}
-                                                />
-                                                <label
-                                                    htmlFor={`agenda-${meeting.id}-${item.id}`}
-                                                    className={cn("text-sm", item.completed && "line-through text-muted-foreground")}
-                                                >
-                                                    {item.title}
-                                                </label>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </TableCell>
-                        </TableRow>
-                    )}
                 </React.Fragment>
               );
             }) : (
