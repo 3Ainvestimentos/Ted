@@ -17,6 +17,7 @@ import { useMeetings } from '@/contexts/meetings-context';
 import { UpsertMeetingModal } from './upsert-meeting-modal';
 import { CurrentAgendaModal } from './current-agenda-modal';
 import { MeetingHistoryModal } from './meeting-history-modal';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 
 export function RecurringMeetingsTable() {
   const { toast } = useToast();
@@ -155,37 +156,63 @@ export function RecurringMeetingsTable() {
                         </PopoverContent>
                         </Popover>
                     </TableCell>
-                    <TableCell className="text-center space-x-2">
+                    <TableCell className="text-center space-x-1">
                         {hasAgenda && (
-                            <Button
-                                size="sm"
-                                variant="outline"
+                           <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                size="icon"
+                                variant="ghost"
                                 onClick={() => setAgendaMeeting(meeting)}
-                            >
-                                <ListChecks className="mr-2 h-4 w-4" /> Pauta
-                            </Button>
+                              >
+                                <ListChecks className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Ver Pauta</p>
+                            </TooltipContent>
+                          </Tooltip>
                         )}
-                        <Button
-                            size="sm"
-                            variant="default"
-                            onClick={() => handleMarkAsDone(meeting)}
-                            disabled={!meeting.scheduledDate}
-                            className="bg-primary hover:bg-primary/90 disabled:bg-gray-400"
-                        >
-                            <CheckCircle2 className="mr-2 h-4 w-4" />
-                            Reunião Realizada
-                        </Button>
-                         <Button size="sm" variant="outline" onClick={() => setHistoryMeeting(meeting)} disabled={!hasHistory}>
-                           <History className="mr-2 h-4 w-4" /> Histórico
-                         </Button>
-                         <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => setEditingMeeting(meeting)}
-                        >
-                            <Settings className="mr-2 h-4 w-4" />
-                            Gerenciar
-                        </Button>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button
+                                    size="icon"
+                                    variant="ghost"
+                                    onClick={() => handleMarkAsDone(meeting)}
+                                    disabled={!meeting.scheduledDate}
+                                    className="text-green-600 hover:text-green-700 disabled:text-gray-400"
+                                >
+                                    <CheckCircle2 className="h-4 w-4" />
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Reunião Realizada</p>
+                            </TooltipContent>
+                        </Tooltip>
+                         <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button size="icon" variant="ghost" onClick={() => setHistoryMeeting(meeting)} disabled={!hasHistory}>
+                                   <History className="h-4 w-4" />
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Ver Histórico</p>
+                            </TooltipContent>
+                         </Tooltip>
+                         <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button
+                                    size="icon"
+                                    variant="ghost"
+                                    onClick={() => setEditingMeeting(meeting)}
+                                >
+                                    <Settings className="h-4 w-4" />
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Gerenciar Reunião</p>
+                            </TooltipContent>
+                         </Tooltip>
                     </TableCell>
                     </TableRow>
                 </React.Fragment>
@@ -204,3 +231,4 @@ export function RecurringMeetingsTable() {
     </>
   );
 }
+
