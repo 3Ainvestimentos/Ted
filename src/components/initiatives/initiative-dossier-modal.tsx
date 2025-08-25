@@ -47,7 +47,7 @@ export function InitiativeDossierModal({ isOpen, onOpenChange, initiative }: Ini
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
-                    <div className="flex items-start justify-between">
+                    <div className="flex items-start justify-between pr-10">
                         <div>
                             <DialogTitle className="text-2xl font-headline text-foreground">{initiative.title}</DialogTitle>
                             <DialogDescription className="mt-1">
