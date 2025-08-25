@@ -170,7 +170,7 @@ export function RecurringMeetingsTable() {
                             variant="default"
                             onClick={() => handleMarkAsDone(meeting)}
                             disabled={!meeting.scheduledDate}
-                            className="bg-green-600 hover:bg-green-700"
+                            className="bg-primary hover:bg-primary/90 disabled:bg-gray-400"
                         >
                             <CheckCircle2 className="mr-2 h-4 w-4" />
                             Reunião Realizada
