@@ -2,22 +2,25 @@
 
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import type { RecurringMeeting } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
-import { Calendar as CalendarIcon, CheckCircle2, ListChecks, Settings, History } from 'lucide-react';
-import { format, addDays, addMonths, addWeeks } from 'date-fns';
+import { Calendar as CalendarIcon, CheckCircle2, ListChecks, Settings, History, ArrowUpDown, Filter } from 'lucide-react';
+import { format, addDays, addMonths, addWeeks, isBefore, startOfToday } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { useMeetings } from '@/contexts/meetings-context';
 import { UpsertMeetingModal } from './upsert-meeting-modal';
 import { CurrentAgendaModal } from './current-agenda-modal';
 import { MeetingHistoryModal } from './meeting-history-modal';
-import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '../ui/tooltip';
+import { Input } from '../ui/input';
+
+type SortableKeys = 'lastOccurrence' | 'nextDueDate';
 
 export function RecurringMeetingsTable() {
   const { toast } = useToast();
@@ -25,6 +28,9 @@ export function RecurringMeetingsTable() {
   const [editingMeeting, setEditingMeeting] = useState<RecurringMeeting | null>(null);
   const [agendaMeeting, setAgendaMeeting] = useState<RecurringMeeting | null>(null);
   const [historyMeeting, setHistoryMeeting] = useState<RecurringMeeting | null>(null);
+  const [filterText, setFilterText] = useState('');
+  const [sortConfig, setSortConfig] = useState<{ key: SortableKeys; direction: 'ascending' | 'descending' } | null>({ key: 'nextDueDate', direction: 'ascending'});
+
 
   const handleDateChange = (meetingId: string, newDate: Date | undefined) => {
     if (!newDate) return;
@@ -56,6 +62,7 @@ export function RecurringMeetingsTable() {
   
   const calculateNextDueDate = (meeting: RecurringMeeting): Date => {
     const lastDate = new Date(meeting.lastOccurrence);
+    // Adjust for timezone issues when creating date from string
     const lastDateLocal = new Date(lastDate.valueOf() + lastDate.getTimezoneOffset() * 60 * 1000);
 
     switch (meeting.recurrence.unit) {
@@ -68,6 +75,36 @@ export function RecurringMeetingsTable() {
       default:
         return lastDateLocal;
     }
+  };
+  
+  const sortedAndFilteredMeetings = useMemo(() => {
+    let filtered = meetings.filter(meeting => meeting.name.toLowerCase().includes(filterText.toLowerCase()));
+
+    if (sortConfig !== null) {
+        filtered.sort((a, b) => {
+            let aValue, bValue;
+            if (sortConfig.key === 'nextDueDate') {
+                aValue = calculateNextDueDate(a).getTime();
+                bValue = calculateNextDueDate(b).getTime();
+            } else {
+                 aValue = new Date(a[sortConfig.key]).getTime();
+                 bValue = new Date(b[sortConfig.key]).getTime();
+            }
+            if (aValue < bValue) return sortConfig.direction === 'ascending' ? -1 : 1;
+            if (aValue > bValue) return sortConfig.direction === 'ascending' ? 1 : -1;
+            return 0;
+        });
+    }
+
+    return filtered;
+  }, [meetings, filterText, sortConfig]);
+
+  const requestSort = (key: SortableKeys) => {
+    let direction: 'ascending' | 'descending' = 'ascending';
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === 'ascending') {
+        direction = 'descending';
+    }
+    setSortConfig({ key, direction });
   };
 
 
@@ -100,18 +137,40 @@ export function RecurringMeetingsTable() {
         <CardDescription>Gerencie o ciclo de suas reuniões estratégicas para garantir a execução contínua.</CardDescription>
       </CardHeader>
       <CardContent>
+        <div className="flex gap-4 p-4 border rounded-lg bg-card shadow-sm mb-4">
+            <div className="relative flex-grow">
+                 <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                 <Input 
+                    placeholder="Filtrar por tipo de reunião..." 
+                    value={filterText}
+                    onChange={(e) => setFilterText(e.target.value)}
+                    className="pl-10"
+                />
+            </div>
+        </div>
+        <TooltipProvider>
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead className="w-[35%]">Tipo de Reunião</TableHead>
-              <TableHead>Última Ocorrência</TableHead>
-              <TableHead>Próxima Data Prevista</TableHead>
+              <TableHead>
+                <Button variant="ghost" onClick={() => requestSort('lastOccurrence')}>
+                    Última Ocorrência
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+              </TableHead>
+              <TableHead>
+                <Button variant="ghost" onClick={() => requestSort('nextDueDate')}>
+                    Próxima Data Prevista
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+              </TableHead>
               <TableHead>Data Agendada</TableHead>
               <TableHead className="text-center">Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {meetings.length > 0 ? meetings.map((meeting) => {
+            {sortedAndFilteredMeetings.length > 0 ? sortedAndFilteredMeetings.map((meeting) => {
               const nextDueDate = calculateNextDueDate(meeting);
               const lastOccurrenceDate = new Date(meeting.lastOccurrence);
               const lastOccurrenceLocal = new Date(lastOccurrenceDate.valueOf() + lastOccurrenceDate.getTimezoneOffset() * 60 * 1000);
@@ -120,6 +179,8 @@ export function RecurringMeetingsTable() {
               if (scheduledDateObj) {
                   scheduledDateObj.setTime(scheduledDateObj.valueOf() + scheduledDateObj.getTimezoneOffset() * 60 * 1000);
               }
+              
+              const isOverdue = isBefore(nextDueDate, startOfToday()) && !meeting.scheduledDate;
 
               const hasAgenda = meeting.agenda && meeting.agenda.length > 0;
               const hasHistory = meeting.occurrenceHistory && meeting.occurrenceHistory.length > 0;
@@ -131,7 +192,9 @@ export function RecurringMeetingsTable() {
                         {meeting.name}
                     </TableCell>
                     <TableCell>{format(lastOccurrenceLocal, 'dd/MM/yyyy')}</TableCell>
-                    <TableCell>{format(nextDueDate, 'dd/MM/yyyy')}</TableCell>
+                    <TableCell className={cn(isOverdue && 'text-[hsl(0,72%,51%)] font-bold')}>
+                        {format(nextDueDate, 'dd/MM/yyyy')}
+                    </TableCell>
                     <TableCell>
                         <Popover>
                         <PopoverTrigger asChild>
@@ -220,15 +283,15 @@ export function RecurringMeetingsTable() {
             }) : (
                     <TableRow>
                         <TableCell colSpan={5} className="text-center h-24">
-                        Nenhuma reunião recorrente cadastrada.
+                        Nenhuma reunião encontrada com os filtros atuais.
                         </TableCell>
                     </TableRow>
             )}
           </TableBody>
         </Table>
+        </TooltipProvider>
       </CardContent>
     </Card>
     </>
   );
 }
-
