@@ -175,11 +175,9 @@ export function RecurringMeetingsTable() {
                             <CheckCircle2 className="mr-2 h-4 w-4" />
                             Reunião Realizada
                         </Button>
-                         {hasHistory && (
-                            <Button size="sm" variant="outline" onClick={() => setHistoryMeeting(meeting)}>
-                               <History className="mr-2 h-4 w-4" /> Histórico
-                            </Button>
-                         )}
+                         <Button size="sm" variant="outline" onClick={() => setHistoryMeeting(meeting)} disabled={!hasHistory}>
+                           <History className="mr-2 h-4 w-4" /> Histórico
+                         </Button>
                          <Button
                             size="sm"
                             variant="outline"
