@@ -24,21 +24,18 @@ interface InitiativesContextType {
 
 const InitiativesContext = createContext<InitiativesContextType | undefined>(undefined);
 
-const calculateProgress = (initiative: Initiative, allInitiatives: Initiative[]): number => {
-    // Check if it's a parent initiative (has sub-items in the data structure)
-    const children = allInitiatives.filter(i => i.parentId === initiative.id);
-    if (children.length > 0) {
-        const completedChildren = children.filter(child => child.status === 'Concluído').length;
-        return children.length > 0 ? Math.round((completedChildren / children.length) * 100) : 0;
-    }
+const calculateProgressFromSubItems = (subItems: SubItem[]): number => {
+    if (!subItems || subItems.length === 0) return 0;
+    const completedCount = subItems.filter(item => item.completed).length;
+    return Math.round((completedCount / subItems.length) * 100);
+};
 
-    // Check for checklist-style sub-items
-    if (initiative.subItems && initiative.subItems.length > 0) {
-        const completedCount = initiative.subItems.filter(item => item.completed).length;
-        return Math.round((completedCount / initiative.subItems.length) * 100);
-    }
+const calculateParentProgress = (parentId: string, allInitiatives: Initiative[]): number => {
+    const children = allInitiatives.filter(i => i.parentId === parentId);
+    if (children.length === 0) return 0;
     
-    return initiative.progress || 0;
+    const totalProgress = children.reduce((sum, child) => sum + (child.progress || 0), 0);
+    return Math.round(totalProgress / children.length);
 };
 
 
@@ -58,12 +55,26 @@ export const InitiativesProvider = ({ children }: { children: ReactNode }) => {
             ...doc.data()
         } as Initiative));
 
-        const initiativesWithCalculatedProgress = rawInitiatives.map(init => ({
+        // First pass: calculate progress for items with subItems
+        const initiativesWithSubItemProgress = rawInitiatives.map(init => ({
             ...init,
-            progress: calculateProgress(init, rawInitiatives),
+            progress: init.subItems && init.subItems.length > 0
+                ? calculateProgressFromSubItems(init.subItems)
+                : init.progress || 0,
         }));
-        
-        setInitiatives(initiativesWithCalculatedProgress);
+
+        // Second pass: calculate progress for parent items
+        const initiativesWithFinalProgress = initiativesWithSubItemProgress.map(init => {
+            if (rawInitiatives.some(child => child.parentId === init.id)) {
+                return {
+                    ...init,
+                    progress: calculateParentProgress(init.id, initiativesWithSubItemProgress),
+                };
+            }
+            return init;
+        });
+
+        setInitiatives(initiativesWithFinalProgress);
     } catch (error) {
         console.error("Error fetching initiatives: ", error);
     } finally {
@@ -173,21 +184,52 @@ export const InitiativesProvider = ({ children }: { children: ReactNode }) => {
   }, [fetchInitiatives]);
 
   const updateSubItem = useCallback(async (initiativeId: string, subItemId: string, completed: boolean) => {
-    const initiative = initiatives.find(i => i.id === initiativeId);
-    if (!initiative || !initiative.subItems) return;
+      const localInitiative = initiatives.find(i => i.id === initiativeId);
+      if (!localInitiative || !localInitiative.subItems) return;
 
-    const updatedSubItems = initiative.subItems.map(si => 
-        si.id === subItemId ? { ...si, completed } : si
-    );
-    
-    const initiativeDocRef = doc(db, 'initiatives', initiativeId);
-    try {
-        await updateDoc(initiativeDocRef, { subItems: updatedSubItems, lastUpdate: new Date().toISOString() });
-        await fetchInitiatives();
-    } catch(error) {
-        console.error("Error updating subitem:", error);
-    }
-  }, [initiatives, fetchInitiatives]);
+      const updatedSubItems = localInitiative.subItems.map(si => 
+          si.id === subItemId ? { ...si, completed } : si
+      );
+      
+      const initiativeDocRef = doc(db, 'initiatives', initiativeId);
+      try {
+          await updateDoc(initiativeDocRef, { subItems: updatedSubItems, lastUpdate: new Date().toISOString() });
+          // Update state locally instead of re-fetching everything
+          setInitiatives(prevInitiatives => {
+              const newInitiatives = prevInitiatives.map(init => {
+                  if (init.id === initiativeId) {
+                      return {
+                          ...init,
+                          subItems: updatedSubItems,
+                          progress: calculateProgressFromSubItems(updatedSubItems),
+                          lastUpdate: new Date().toISOString(),
+                      };
+                  }
+                  return init;
+              });
+
+              // If the updated initiative has a parent, we need to recalculate the parent's progress
+              if (localInitiative.parentId) {
+                  const parentId = localInitiative.parentId;
+                  return newInitiatives.map(init => {
+                      if (init.id === parentId) {
+                          return {
+                              ...init,
+                              progress: calculateParentProgress(parentId, newInitiatives)
+                          };
+                      }
+                      return init;
+                  });
+              }
+
+              return newInitiatives;
+          });
+
+      } catch(error) {
+          console.error("Error updating subitem:", error);
+          // Optionally revert local state changes on failure
+      }
+  }, [initiatives]);
 
   return (
     <InitiativesContext.Provider value={{ initiatives, addInitiative, bulkAddInitiatives, updateInitiative, deleteInitiative, updateInitiativeStatus, updateSubItem, isLoading }}>
