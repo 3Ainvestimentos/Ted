@@ -139,7 +139,7 @@ export function InitiativeDossierModal({ isOpen, onOpenChange, initiative }: Ini
                         <p><strong className="text-foreground/80">Responsável:</strong> {initiative.owner}</p>
                         <p><strong className="text-foreground/80">Última Atualização:</strong> {new Date(initiative.lastUpdate).toLocaleDateString()}</p>
                         <p><strong className="text-foreground/80">Membros da Equipe:</strong> <span className="text-muted-foreground">John D., Jane S., Mike L.</span></p>
-                        <p><strong className="text-foreground/80">Conclusão Alvo:</strong> <span className="text-muted-foreground">{new Date(initiative.deadline).toLocaleDateString('pt-BR', {timeZone: 'UTC'})}</span></p>
+                        <p><strong className="text-foreground/80">Conclusão Alvo:</strong> <span className="text-muted-foreground">{initiative.deadline ? new Date(initiative.deadline).toLocaleDateString('pt-BR', {timeZone: 'UTC'}) : 'N/D'}</span></p>
                       </CardContent>
                     </Card>
                     

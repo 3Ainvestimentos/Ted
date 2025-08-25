@@ -63,10 +63,12 @@ export function EditInitiativeModal({ isOpen, onOpenChange, initiative }: EditIn
 
     const getDeadlineDate = () => {
         if (initiative.deadline) {
+            // Firestore timestamps can be tricky. Ensure it's handled correctly.
+            // If deadline is stored as 'YYYY-MM-DD', we need to account for timezone.
             const [year, month, day] = initiative.deadline.split('-').map(Number);
-            return new Date(year, month - 1, day);
+            return new Date(Date.UTC(year, month - 1, day));
         }
-        return new Date();
+        return undefined;
     }
 
     const initialData = {

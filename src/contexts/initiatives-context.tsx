@@ -86,7 +86,7 @@ export const InitiativesProvider = ({ children }: { children: ReactNode }) => {
     
     const newInitiative = {
         ...initiativeData,
-        deadline: initiativeData.deadline?.toISOString().split('T')[0],
+        deadline: initiativeData.deadline ? initiativeData.deadline.toISOString().split('T')[0] : null,
         lastUpdate: new Date().toISOString(),
         topicNumber: nextTopicNumber,
         progress: 0, 
@@ -109,7 +109,7 @@ export const InitiativesProvider = ({ children }: { children: ReactNode }) => {
     newInitiativesData.forEach(initiativeData => {
         const deadline = initiativeData.deadline && !isNaN(new Date(initiativeData.deadline).getTime())
           ? new Date(initiativeData.deadline).toISOString().split('T')[0]
-          : new Date().toISOString().split('T')[0];
+          : null;
 
         const newInitiative = {
           ...initiativeData,
@@ -138,7 +138,7 @@ export const InitiativesProvider = ({ children }: { children: ReactNode }) => {
     try {
       const updatedData = {
           ...data,
-          deadline: data.deadline?.toISOString().split('T')[0],
+          deadline: data.deadline ? data.deadline.toISOString().split('T')[0] : null,
           lastUpdate: new Date().toISOString(),
           subItems: data.subItems?.map(si => ({...si, id: si.id || doc(collection(db, 'dummy')).id})) || [],
       };
