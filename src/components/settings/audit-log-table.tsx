@@ -2,7 +2,7 @@
 
 "use client";
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -27,43 +27,45 @@ const EVENT_TYPE_MAP: Record<string, { label: string, color: string }> = {
 
 export function AuditLogTable({ filterType, filterStartDate, filterEndDate }: AuditLogTableProps) {
     const { logs, fetchLogs, getLogsCount, isLoading } = useAuditLog();
-    const [lastVisible, setLastVisible] = useState<any>(null);
-    const [firstVisible, setFirstVisible] = useState<any[]>([]);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [totalLogs, setTotalLogs] = useState(0);
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [pageCursors, setPageCursors] = useState<any[]>([null]); // Store cursor for the start of each page
     
     const PAGE_LIMIT = 10;
-    const totalPages = Math.ceil(totalLogs / PAGE_LIMIT);
-
-    const loadInitialLogs = useCallback(async () => {
-        const count = await getLogsCount({ filterType, filterStartDate, filterEndDate });
-        setTotalLogs(count);
-        const lastDoc = await fetchLogs({ pageLimit: PAGE_LIMIT, filterType, filterStartDate, filterEndDate });
-        setLastVisible(lastDoc);
-        setFirstVisible([null]);
-        setCurrentPage(1);
-    }, [getLogsCount, fetchLogs, filterType, filterStartDate, filterEndDate]);
+    
+    const memoizedFilters = useMemo(() => ({ filterType, filterStartDate, filterEndDate }), [filterType, filterStartDate, filterEndDate]);
 
 
     useEffect(() => {
-        loadInitialLogs();
-    }, [loadInitialLogs]);
+        const loadInitialData = async () => {
+            const count = await getLogsCount(memoizedFilters);
+            setTotalPages(Math.ceil(count / PAGE_LIMIT));
+            setPage(1);
+            setPageCursors([null]);
+            const firstPageCursor = await fetchLogs({ pageLimit: PAGE_LIMIT, ...memoizedFilters });
+            if (firstPageCursor) {
+                setPageCursors(prev => [...prev, firstPageCursor]);
+            }
+        };
+
+        loadInitialData();
+    }, [memoizedFilters, getLogsCount, fetchLogs]);
 
     const handleNextPage = async () => {
-        if (currentPage < totalPages) {
-            const lastDoc = await fetchLogs({ lastVisible, pageLimit: PAGE_LIMIT, filterType, filterStartDate, filterEndDate });
-            setFirstVisible(prev => [...prev, logs[0]]);
-            setLastVisible(lastDoc);
-            setCurrentPage(prev => prev + 1);
+        if (page < totalPages) {
+            const lastVisible = pageCursors[page];
+            const nextLastVisible = await fetchLogs({ pageLimit: PAGE_LIMIT, lastVisible: lastVisible, ...memoizedFilters });
+            setPageCursors(prev => [...prev, nextLastVisible]);
+            setPage(prev => prev + 1);
         }
     };
 
     const handlePrevPage = async () => {
-        if (currentPage > 1) {
-            // Firestore doesn't support querying backwards efficiently without complex logic.
-            // For simplicity, we'll reset to the first page.
-            // A more advanced implementation might store all page start cursors.
-            await loadInitialLogs();
+        if (page > 1) {
+            const prevPageCursor = pageCursors[page - 2];
+            await fetchLogs({ pageLimit: PAGE_LIMIT, lastVisible: prevPageCursor, ...memoizedFilters });
+            setPage(prev => prev - 1);
+            // No need to change cursors, we are just moving back
         }
     };
 
@@ -108,12 +110,12 @@ export function AuditLogTable({ filterType, filterStartDate, filterEndDate }: Au
                 </Table>
             </div>
             <div className="flex items-center justify-between">
-                <p className="text-sm text-muted-foreground">Página {currentPage} de {totalPages}</p>
+                <p className="text-sm text-muted-foreground">Página {page} de {totalPages}</p>
                 <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm" onClick={handlePrevPage} disabled={currentPage === 1 || isLoading}>
+                    <Button variant="outline" size="sm" onClick={handlePrevPage} disabled={page === 1 || isLoading}>
                         <ChevronLeft className="h-4 w-4 mr-1" /> Anterior
                     </Button>
-                    <Button variant="outline" size="sm" onClick={handleNextPage} disabled={currentPage >= totalPages || isLoading || !lastVisible}>
+                    <Button variant="outline" size="sm" onClick={handleNextPage} disabled={page >= totalPages || isLoading}>
                         Próximo <ChevronRight className="h-4 w-4 ml-1" />
                     </Button>
                 </div>

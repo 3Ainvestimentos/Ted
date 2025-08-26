@@ -5,7 +5,7 @@
 import type { AuditLog, AuditLogEvent, UserAuditSummaryData } from '@/types';
 import React, { createContext, useContext, useState, ReactNode, useCallback, useEffect } from 'react';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, addDoc, query, orderBy, Timestamp, where, limit, startAfter, getCountFromServer, QueryConstraint } from 'firebase/firestore';
+import { collection, getDocs, addDoc, query, orderBy, Timestamp, where, limit, startAfter, getCountFromServer, QueryConstraint, DocumentSnapshot } from 'firebase/firestore';
 import { useAuth } from './auth-context';
 
 interface AuditLogContextType {
@@ -20,6 +20,20 @@ interface AuditLogContextType {
 
 const AuditLogContext = createContext<AuditLogContextType | undefined>(undefined);
 
+const buildQueryConstraints = (filterType?: string, filterStartDate?: Date | null, filterEndDate?: Date | null): QueryConstraint[] => {
+    const constraints: QueryConstraint[] = [];
+    if (filterType && filterType !== 'all') {
+        constraints.push(where('event', '==', filterType));
+    }
+    if (filterStartDate) {
+        constraints.push(where('timestamp', '>=', Timestamp.fromDate(filterStartDate)));
+    }
+    if (filterEndDate) {
+        constraints.push(where('timestamp', '<=', Timestamp.fromDate(filterEndDate)));
+    }
+    return constraints;
+};
+
 export const AuditLogProvider = ({ children }: { children: ReactNode }) => {
   const [logs, setLogs] = useState<AuditLog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -28,59 +42,46 @@ export const AuditLogProvider = ({ children }: { children: ReactNode }) => {
   
   const getLogsCount = useCallback(async (options: { filterType?: string, filterStartDate?: Date | null, filterEndDate?: Date | null } = {}) => {
       const { filterType, filterStartDate, filterEndDate } = options;
-      let constraints: QueryConstraint[] = [];
-      if(filterType && filterType !== 'all') constraints.push(where('event', '==', filterType));
-      if(filterStartDate) constraints.push(where('timestamp', '>=', Timestamp.fromDate(filterStartDate)));
-      if(filterEndDate) constraints.push(where('timestamp', '<=', Timestamp.fromDate(filterEndDate)));
-      
+      const constraints = buildQueryConstraints(filterType, filterStartDate, filterEndDate);
       const q = query(collection(db, 'auditLogs'), ...constraints);
       const snapshot = await getCountFromServer(q);
       return snapshot.data().count;
   }, []);
 
-
   const fetchLogs = useCallback(async (options: { lastVisible?: any, pageLimit?: number, filterType?: string, filterStartDate?: Date | null, filterEndDate?: Date | null } = {}) => {
     setIsLoading(true);
     const { lastVisible, pageLimit = 10, filterType, filterStartDate, filterEndDate } = options;
     
-    let constraints: QueryConstraint[] = [orderBy('timestamp', 'desc')];
-
-    if (filterType && filterType !== 'all') {
-      constraints.push(where('event', '==', filterType));
-    }
-    if (filterStartDate) {
-      constraints.push(where('timestamp', '>=', Timestamp.fromDate(filterStartDate)));
-    }
-    if (filterEndDate) {
-      constraints.push(where('timestamp', '<=', Timestamp.fromDate(filterEndDate)));
-    }
-    if (lastVisible) {
-      constraints.push(startAfter(lastVisible));
-    }
-    constraints.push(limit(pageLimit));
-    
     try {
-      const auditLogsCollectionRef = collection(db, 'auditLogs');
-      const q = query(auditLogsCollectionRef, ...constraints);
-      const querySnapshot = await getDocs(q);
-      const logsData = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      } as AuditLog));
+        const filterConstraints = buildQueryConstraints(filterType, filterStartDate, filterEndDate);
+        const q = query(
+            collection(db, 'auditLogs'), 
+            ...filterConstraints,
+            orderBy('timestamp', 'desc'),
+            ...(lastVisible ? [startAfter(lastVisible)] : []),
+            limit(pageLimit)
+        );
 
-      setLogs(logsData);
-      return querySnapshot.docs[querySnapshot.docs.length - 1]; // Return last visible document for pagination
+        const querySnapshot = await getDocs(q);
+        const logsData = querySnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        } as AuditLog));
+
+        setLogs(logsData);
+        return querySnapshot.docs[querySnapshot.docs.length - 1]; // Return last visible document for pagination
     } catch (error) {
-      console.error("Error fetching audit logs: ", error);
-      if (error instanceof Error && error.message.includes("requires an index")) {
-        console.error("Firestore composite index required. Please create it in the Firebase console.");
-        setLogs([]);
-      }
-      return null;
+        console.error("Error fetching audit logs: ", error);
+        if (error instanceof Error && (error.message.includes("requires an index") || error.message.includes("inequality filter property and the first sort order must be the same"))) {
+            console.error("Firestore composite index required. Please create it in the Firebase console or adjust filters.");
+            setLogs([]); // Clear logs to avoid showing stale data
+        }
+        return null;
     } finally {
-      setIsLoading(false);
+        setIsLoading(false);
     }
   }, []);
+
 
   const getLoginSummary = useCallback(async (): Promise<UserAuditSummaryData[]> => {
     setIsLoadingSummary(true);
