@@ -5,7 +5,7 @@
 import type { AuditLog, AuditLogEvent, UserAuditSummaryData } from '@/types';
 import React, { createContext, useContext, useState, ReactNode, useCallback, useEffect } from 'react';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, addDoc, query, orderBy, Timestamp, where, limit, startAfter, getCountFromServer } from 'firebase/firestore';
+import { collection, getDocs, addDoc, query, orderBy, Timestamp, where, limit, startAfter, getCountFromServer, QueryConstraint } from 'firebase/firestore';
 import { useAuth } from './auth-context';
 
 interface AuditLogContextType {
@@ -28,7 +28,7 @@ export const AuditLogProvider = ({ children }: { children: ReactNode }) => {
   
   const getLogsCount = useCallback(async (options: { filterType?: string, filterStartDate?: Date | null, filterEndDate?: Date | null } = {}) => {
       const { filterType, filterStartDate, filterEndDate } = options;
-      let constraints = [];
+      let constraints: QueryConstraint[] = [];
       if(filterType && filterType !== 'all') constraints.push(where('event', '==', filterType));
       if(filterStartDate) constraints.push(where('timestamp', '>=', Timestamp.fromDate(filterStartDate)));
       if(filterEndDate) constraints.push(where('timestamp', '<=', Timestamp.fromDate(filterEndDate)));
@@ -43,25 +43,25 @@ export const AuditLogProvider = ({ children }: { children: ReactNode }) => {
     setIsLoading(true);
     const { lastVisible, pageLimit = 10, filterType, filterStartDate, filterEndDate } = options;
     
-    let constraints = [orderBy('timestamp', 'desc'), limit(pageLimit)];
+    let constraints: QueryConstraint[] = [orderBy('timestamp', 'desc')];
 
-    // Apply filters that don't require composite indexes first
-    if(filterStartDate) constraints.unshift(where('timestamp', '>=', Timestamp.fromDate(filterStartDate)));
-    if(filterEndDate) constraints.unshift(where('timestamp', '<=', Timestamp.fromDate(filterEndDate)));
-    
-    // The where('event', ...) combined with orderBy('timestamp') requires a composite index.
-    // To avoid this, we can fetch and then filter in the client if a filterType is provided.
-    // This is less efficient for large datasets but avoids the index requirement for now.
-    // If performance becomes an issue, creating the index is the correct solution.
     if (filterType && filterType !== 'all') {
-         constraints.unshift(where('event', '==', filterType));
+      constraints.push(where('event', '==', filterType));
     }
-
-    if(lastVisible) constraints.push(startAfter(lastVisible));
+    if (filterStartDate) {
+      constraints.push(where('timestamp', '>=', Timestamp.fromDate(filterStartDate)));
+    }
+    if (filterEndDate) {
+      constraints.push(where('timestamp', '<=', Timestamp.fromDate(filterEndDate)));
+    }
+    if (lastVisible) {
+      constraints.push(startAfter(lastVisible));
+    }
+    constraints.push(limit(pageLimit));
     
     try {
       const auditLogsCollectionRef = collection(db, 'auditLogs');
-      const q = query(auditLogsCollectionRef, ...constraints as any);
+      const q = query(auditLogsCollectionRef, ...constraints);
       const querySnapshot = await getDocs(q);
       const logsData = querySnapshot.docs.map(doc => ({
         id: doc.id,
@@ -74,7 +74,6 @@ export const AuditLogProvider = ({ children }: { children: ReactNode }) => {
       console.error("Error fetching audit logs: ", error);
       if (error instanceof Error && error.message.includes("requires an index")) {
         console.error("Firestore composite index required. Please create it in the Firebase console.");
-        // To prevent loops, we set logs to an empty array and stop loading.
         setLogs([]);
       }
       return null;
@@ -142,10 +141,6 @@ export const AuditLogProvider = ({ children }: { children: ReactNode }) => {
       console.error("Error logging activity: ", error);
     }
   }, [user]);
-
-  useEffect(() => {
-    setIsLoading(false);
-  }, []);
 
   return (
     <AuditLogContext.Provider value={{ logs, logActivity, fetchLogs, getLogsCount, getLoginSummary, isLoading, isLoadingSummary }}>
