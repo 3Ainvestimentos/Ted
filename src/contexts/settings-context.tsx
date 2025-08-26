@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { createContext, useContext, useState, ReactNode, useCallback, useEffect } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useCallback, useEffect, useMemo } from 'react';
 import { db } from '@/lib/firebase';
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import type { MaintenanceSettings } from '@/types';
@@ -21,7 +21,7 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
   const [maintenanceSettings, setMaintenanceSettings] = useState<MaintenanceSettings | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const settingsDocRef = doc(db, 'settings', 'maintenance');
+  const settingsDocRef = useMemo(() => doc(db, 'settings', 'maintenance'), []);
 
   const fetchSettings = useCallback(async () => {
     setIsLoading(true);
