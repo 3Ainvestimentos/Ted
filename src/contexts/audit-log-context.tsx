@@ -1,7 +1,8 @@
 
+
 "use client";
 
-import type { AuditLog, AuditLogEvent } from '@/types';
+import type { AuditLog, AuditLogEvent, UserAuditSummaryData } from '@/types';
 import React, { createContext, useContext, useState, ReactNode, useCallback, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, addDoc, query, orderBy, Timestamp, where, limit, startAfter, getCountFromServer } from 'firebase/firestore';
@@ -12,7 +13,9 @@ interface AuditLogContextType {
   logActivity: (event: AuditLogEvent, details: string) => Promise<void>;
   fetchLogs: (options?: { lastVisible?: any, pageLimit?: number, filterType?: string, filterStartDate?: Date | null, filterEndDate?: Date | null }) => Promise<any>;
   getLogsCount: (options?: { filterType?: string, filterStartDate?: Date | null, filterEndDate?: Date | null }) => Promise<number>;
+  getLoginSummary: () => Promise<UserAuditSummaryData[]>;
   isLoading: boolean;
+  isLoadingSummary: boolean;
 }
 
 const AuditLogContext = createContext<AuditLogContextType | undefined>(undefined);
@@ -20,6 +23,7 @@ const AuditLogContext = createContext<AuditLogContextType | undefined>(undefined
 export const AuditLogProvider = ({ children }: { children: ReactNode }) => {
   const [logs, setLogs] = useState<AuditLog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingSummary, setIsLoadingSummary] = useState(false);
   const { user } = useAuth();
   
   const getLogsCount = useCallback(async (options: { filterType?: string, filterStartDate?: Date | null, filterEndDate?: Date | null } = {}) => {
@@ -65,6 +69,48 @@ export const AuditLogProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
+  const getLoginSummary = useCallback(async (): Promise<UserAuditSummaryData[]> => {
+    setIsLoadingSummary(true);
+    try {
+        const loginLogsQuery = query(
+            collection(db, 'auditLogs'),
+            where('event', '==', 'login'),
+            orderBy('timestamp', 'desc')
+        );
+        
+        const querySnapshot = await getDocs(loginLogsQuery);
+        const loginLogs = querySnapshot.docs.map(doc => doc.data() as AuditLog);
+
+        const summary = new Map<string, { loginCount: number, lastLogin: Date }>();
+
+        loginLogs.forEach(log => {
+            const email = log.userEmail;
+            const logDate = (log.timestamp as Timestamp).toDate();
+
+            if (!summary.has(email)) {
+                summary.set(email, { loginCount: 0, lastLogin: logDate });
+            }
+
+            const userData = summary.get(email)!;
+            userData.loginCount++;
+            if (logDate > userData.lastLogin) {
+                userData.lastLogin = logDate;
+            }
+        });
+        
+        return Array.from(summary.entries()).map(([userEmail, data]) => ({
+            userEmail,
+            ...data
+        })).sort((a, b) => b.lastLogin.getTime() - a.lastLogin.getTime());
+
+    } catch (error) {
+        console.error("Error fetching login summary: ", error);
+        return [];
+    } finally {
+        setIsLoadingSummary(false);
+    }
+  }, []);
+
   const logActivity = useCallback(async (event: AuditLogEvent, details: string) => {
     if (!user) return; // Don't log if user is not authenticated
 
@@ -83,13 +129,12 @@ export const AuditLogProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [user]);
 
-  // Initial fetch is now handled by the component itself
   useEffect(() => {
     setIsLoading(false);
   }, []);
 
   return (
-    <AuditLogContext.Provider value={{ logs, logActivity, fetchLogs, getLogsCount, isLoading }}>
+    <AuditLogContext.Provider value={{ logs, logActivity, fetchLogs, getLogsCount, getLoginSummary, isLoading, isLoadingSummary }}>
       {children}
     </AuditLogContext.Provider>
   );

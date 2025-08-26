@@ -32,6 +32,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { MaintenanceModeManager } from '@/components/settings/maintenance-mode-manager';
+import { UserAuditSummary } from '@/components/settings/user-audit-summary';
 
 
 const getInitials = (name: string) => {
@@ -206,60 +207,14 @@ function ContentGoalsTabContent() {
 }
 
 function AuditLogTabContent() {
-    const [filterType, setFilterType] = useState('all');
-    const [startDate, setStartDate] = useState<Date | null>(null);
-    const [endDate, setEndDate] = useState<Date | null>(null);
-
     return (
         <Card className="shadow-lg mt-6">
             <CardContent className="pt-6 space-y-6">
                 <div>
                     <h3 className="text-lg font-medium">Relatório de Auditoria</h3>
-                    <p className="text-muted-foreground text-sm">Monitore as atividades dos usuários na plataforma.</p>
+                    <p className="text-muted-foreground text-sm">Monitore a atividade e o engajamento dos usuários na plataforma.</p>
                 </div>
-                <div className="flex flex-col sm:flex-row gap-4 p-4 border rounded-lg bg-card-foreground/5">
-                    <div className="flex-1 space-y-2">
-                        <Label htmlFor="eventType">Tipo de Evento</Label>
-                        <Select value={filterType} onValueChange={setFilterType}>
-                            <SelectTrigger id="eventType">
-                                <SelectValue placeholder="Filtrar por evento" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">Todos os Eventos</SelectItem>
-                                <SelectItem value="login">Login</SelectItem>
-                                <SelectItem value="logout">Logout</SelectItem>
-                                <SelectItem value="view_page">Visualização</SelectItem>
-                                <SelectItem value="create_initiative">Criação</SelectItem>
-                                <SelectItem value="update_initiative">Atualização</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    <div className="flex-1 space-y-2">
-                         <Label>Data de Início</Label>
-                         <Popover>
-                            <PopoverTrigger asChild>
-                            <Button variant={"outline"} className="w-full justify-start text-left font-normal">
-                                <CalendarIcon className="mr-2 h-4 w-4" />
-                                {startDate ? format(startDate, "dd/MM/yyyy") : <span>Selecione</span>}
-                            </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0"><Calendar mode="single" selected={startDate ?? undefined} onSelect={(d) => setStartDate(d ?? null)} /></PopoverContent>
-                        </Popover>
-                    </div>
-                    <div className="flex-1 space-y-2">
-                         <Label>Data de Fim</Label>
-                         <Popover>
-                            <PopoverTrigger asChild>
-                            <Button variant={"outline"} className="w-full justify-start text-left font-normal">
-                                <CalendarIcon className="mr-2 h-4 w-4" />
-                                {endDate ? format(endDate, "dd/MM/yyyy") : <span>Selecione</span>}
-                            </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0"><Calendar mode="single" selected={endDate ?? undefined} onSelect={(d) => setEndDate(d ?? null)} /></PopoverContent>
-                        </Popover>
-                    </div>
-                </div>
-                <AuditLogTable filterType={filterType} filterStartDate={startDate} filterEndDate={endDate} />
+                <UserAuditSummary />
             </CardContent>
         </Card>
     );
@@ -314,7 +269,7 @@ export default function SettingsHubPage() {
             description="Gerencie os módulos e configurações da plataforma em um local central."
         />
 
-        <Tabs defaultValue="content" className="w-full">
+        <Tabs defaultValue="audit" className="w-full">
             <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-5 h-auto">
                  {adminModules.map((mod) => (
                     <TabsTrigger key={mod.name} value={mod.name} className="py-2 flex-col h-auto">

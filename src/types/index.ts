@@ -132,6 +132,12 @@ export interface AuditLog {
     details: string;
 }
 
+export interface UserAuditSummaryData {
+    userEmail: string;
+    loginCount: number;
+    lastLogin: Date;
+}
+
 // Types for Settings
 export interface MaintenanceSettings {
     isEnabled: boolean;
