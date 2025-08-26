@@ -85,7 +85,6 @@ export function UpsertOkrModal({ isOpen, onOpenChange, areaId, okr }: UpsertOkrM
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="status">Status</Label>
-                        <z.input {...register("status")} />
                         <Select onValueChange={(value) => setValue('status', value as any)} defaultValue={okr?.status}>
                              <SelectTrigger>
                                 <SelectValue placeholder="Selecione o status" />
@@ -103,7 +102,6 @@ export function UpsertOkrModal({ isOpen, onOpenChange, areaId, okr }: UpsertOkrM
                             <Label htmlFor="progress">Progresso</Label>
                             <span>{progressValue}%</span>
                          </div>
-                        <z.input {...register("progress", { valueAsNumber: true })} />
                         <Slider
                             defaultValue={[progressValue]}
                             max={100}

@@ -81,7 +81,6 @@ export function UpsertKpiModal({ isOpen, onOpenChange, areaId, kpi }: UpsertKpiM
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="unit">Unidade de Medida</Label>
-                        <z.input {...register("unit")} />
                         <Select onValueChange={(value) => setValue('unit', value as any)} defaultValue={kpi?.unit}>
                              <SelectTrigger>
                                 <SelectValue placeholder="Selecione a unidade" />

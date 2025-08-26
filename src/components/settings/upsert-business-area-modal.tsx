@@ -40,7 +40,7 @@ export function UpsertBusinessAreaModal({ isOpen, onOpenChange, area }: UpsertBu
     const [isLoading, setIsLoading] = useState(false);
     const isEditing = !!area;
 
-    const { register, handleSubmit, reset, control, formState: { errors } } = useForm<BusinessAreaFormData>({
+    const { register, handleSubmit, reset, control, setValue, formState: { errors } } = useForm<BusinessAreaFormData>({
         resolver: zodResolver(formSchema),
     });
 
@@ -87,8 +87,7 @@ export function UpsertBusinessAreaModal({ isOpen, onOpenChange, area }: UpsertBu
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="icon">Ícone</Label>
-                        <z.input {...register("icon")} />
-                        <Select onValueChange={(value) => control._fields.icon._f.onChange(value)} defaultValue={area?.icon}>
+                        <Select onValueChange={(value) => setValue('icon', value)} defaultValue={area?.icon}>
                              <SelectTrigger>
                                 <SelectValue placeholder="Selecione um ícone" />
                              </SelectTrigger>
