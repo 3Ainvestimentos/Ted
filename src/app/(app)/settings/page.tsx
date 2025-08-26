@@ -314,7 +314,7 @@ export default function SettingsHubPage() {
             description="Gerencie os módulos e configurações da plataforma em um local central."
         />
 
-        <Tabs defaultValue="collaborators" className="w-full">
+        <Tabs defaultValue="content" className="w-full">
             <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-5 h-auto">
                  {adminModules.map((mod) => (
                     <TabsTrigger key={mod.name} value={mod.name} className="py-2 flex-col h-auto">
