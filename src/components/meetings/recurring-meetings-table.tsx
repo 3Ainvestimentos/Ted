@@ -20,7 +20,7 @@ import { MeetingHistoryModal } from './meeting-history-modal';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '../ui/tooltip';
 import { Input } from '../ui/input';
 
-type SortableKeys = 'lastOccurrence' | 'nextDueDate';
+type SortableKeys = 'name' | 'lastOccurrence' | 'nextDueDate';
 
 export function RecurringMeetingsTable() {
   const { toast } = useToast();
@@ -82,14 +82,19 @@ export function RecurringMeetingsTable() {
 
     if (sortConfig !== null) {
         filtered.sort((a, b) => {
-            let aValue, bValue;
+            let aValue: string | number, bValue: string | number;
+
             if (sortConfig.key === 'nextDueDate') {
                 aValue = calculateNextDueDate(a).getTime();
                 bValue = calculateNextDueDate(b).getTime();
-            } else {
+            } else if (sortConfig.key === 'lastOccurrence') {
                  aValue = new Date(a[sortConfig.key]).getTime();
                  bValue = new Date(b[sortConfig.key]).getTime();
+            } else {
+                 aValue = a.name;
+                 bValue = b.name;
             }
+
             if (aValue < bValue) return sortConfig.direction === 'ascending' ? -1 : 1;
             if (aValue > bValue) return sortConfig.direction === 'ascending' ? 1 : -1;
             return 0;
@@ -152,7 +157,12 @@ export function RecurringMeetingsTable() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[35%]">Tipo de Reunião</TableHead>
+              <TableHead className="w-[30%]">
+                 <Button variant="ghost" onClick={() => requestSort('name')}>
+                    Tipo de Reunião
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+              </TableHead>
               <TableHead>
                 <Button variant="ghost" onClick={() => requestSort('lastOccurrence')}>
                     Última Ocorrência
@@ -165,8 +175,8 @@ export function RecurringMeetingsTable() {
                     <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
               </TableHead>
-              <TableHead>Data Agendada</TableHead>
-              <TableHead className="text-center">Ações</TableHead>
+              <TableHead className="w-[220px]">Data Agendada</TableHead>
+              <TableHead className="text-center w-[180px]">Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -192,7 +202,7 @@ export function RecurringMeetingsTable() {
                         {meeting.name}
                     </TableCell>
                     <TableCell>{format(lastOccurrenceLocal, 'dd/MM/yyyy')}</TableCell>
-                    <TableCell className={cn(isOverdue && 'text-[hsl(0,72%,51%)] font-bold')}>
+                    <TableCell className={cn(isOverdue && 'text-destructive font-bold')}>
                         {format(nextDueDate, 'dd/MM/yyyy')}
                     </TableCell>
                     <TableCell>
@@ -219,63 +229,65 @@ export function RecurringMeetingsTable() {
                         </PopoverContent>
                         </Popover>
                     </TableCell>
-                    <TableCell className="text-center space-x-1">
-                        {hasAgenda && (
-                           <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button
-                                size="icon"
-                                variant="ghost"
-                                onClick={() => setAgendaMeeting(meeting)}
-                              >
-                                <ListChecks className="h-4 w-4" />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Ver Pauta</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        )}
-                        <Tooltip>
-                            <TooltipTrigger asChild>
+                    <TableCell className="text-center">
+                        <div className="flex justify-center space-x-1 whitespace-nowrap">
+                            {hasAgenda && (
+                            <Tooltip>
+                                <TooltipTrigger asChild>
                                 <Button
                                     size="icon"
                                     variant="ghost"
-                                    onClick={() => handleMarkAsDone(meeting)}
-                                    disabled={!meeting.scheduledDate}
-                                    className="text-green-600 hover:text-green-700 disabled:text-gray-400"
+                                    onClick={() => setAgendaMeeting(meeting)}
                                 >
-                                    <CheckCircle2 className="h-4 w-4" />
+                                    <ListChecks className="h-4 w-4" />
                                 </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Reunião Realizada</p>
-                            </TooltipContent>
-                        </Tooltip>
-                         <Tooltip>
-                            <TooltipTrigger asChild>
-                                <Button size="icon" variant="ghost" onClick={() => setHistoryMeeting(meeting)} disabled={!hasHistory}>
-                                   <History className="h-4 w-4" />
-                                </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Ver Histórico</p>
-                            </TooltipContent>
-                         </Tooltip>
-                         <Tooltip>
-                            <TooltipTrigger asChild>
-                                <Button
-                                    size="icon"
-                                    variant="ghost"
-                                    onClick={() => setEditingMeeting(meeting)}
-                                >
-                                    <Settings className="h-4 w-4" />
-                                </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Gerenciar Reunião</p>
-                            </TooltipContent>
-                         </Tooltip>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                <p>Ver Pauta</p>
+                                </TooltipContent>
+                            </Tooltip>
+                            )}
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button
+                                        size="icon"
+                                        variant="ghost"
+                                        onClick={() => handleMarkAsDone(meeting)}
+                                        disabled={!meeting.scheduledDate}
+                                        className="text-green-600 hover:text-green-700 disabled:text-gray-400"
+                                    >
+                                        <CheckCircle2 className="h-4 w-4" />
+                                    </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                <p>Reunião Realizada</p>
+                                </TooltipContent>
+                            </Tooltip>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button size="icon" variant="ghost" onClick={() => setHistoryMeeting(meeting)} disabled={!hasHistory}>
+                                    <History className="h-4 w-4" />
+                                    </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                <p>Ver Histórico</p>
+                                </TooltipContent>
+                            </Tooltip>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button
+                                        size="icon"
+                                        variant="ghost"
+                                        onClick={() => setEditingMeeting(meeting)}
+                                    >
+                                        <Settings className="h-4 w-4" />
+                                    </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                <p>Gerenciar Reunião</p>
+                                </TooltipContent>
+                            </Tooltip>
+                        </div>
                     </TableCell>
                     </TableRow>
                 </React.Fragment>
