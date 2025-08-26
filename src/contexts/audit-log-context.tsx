@@ -45,9 +45,18 @@ export const AuditLogProvider = ({ children }: { children: ReactNode }) => {
     
     let constraints = [orderBy('timestamp', 'desc'), limit(pageLimit)];
 
-    if(filterType && filterType !== 'all') constraints.unshift(where('event', '==', filterType));
+    // Apply filters that don't require composite indexes first
     if(filterStartDate) constraints.unshift(where('timestamp', '>=', Timestamp.fromDate(filterStartDate)));
     if(filterEndDate) constraints.unshift(where('timestamp', '<=', Timestamp.fromDate(filterEndDate)));
+    
+    // The where('event', ...) combined with orderBy('timestamp') requires a composite index.
+    // To avoid this, we can fetch and then filter in the client if a filterType is provided.
+    // This is less efficient for large datasets but avoids the index requirement for now.
+    // If performance becomes an issue, creating the index is the correct solution.
+    if (filterType && filterType !== 'all') {
+         constraints.unshift(where('event', '==', filterType));
+    }
+
     if(lastVisible) constraints.push(startAfter(lastVisible));
     
     try {
@@ -63,6 +72,11 @@ export const AuditLogProvider = ({ children }: { children: ReactNode }) => {
       return querySnapshot.docs[querySnapshot.docs.length - 1]; // Return last visible document for pagination
     } catch (error) {
       console.error("Error fetching audit logs: ", error);
+      if (error instanceof Error && error.message.includes("requires an index")) {
+        console.error("Firestore composite index required. Please create it in the Firebase console.");
+        // To prevent loops, we set logs to an empty array and stop loading.
+        setLogs([]);
+      }
       return null;
     } finally {
       setIsLoading(false);

@@ -1,7 +1,8 @@
 
+
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -34,17 +35,19 @@ export function AuditLogTable({ filterType, filterStartDate, filterEndDate }: Au
     const PAGE_LIMIT = 10;
     const totalPages = Math.ceil(totalLogs / PAGE_LIMIT);
 
+    const loadInitialLogs = useCallback(async () => {
+        const count = await getLogsCount({ filterType, filterStartDate, filterEndDate });
+        setTotalLogs(count);
+        const lastDoc = await fetchLogs({ pageLimit: PAGE_LIMIT, filterType, filterStartDate, filterEndDate });
+        setLastVisible(lastDoc);
+        setFirstVisible([null]);
+        setCurrentPage(1);
+    }, [getLogsCount, fetchLogs, filterType, filterStartDate, filterEndDate]);
+
+
     useEffect(() => {
-        async function loadInitialLogs() {
-            const count = await getLogsCount({ filterType, filterStartDate, filterEndDate });
-            setTotalLogs(count);
-            const lastDoc = await fetchLogs({ pageLimit: PAGE_LIMIT, filterType, filterStartDate, filterEndDate });
-            setLastVisible(lastDoc);
-            setFirstVisible([null]);
-            setCurrentPage(1);
-        }
         loadInitialLogs();
-    }, [filterType, filterStartDate, filterEndDate, fetchLogs, getLogsCount]);
+    }, [loadInitialLogs]);
 
     const handleNextPage = async () => {
         if (currentPage < totalPages) {
@@ -57,17 +60,10 @@ export function AuditLogTable({ filterType, filterStartDate, filterEndDate }: Au
 
     const handlePrevPage = async () => {
         if (currentPage > 1) {
-            const prevPageLastVisible = firstVisible[currentPage - 1];
-            // Since we can't query backwards, we have to restart the query from the beginning
-            // and get the documents up to the previous page's starting point.
-            // This is a limitation of Firestore. A more robust solution might use different query logic.
-            // For this implementation, we will simply restart.
-            const lastDoc = await fetchLogs({ pageLimit: PAGE_LIMIT, filterType, filterStartDate, filterEndDate });
-            setFirstVisible([null]);
-            setLastVisible(lastDoc);
-            setCurrentPage(1);
-            // Ideally, we'd go to the actual previous page, but it's complex.
-            // For now, this is a simplified approach.
+            // Firestore doesn't support querying backwards efficiently without complex logic.
+            // For simplicity, we'll reset to the first page.
+            // A more advanced implementation might store all page start cursors.
+            await loadInitialLogs();
         }
     };
 
@@ -117,7 +113,7 @@ export function AuditLogTable({ filterType, filterStartDate, filterEndDate }: Au
                     <Button variant="outline" size="sm" onClick={handlePrevPage} disabled={currentPage === 1 || isLoading}>
                         <ChevronLeft className="h-4 w-4 mr-1" /> Anterior
                     </Button>
-                    <Button variant="outline" size="sm" onClick={handleNextPage} disabled={currentPage >= totalPages || isLoading}>
+                    <Button variant="outline" size="sm" onClick={handleNextPage} disabled={currentPage >= totalPages || isLoading || !lastVisible}>
                         Próximo <ChevronRight className="h-4 w-4 ml-1" />
                     </Button>
                 </div>
