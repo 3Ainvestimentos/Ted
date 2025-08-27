@@ -1,7 +1,7 @@
 
 "use client";
 
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { ResponsiveContainer, ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from "recharts";
 import { ChartContainer, ChartTooltipContent, ChartConfig, ChartLegend, ChartLegendContent } from "@/components/ui/chart";
 import type { KpiSeriesData } from "@/types";
 
@@ -39,7 +39,7 @@ export function KpiChart({ data, unit }: KpiChartProps) {
     <div className="h-56 w-full">
        <ChartContainer config={chartConfig} className="w-full h-full">
             <ResponsiveContainer width="100%" height="100%">
-                <LineChart
+                <ComposedChart
                     data={data}
                     margin={{
                         top: 5,
@@ -70,7 +70,7 @@ export function KpiChart({ data, unit }: KpiChartProps) {
                                     <div className="flex items-center">
                                       <div
                                         className="w-2.5 h-2.5 rounded-full mr-2"
-                                        style={{ backgroundColor: chartConfig[name as keyof typeof chartConfig].color }}
+                                        style={{ backgroundColor: chartConfig[name as keyof typeof chartConfig]?.color || 'gray' }}
                                       />
                                       <span className="capitalize mr-2 text-muted-foreground">{name}:</span>
                                       <span className="font-bold">{formatNumber(value as number, unit)}</span>
@@ -81,9 +81,9 @@ export function KpiChart({ data, unit }: KpiChartProps) {
                         }
                     />
                      <ChartLegend content={<ChartLegendContent />} />
-                    <Line type="monotone" dataKey="Meta" stroke="var(--color-Meta)" strokeWidth={2} strokeDasharray="5 5" dot={false} />
-                    <Line type="monotone" dataKey="Realizado" stroke="var(--color-Realizado)" strokeWidth={2} dot={false} connectNulls />
-                </LineChart>
+                     <Bar dataKey="Realizado" fill="var(--color-Realizado)" radius={4} />
+                     <Line type="monotone" dataKey="Meta" stroke="var(--color-Meta)" strokeWidth={2} strokeDasharray="5 5" dot={false} />
+                </ComposedChart>
             </ResponsiveContainer>
         </ChartContainer>
     </div>
