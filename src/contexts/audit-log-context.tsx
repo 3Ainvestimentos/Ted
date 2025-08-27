@@ -22,14 +22,23 @@ const AuditLogContext = createContext<AuditLogContextType | undefined>(undefined
 
 const buildQueryConstraints = (filterType?: string, filterStartDate?: Date | null, filterEndDate?: Date | null): QueryConstraint[] => {
     const constraints: QueryConstraint[] = [];
-    if (filterType && filterType !== 'all') {
+    
+    // Firestore limitation: Cannot have inequality filters on a field other than the first orderBy field
+    // when an equality filter is present. To avoid this, we won't apply the 'event' filter on the query directly
+    // if date range is also present. We will filter in-memory later.
+    // However, if ONLY the event type is filtered, we can use the equality filter.
+    if (filterType && filterType !== 'all' && !filterStartDate && !filterEndDate) {
         constraints.push(where('event', '==', filterType));
     }
+    
     if (filterStartDate) {
         constraints.push(where('timestamp', '>=', Timestamp.fromDate(filterStartDate)));
     }
     if (filterEndDate) {
-        constraints.push(where('timestamp', '<=', Timestamp.fromDate(filterEndDate)));
+        // To include the whole day, we set the time to the end of the day.
+        const endOfDay = new Date(filterEndDate);
+        endOfDay.setHours(23, 59, 59, 999);
+        constraints.push(where('timestamp', '<=', Timestamp.fromDate(endOfDay)));
     }
     return constraints;
 };
@@ -42,6 +51,9 @@ export const AuditLogProvider = ({ children }: { children: ReactNode }) => {
   
   const getLogsCount = useCallback(async (options: { filterType?: string, filterStartDate?: Date | null, filterEndDate?: Date | null } = {}) => {
       const { filterType, filterStartDate, filterEndDate } = options;
+      // Note: This count might not be perfectly accurate if we are client-side filtering.
+      // For a precise count, we'd need to fetch all and count, which is inefficient.
+      // We will return the count based on the query, which is a reasonable approximation.
       const constraints = buildQueryConstraints(filterType, filterStartDate, filterEndDate);
       const q = query(collection(db, 'auditLogs'), ...constraints);
       const snapshot = await getCountFromServer(q);
@@ -63,10 +75,15 @@ export const AuditLogProvider = ({ children }: { children: ReactNode }) => {
         );
 
         const querySnapshot = await getDocs(q);
-        const logsData = querySnapshot.docs.map(doc => ({
+        let logsData = querySnapshot.docs.map(doc => ({
             id: doc.id,
             ...doc.data()
         } as AuditLog));
+
+        // Client-side filtering if we couldn't apply it in the query
+         if (filterType && filterType !== 'all' && (filterStartDate || filterEndDate)) {
+            logsData = logsData.filter(log => log.event === filterType);
+        }
 
         setLogs(logsData);
         return querySnapshot.docs[querySnapshot.docs.length - 1]; // Return last visible document for pagination
