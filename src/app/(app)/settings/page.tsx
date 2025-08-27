@@ -33,6 +33,8 @@ import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { MaintenanceModeManager } from '@/components/settings/maintenance-mode-manager';
 import { UserAuditSummary } from '@/components/settings/user-audit-summary';
+import { useCollaborators } from '@/contexts/collaborators-context';
+import { Skeleton } from '@/components/ui/skeleton';
 
 
 const getInitials = (name: string) => {
@@ -43,11 +45,11 @@ const getInitials = (name: string) => {
 }
 
 function PermissionsTabContent() {
-  const [collaborators, setCollaborators] = useState<any[]>([]); // Will be fetched from Firestore
-  const [permissions, setPermissions] = useState<Record<number, Record<string, boolean>>>({}); // Will be fetched from Firestore
+  const { collaborators, isLoading } = useCollaborators();
+  const [permissions, setPermissions] = useState<Record<string, Record<string, boolean>>>({}); // Placeholder for permissions state
 
 
-  const handlePermissionChange = (userId: number, navHref: string, isEnabled: boolean) => {
+  const handlePermissionChange = (userId: string, navHref: string, isEnabled: boolean) => {
     // This will be updated to write to Firestore
     setPermissions(prev => ({
       ...prev,
@@ -56,6 +58,7 @@ function PermissionsTabContent() {
         [navHref]: isEnabled,
       },
     }));
+    console.log(`Permission for user ${userId}, item ${navHref} is now ${isEnabled}`);
   };
   
   const navItemsForPermissions = NAV_ITEMS_CONFIG.filter(item => !item.isDivider && !item.isFooter);
@@ -65,11 +68,11 @@ function PermissionsTabContent() {
         <CardContent className="pt-6">
            <div className="flex justify-between items-center mb-4">
               <p className="text-muted-foreground">Controle quais seções cada colaborador pode visualizar e interagir.</p>
-              <Button>
+              <Button disabled> 
                 <PlusCircle className="mr-2 h-4 w-4" /> Convidar Colaborador
               </Button>
            </div>
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto rounded-lg border">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -81,7 +84,29 @@ function PermissionsTabContent() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {collaborators.length > 0 ? (
+                {isLoading ? (
+                   [...Array(3)].map((_, i) => (
+                    <TableRow key={`skel-${i}`}>
+                        <TableCell>
+                            <div className="flex items-center gap-3">
+                                <Skeleton className="h-9 w-9 rounded-full" />
+                                <div className="space-y-1">
+                                    <Skeleton className="h-4 w-24" />
+                                    <Skeleton className="h-3 w-16" />
+                                </div>
+                            </div>
+                        </TableCell>
+                        {navItemsForPermissions.map(item => (
+                            <TableCell key={item.href} className="text-center">
+                                <Skeleton className="h-6 w-11 mx-auto" />
+                            </TableCell>
+                        ))}
+                        <TableCell className="text-right">
+                             <Skeleton className="h-8 w-8 ml-auto" />
+                        </TableCell>
+                    </TableRow>
+                   ))
+                ) : collaborators.length > 0 ? (
                   collaborators.map((user) => (
                     <TableRow key={user.id}>
                       <TableCell>
@@ -108,7 +133,7 @@ function PermissionsTabContent() {
                       <TableCell className="text-right">
                          <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                             <Button variant="ghost" size="icon">
+                             <Button variant="ghost" size="icon" disabled>
                                 <MoreVertical className="h-4 w-4" />
                              </Button>
                           </DropdownMenuTrigger>
@@ -123,7 +148,7 @@ function PermissionsTabContent() {
                 ) : (
                   <TableRow>
                     <TableCell colSpan={navItemsForPermissions.length + 2} className="h-24 text-center">
-                      Nenhum colaborador encontrado. Comece convidando um novo colaborador.
+                      Nenhum colaborador encontrado. Adicione colaboradores na aba "Colaboradores".
                     </TableCell>
                   </TableRow>
                 )}
