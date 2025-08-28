@@ -146,3 +146,20 @@ export interface MaintenanceSettings {
     isEnabled: boolean;
     adminEmails: string[];
 }
+
+// Type for Notes
+export interface Note {
+    userId: string;
+    content: string;
+    lastUpdated: any; // Firestore Timestamp
+}
+
+// Type for Tasks
+export interface Task {
+    id: string;
+    userId: string;
+    title: string;
+    completed: boolean;
+    archived: boolean;
+    createdAt: any; // Firestore Timestamp
+}

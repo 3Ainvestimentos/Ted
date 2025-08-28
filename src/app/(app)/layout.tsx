@@ -12,6 +12,8 @@ import { UserNav } from '@/components/layout/user-nav';
 import { useAuth } from '@/contexts/auth-context';
 import { usePathname, useRouter } from 'next/navigation';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { NotesProvider } from '@/contexts/notes-context';
+import { TasksProvider } from '@/contexts/tasks-context';
 
 function AppContent({ children }: { children: React.ReactNode }) {
   return (
@@ -69,7 +71,11 @@ export default function AppLayout({
       <InitiativesProvider>
         <MeetingsProvider>
           <StrategicPanelProvider>
-              <AppContent>{children}</AppContent>
+            <TasksProvider>
+              <NotesProvider>
+                <AppContent>{children}</AppContent>
+              </NotesProvider>
+            </TasksProvider>
           </StrategicPanelProvider>
         </MeetingsProvider>
       </InitiativesProvider>
