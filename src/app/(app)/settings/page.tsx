@@ -249,6 +249,14 @@ function AuditLogTabContent() {
 
 const adminModules = [
     {
+        name: "content",
+        title: "Conteúdo e Metas",
+        description: "O painel para gerenciar áreas de negócio, OKRs e KPIs que alimentam o Painel Estratégico será implementado aqui.",
+        icon: BarChart2,
+        component: <ContentGoalsTabContent />,
+        disabled: false,
+    },
+    {
         name: "permissions",
         title: "Permissões de Acesso",
         description: "Controle quais seções cada colaborador pode visualizar.",
@@ -262,14 +270,6 @@ const adminModules = [
         description: "Adicione, edite ou importe a lista de colaboradores da plataforma.",
         icon: Users,
         component: <CollaboratorsTabContent />,
-        disabled: false,
-    },
-    {
-        name: "content",
-        title: "Conteúdo e Metas",
-        description: "O painel para gerenciar áreas de negócio, OKRs e KPIs que alimentam o Painel Estratégico será implementado aqui.",
-        icon: BarChart2,
-        component: <ContentGoalsTabContent />,
         disabled: false,
     },
     {
@@ -298,7 +298,7 @@ export default function SettingsHubPage() {
             description="Gerencie os módulos e configurações da plataforma em um local central."
         />
 
-        <Tabs defaultValue="collaborators" className="w-full">
+        <Tabs defaultValue="content" className="w-full">
             <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-5 h-auto">
                  {adminModules.map((mod) => (
                     <TabsTrigger key={mod.name} value={mod.name} className="py-2 flex-col h-auto" disabled={mod.disabled}>
