@@ -118,7 +118,12 @@ export const StrategicPanelProvider = ({ children }: { children: ReactNode }) =>
   
   const addOkr = async (areaId: string, okrData: OkrFormData) => {
     try {
-        const dataToSave = { ...okrData, areaId };
+        const dataToSave = { 
+            ...okrData, 
+            areaId,
+            deadline: okrData.deadline ? okrData.deadline : null,
+            previousProgress: 0,
+        };
         await addDoc(collection(db, 'okrs'), dataToSave);
         await fetchPanelData();
     } catch (e) { console.error("Error adding OKR: ", e); }
@@ -126,7 +131,12 @@ export const StrategicPanelProvider = ({ children }: { children: ReactNode }) =>
 
   const updateOkr = async (okrId: string, okrData: OkrFormData) => {
       try {
-          await updateDoc(doc(db, 'okrs', okrId), okrData as any);
+          const okrDocRef = doc(db, 'okrs', okrId);
+          const dataToUpdate = { ...okrData };
+          if (dataToUpdate.deadline === undefined) {
+              dataToUpdate.deadline = null;
+          }
+          await updateDoc(okrDocRef, dataToUpdate as any);
           await fetchPanelData();
       } catch (e) { console.error("Error updating OKR: ", e); }
   }

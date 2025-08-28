@@ -1,17 +1,20 @@
 
+
 "use client";
 
 import { PageHeader } from '@/components/layout/page-header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { DollarSign, Target, Briefcase, ListChecks, TrendingUp } from 'lucide-react';
+import { DollarSign, Target, Briefcase, ListChecks, TrendingUp, TrendingDown, Minus, CalendarDays, ArrowRight } from 'lucide-react';
 import { KpiChart } from '@/components/strategic-panel/kpi-chart';
 import { useStrategicPanel } from '@/contexts/strategic-panel-context';
 import { Skeleton } from '@/components/ui/skeleton';
-import type { BusinessArea, KpiSeriesData } from '@/types';
+import type { BusinessArea, KpiSeriesData, Okr } from '@/types';
 import { eachMonthOfInterval, startOfMonth, endOfMonth, format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { cn } from '@/lib/utils';
+
 
 // Map icon names from Firestore to Lucide components
 const iconMap: { [key: string]: React.ElementType } = {
@@ -40,6 +43,19 @@ function PanelSkeleton() {
         </div>
     )
 }
+
+const TrendIndicator = ({ okr }: { okr: Okr }) => {
+    const progressChange = okr.progress - (okr.previousProgress || 0);
+
+    if (progressChange > 0) {
+        return <TrendingUp className="w-4 h-4 text-green-500" />;
+    }
+    if (progressChange < 0) {
+        return <TrendingDown className="w-4 h-4 text-red-500" />;
+    }
+    return <Minus className="w-4 h-4 text-gray-500" />;
+};
+
 
 export default function StrategicPanelPage() {
     const { businessAreas, isLoading } = useStrategicPanel();
@@ -126,16 +142,25 @@ export default function StrategicPanelPage() {
                                             <div key={okr.id}>
                                                 <div className="flex justify-between items-center mb-1">
                                                     <p className="text-sm font-body font-medium text-foreground/90">{okr.name}</p>
-                                                    <div className="flex items-center gap-2">
-                                                         <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+                                                    <div className="flex items-center gap-3">
+                                                         <span className={cn(`text-xs font-semibold px-2 py-0.5 rounded-full`, 
                                                             okr.status === 'Em Dia' ? 'bg-blue-100 text-blue-800' :
                                                             okr.status === 'Em Risco' ? 'bg-orange-100 text-orange-800' :
                                                             okr.status === 'Concluído' ? 'bg-green-100 text-green-800' : ''
-                                                          }`}>{okr.status}</span>
-                                                        <p className="text-sm font-semibold font-body">{okr.progress}%</p>
+                                                          )}>{okr.status}</span>
+                                                        <div className="flex items-center gap-1 text-sm font-semibold font-body">
+                                                            <TrendIndicator okr={okr} />
+                                                            <span>{okr.progress}%</span>
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 <Progress value={okr.progress} className="h-2" aria-label={okr.name} />
+                                                {okr.deadline && (
+                                                    <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                                                        <CalendarDays className="w-3 h-3" />
+                                                        <span>Prazo: {format(new Date(okr.deadline), 'dd/MM/yyyy', { timeZone: 'UTC' })}</span>
+                                                    </div>
+                                                )}
                                             </div>
                                         ))}
                                     </CardContent>

@@ -3,7 +3,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -13,15 +13,22 @@ import { Label } from "@/components/ui/label";
 import { LoadingSpinner } from "../ui/loading-spinner";
 import { useStrategicPanel } from "@/contexts/strategic-panel-context";
 import { useToast } from "@/hooks/use-toast";
-import type { Okr, OkrFormData } from "@/types";
+import type { Okr } from "@/types";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Slider } from "../ui/slider";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
 
 const formSchema = z.object({
   name: z.string().min(5, "O nome do OKR deve ter pelo menos 5 caracteres."),
   progress: z.number().min(0).max(100),
   status: z.enum(['Em Dia', 'Em Risco', 'Concluído']),
+  deadline: z.date().optional().nullable(),
 });
+
+type OkrFormData = z.infer<typeof formSchema>;
 
 interface UpsertOkrModalProps {
     isOpen: boolean;
@@ -44,20 +51,29 @@ export function UpsertOkrModal({ isOpen, onOpenChange, areaId, okr }: UpsertOkrM
 
     useEffect(() => {
         if (okr) {
-            reset(okr);
+            reset({
+                ...okr,
+                deadline: okr.deadline ? new Date(okr.deadline) : null,
+            });
         } else {
-            reset({ name: '', progress: 0, status: 'Em Dia' });
+            reset({ name: '', progress: 0, status: 'Em Dia', deadline: null });
         }
     }, [okr, reset, isOpen]);
     
     const onSubmit = async (data: OkrFormData) => {
         setIsLoading(true);
         try {
+            const dataToSave = {
+                ...data,
+                deadline: data.deadline ? data.deadline.toISOString().split('T')[0] : null,
+                previousProgress: isEditing ? okr.progress : 0, // Store current progress as previous
+            };
+
             if (isEditing && okr) {
-                await updateOkr(okr.id, data);
+                await updateOkr(okr.id, dataToSave as any);
                 toast({ title: "OKR Atualizado!", description: `O OKR "${data.name}" foi atualizado.` });
             } else {
-                await addOkr(areaId, data);
+                await addOkr(areaId, dataToSave as any);
                 toast({ title: "OKR Adicionado!", description: `O OKR "${data.name}" foi criado.` });
             }
             onOpenChange(false);
@@ -70,7 +86,7 @@ export function UpsertOkrModal({ isOpen, onOpenChange, areaId, okr }: UpsertOkrM
     
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-lg">
+            <DialogContent className="sm:max-w-2xl">
                 <DialogHeader>
                     <DialogTitle>{isEditing ? 'Editar OKR' : 'Novo OKR'}</DialogTitle>
                     <DialogDescription>
@@ -83,20 +99,59 @@ export function UpsertOkrModal({ isOpen, onOpenChange, areaId, okr }: UpsertOkrM
                         <Input id="name" {...register("name")} />
                         {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
                     </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="status">Status</Label>
-                        <Select onValueChange={(value) => setValue('status', value as any)} defaultValue={okr?.status}>
-                             <SelectTrigger>
-                                <SelectValue placeholder="Selecione o status" />
-                             </SelectTrigger>
-                             <SelectContent>
-                                <SelectItem value="Em Dia">Em Dia</SelectItem>
-                                <SelectItem value="Em Risco">Em Risco</SelectItem>
-                                <SelectItem value="Concluído">Concluído</SelectItem>
-                             </SelectContent>
-                        </Select>
-                        {errors.status && <p className="text-sm text-destructive">{errors.status.message}</p>}
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="status">Status</Label>
+                            <Controller
+                                name="status"
+                                control={control}
+                                render={({ field }) => (
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Selecione o status" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="Em Dia">Em Dia</SelectItem>
+                                            <SelectItem value="Em Risco">Em Risco</SelectItem>
+                                            <SelectItem value="Concluído">Concluído</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                )}
+                            />
+                            {errors.status && <p className="text-sm text-destructive">{errors.status.message}</p>}
+                        </div>
+                        <div className="space-y-2">
+                            <Label>Prazo</Label>
+                            <Controller
+                                name="deadline"
+                                control={control}
+                                render={({ field }) => (
+                                <Popover>
+                                    <PopoverTrigger asChild>
+                                    <Button
+                                        variant={"outline"}
+                                        className="w-full justify-start text-left font-normal"
+                                    >
+                                        <CalendarIcon className="mr-2 h-4 w-4" />
+                                        {field.value ? format(new Date(field.value), "dd/MM/yyyy") : <span>Selecione uma data</span>}
+                                    </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0">
+                                        <Calendar
+                                            mode="single"
+                                            selected={field.value || undefined}
+                                            onSelect={field.onChange}
+                                            initialFocus
+                                        />
+                                    </PopoverContent>
+                                </Popover>
+                                )}
+                            />
+                            {errors.deadline && <p className="text-sm text-destructive">{errors.deadline.message}</p>}
+                        </div>
                     </div>
+
                     <div className="space-y-2">
                          <div className="flex justify-between">
                             <Label htmlFor="progress">Progresso</Label>
