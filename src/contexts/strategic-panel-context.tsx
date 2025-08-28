@@ -5,7 +5,7 @@
 import type { BusinessArea, Okr, Kpi, BusinessAreaFormData, OkrFormData, KpiFormData } from '@/types';
 import React, { createContext, useContext, useState, ReactNode, useCallback, useEffect } from 'react';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, addDoc, doc, updateDoc, deleteDoc, writeBatch, query, where, orderBy } from 'firebase/firestore';
+import { collection, getDocs, addDoc, doc, updateDoc, deleteDoc, writeBatch, query, where, orderBy, getDoc } from 'firebase/firestore';
 
 interface StrategicPanelContextType {
   businessAreas: BusinessArea[];
@@ -16,7 +16,7 @@ interface StrategicPanelContextType {
   deleteBusinessArea: (areaId: string) => Promise<void>;
   updateBusinessAreasOrder: (reorderedAreas: BusinessArea[]) => Promise<void>;
   addOkr: (areaId: string, okrData: OkrFormData) => Promise<void>;
-  updateOkr: (okrId: string, okrData: OkrFormData) => Promise<void>;
+  updateOkr: (okrId: string, okrData: Partial<OkrFormData>) => Promise<void>;
   deleteOkr: (okrId: string) => Promise<void>;
   addKpi: (areaId: string, kpiData: KpiFormData) => Promise<void>;
   updateKpi: (kpiId: string, kpiData: KpiFormData) => Promise<void>;
@@ -129,14 +129,11 @@ export const StrategicPanelProvider = ({ children }: { children: ReactNode }) =>
     } catch (e) { console.error("Error adding OKR: ", e); }
   }
 
-  const updateOkr = async (okrId: string, okrData: OkrFormData) => {
+  const updateOkr = async (okrId: string, okrData: Partial<OkrFormData>) => {
       try {
           const okrDocRef = doc(db, 'okrs', okrId);
-          const dataToUpdate = { ...okrData };
-          if (dataToUpdate.deadline === undefined) {
-              dataToUpdate.deadline = null;
-          }
-          await updateDoc(okrDocRef, dataToUpdate as any);
+          // Only update the fields provided in okrData, preserving the rest.
+          await updateDoc(okrDocRef, okrData);
           await fetchPanelData();
       } catch (e) { console.error("Error updating OKR: ", e); }
   }
