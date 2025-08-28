@@ -11,7 +11,7 @@ import { KpiChart } from '@/components/strategic-panel/kpi-chart';
 import { useStrategicPanel } from '@/contexts/strategic-panel-context';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { BusinessArea, KpiSeriesData, Okr } from '@/types';
-import { eachMonthOfInterval, startOfMonth, endOfMonth, format } from 'date-fns';
+import { eachMonthOfInterval, startOfMonth, endOfMonth, format, isValid, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -96,7 +96,7 @@ export default function StrategicPanelPage() {
                     {businessAreas.map((area: BusinessArea) => {
                         const Icon = area.icon ? iconMap[area.icon] : Briefcase;
                         return (
-                            <TabsTrigger key={area.name} value={area.name} className="py-2">
+                            <TabsTrigger key={area.id} value={area.name} className="py-2">
                                 <Icon className="w-4 h-4 mr-2" />
                                 {area.name}
                             </TabsTrigger>
@@ -105,13 +105,26 @@ export default function StrategicPanelPage() {
                 </TabsList>
 
                 {businessAreas.map((area: BusinessArea) => (
-                    <TabsContent key={area.name} value={area.name} className="mt-6">
+                    <TabsContent key={area.id} value={area.name} className="mt-6">
                         <div className="space-y-6">
                             <section>
                                 <h2 className="font-headline text-2xl font-semibold mb-4 text-foreground/90">Indicadores Chave de Performance (KPIs)</h2>
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                     {area.kpis.map(kpi => {
-                                        const chartData = kpi.series.map(seriesItem => ({
+                                        
+                                        const startDate = kpi.startDate ? parseISO(kpi.startDate) : null;
+                                        const endDate = kpi.endDate ? parseISO(kpi.endDate) : null;
+
+                                        let chartData = kpi.series;
+                                        
+                                        if(startDate && endDate && isValid(startDate) && isValid(endDate)) {
+                                            const monthNamesInRange = eachMonthOfInterval({ start: startDate, end: endDate })
+                                                .map(d => format(d, 'MMM', { locale: ptBR }));
+
+                                            chartData = kpi.series.filter(s => monthNamesInRange.includes(s.month));
+                                        }
+
+                                        const chartDataWithTarget = chartData.map(seriesItem => ({
                                             ...seriesItem,
                                             Meta: kpi.targetValue,
                                         }));
@@ -125,7 +138,7 @@ export default function StrategicPanelPage() {
                                                 </CardTitle>
                                             </CardHeader>
                                             <CardContent className="flex-grow">
-                                                <KpiChart data={chartData} unit={kpi.unit} />
+                                                <KpiChart data={chartDataWithTarget} unit={kpi.unit} />
                                             </CardContent>
                                         </Card>
                                     )})}
