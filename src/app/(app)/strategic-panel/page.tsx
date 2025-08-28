@@ -82,7 +82,7 @@ export default function StrategicPanelPage() {
         )
     }
 
-    const defaultTab = businessAreas[0]?.name || '';
+    const defaultTab = businessAreas[0]?.id || '';
 
     return (
         <div className="space-y-6">
@@ -96,7 +96,7 @@ export default function StrategicPanelPage() {
                     {businessAreas.map((area: BusinessArea) => {
                         const Icon = area.icon ? iconMap[area.icon] : Briefcase;
                         return (
-                            <TabsTrigger key={area.id} value={area.name} className="py-2">
+                            <TabsTrigger key={area.id} value={area.id} className="py-2">
                                 <Icon className="w-4 h-4 mr-2" />
                                 {area.name}
                             </TabsTrigger>
@@ -105,28 +105,29 @@ export default function StrategicPanelPage() {
                 </TabsList>
 
                 {businessAreas.map((area: BusinessArea) => (
-                    <TabsContent key={area.id} value={area.name} className="mt-6">
+                    <TabsContent key={area.id} value={area.id} className="mt-6">
                         <div className="space-y-6">
                             <section>
                                 <h2 className="font-headline text-2xl font-semibold mb-4 text-foreground/90">Indicadores Chave de Performance (KPIs)</h2>
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                     {area.kpis.map(kpi => {
                                         
-                                        let chartData = kpi.series || [];
-                                        
                                         const startDate = kpi.startDate ? parseISO(kpi.startDate) : null;
                                         const endDate = kpi.endDate ? parseISO(kpi.endDate) : null;
                                         
+                                        let chartData = [];
                                         if(startDate && endDate && isValid(startDate) && isValid(endDate)) {
                                             const monthNamesInRange = eachMonthOfInterval({ start: startDate, end: endDate })
                                                 .map(d => format(d, 'MMM', { locale: ptBR }));
                                                 
-                                            const monthDataMap = new Map(kpi.series.map(s => [s.month, s.Realizado]));
+                                            const monthDataMap = new Map((kpi.series || []).map(s => [s.month, s.Realizado]));
                                             
                                             chartData = monthNamesInRange.map(monthName => ({
                                                 month: monthName,
                                                 Realizado: monthDataMap.get(monthName) || null
                                             }));
+                                        } else {
+                                            chartData = kpi.series || [];
                                         }
 
                                         const chartDataWithTarget = chartData.map(seriesItem => ({
@@ -174,6 +175,7 @@ export default function StrategicPanelPage() {
                                                         <div className="flex items-center gap-1 text-sm font-semibold font-body">
                                                             <TrendIndicator okr={okr} />
                                                             <span>{okr.progress}%</span>
+                                                            {okr.previousUpdate && <span className="text-xs text-muted-foreground font-normal">(de {okr.previousProgress}%)</span>}
                                                         </div>
                                                     </div>
                                                 </div>
