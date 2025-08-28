@@ -112,16 +112,21 @@ export default function StrategicPanelPage() {
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                     {area.kpis.map(kpi => {
                                         
+                                        let chartData = kpi.series || [];
+                                        
                                         const startDate = kpi.startDate ? parseISO(kpi.startDate) : null;
                                         const endDate = kpi.endDate ? parseISO(kpi.endDate) : null;
-
-                                        let chartData = kpi.series;
                                         
                                         if(startDate && endDate && isValid(startDate) && isValid(endDate)) {
                                             const monthNamesInRange = eachMonthOfInterval({ start: startDate, end: endDate })
                                                 .map(d => format(d, 'MMM', { locale: ptBR }));
-
-                                            chartData = kpi.series.filter(s => monthNamesInRange.includes(s.month));
+                                                
+                                            const monthDataMap = new Map(kpi.series.map(s => [s.month, s.Realizado]));
+                                            
+                                            chartData = monthNamesInRange.map(monthName => ({
+                                                month: monthName,
+                                                Realizado: monthDataMap.get(monthName) || null
+                                            }));
                                         }
 
                                         const chartDataWithTarget = chartData.map(seriesItem => ({
