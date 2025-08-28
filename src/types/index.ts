@@ -112,17 +112,9 @@ export interface BusinessArea {
     kpis: Kpi[];
 }
 
-// Type for Collaborators
-export interface Collaborator {
-    id: string;
-    name: string;
-    email: string;
-    cargo: string; // Role/Position
-}
-
 // Form data types for Strategic Panel Management
 export type BusinessAreaFormData = Omit<BusinessArea, 'id' | 'okrs' | 'kpis'>;
-export type OkrFormData = Omit<Okr, 'id' | 'areaId'>;
+export type OkrFormData = Omit<Okr, 'id' | 'areaId' | 'previousProgress' | 'lastUpdate' | 'previousUpdate'>;
 export type KpiFormData = Omit<Kpi, 'id' | 'areaId'>;
 
 // Types for Audit Log

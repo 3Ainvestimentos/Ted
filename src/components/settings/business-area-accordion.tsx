@@ -6,7 +6,7 @@ import { useState } from "react";
 import type { BusinessArea } from "@/types";
 import { AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "../ui/button";
-import { Edit, Trash2, GripVertical } from "lucide-react";
+import { Edit, Trash2 } from "lucide-react";
 import { KpiManager } from "./kpi-manager";
 import { OkrManager } from "./okr-manager";
 import { UpsertBusinessAreaModal } from "./upsert-business-area-modal";
@@ -23,14 +23,12 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useStrategicPanel } from "@/contexts/strategic-panel-context";
 import { useToast } from "@/hooks/use-toast";
-import type { DraggableProvidedDragHandleProps } from 'react-beautiful-dnd';
 
 interface BusinessAreaAccordionProps {
     area: BusinessArea;
-    dragHandleProps: DraggableProvidedDragHandleProps | null | undefined;
 }
 
-export function BusinessAreaAccordion({ area, dragHandleProps }: BusinessAreaAccordionProps) {
+export function BusinessAreaAccordion({ area }: BusinessAreaAccordionProps) {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const { deleteBusinessArea } = useStrategicPanel();
     const { toast } = useToast();
@@ -59,11 +57,8 @@ export function BusinessAreaAccordion({ area, dragHandleProps }: BusinessAreaAcc
                 area={area}
             />
             <AccordionItem value={area.id} className="border-b-0">
-                <div className="flex justify-between items-center w-full hover:bg-accent/50 px-2 rounded-md border bg-card">
-                    <div {...dragHandleProps} className="p-2 cursor-grab touch-none">
-                        <GripVertical className="h-5 w-5 text-muted-foreground" />
-                    </div>
-                    <AccordionTrigger className="hover:no-underline flex-grow py-0">
+                <div className="flex justify-between items-center w-full hover:bg-accent/50 px-4 rounded-md border bg-card">
+                    <AccordionTrigger className="hover:no-underline flex-grow py-4">
                         <span className="text-lg font-medium">{area.name}</span>
                     </AccordionTrigger>
                     <div className="flex items-center gap-2 pr-2">
