@@ -193,7 +193,7 @@ export function InitiativesTable({ initiatives, onInitiativeClick }: Initiatives
                     </TableCell>
                   </TableRow>
                    {isExpanded && hasSubItems && initiative.subItems.map(subItem => (
-                      <TableRow key={subItem.id} className="bg-muted/50 hover:bg-muted/80">
+                      <TableRow key={subItem.id} className="bg-secondary hover:bg-secondary/80">
                         <TableCell></TableCell>
                         <TableCell colSpan={4} className="pl-12">
                            <div className="flex items-center gap-2">
