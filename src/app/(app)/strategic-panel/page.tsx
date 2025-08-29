@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { PageHeader } from '@/components/layout/page-header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DollarSign, Target, Briefcase, ListChecks, TrendingUp, TrendingDown, Minus, CalendarDays, ArrowRight, History } from 'lucide-react';
 import { KpiChart } from '@/components/strategic-panel/kpi-chart';
 import { useStrategicPanel } from '@/contexts/strategic-panel-context';
@@ -65,6 +65,22 @@ const TrendIndicator = ({ okr }: { okr: Okr }) => {
 export default function StrategicPanelPage() {
     const { businessAreas, isLoading } = useStrategicPanel();
     const [selectedOkr, setSelectedOkr] = useState<Okr | null>(null);
+    const [selectedAreaId, setSelectedAreaId] = useState<string>('');
+
+    // Set the default selected area when data loads
+    useState(() => {
+        if (!isLoading && businessAreas.length > 0) {
+            setSelectedAreaId(businessAreas[0].id);
+        }
+    });
+     // Effect to update selectedAreaId if businessAreas change (e.g., after initial load)
+    useState(() => {
+        if (businessAreas.length > 0 && !selectedAreaId) {
+            setSelectedAreaId(businessAreas[0].id);
+        }
+    });
+
+    const selectedArea = businessAreas.find(area => area.id === selectedAreaId);
 
     if (isLoading) {
         return <PanelSkeleton />;
@@ -84,8 +100,6 @@ export default function StrategicPanelPage() {
         )
     }
 
-    const defaultTab = businessAreas[0]?.id || '';
-
     return (
         <>
         <OkrObservationsModal
@@ -99,123 +113,129 @@ export default function StrategicPanelPage() {
                 description="Visão consolidada dos OKRs e KPIs por área de negócio."
             />
             
-            <Tabs defaultValue={defaultTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 h-auto">
-                    {businessAreas.map((area: BusinessArea) => {
-                        const Icon = area.icon ? iconMap[area.icon] : Briefcase;
-                        return (
-                            <TabsTrigger key={area.id} value={area.id} className="py-2">
-                                <Icon className="w-4 h-4 mr-2" />
-                                {area.name}
-                            </TabsTrigger>
-                        )
-                    })}
-                </TabsList>
-
-                {businessAreas.map((area: BusinessArea) => (
-                    <TabsContent key={area.id} value={area.id} className="mt-6">
-                        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                            <Card className="shadow-lg">
-                                <CardHeader>
-                                    <CardTitle className="text-lg flex items-center gap-2">
-                                        <TrendingUp className="w-5 h-5 text-primary" />
-                                        Indicadores Chave de Performance (KPIs)
-                                    </CardTitle>
-                                    <CardDescription>Métricas de performance para acompanhamento contínuo.</CardDescription>
-                                </CardHeader>
-                                <CardContent className="space-y-6">
-                                    {area.kpis.map(kpi => {
-                                        
-                                        const startDate = kpi.startDate ? parseISO(kpi.startDate) : null;
-                                        const endDate = kpi.endDate ? parseISO(kpi.endDate) : null;
-                                        
-                                        let chartData = [];
-                                        if(startDate && endDate && isValid(startDate) && isValid(endDate)) {
-                                            const monthNamesInRange = eachMonthOfInterval({ start: startDate, end: endDate })
-                                                .map(d => format(d, 'MMM', { locale: ptBR }));
-                                                
-                                            const monthDataMap = new Map((kpi.series || []).map(s => [s.month, s.Realizado]));
+            <div className="w-full max-w-sm">
+                <Select value={selectedAreaId} onValueChange={setSelectedAreaId}>
+                    <SelectTrigger>
+                        <SelectValue placeholder="Selecione uma área de negócio" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {businessAreas.map((area: BusinessArea) => {
+                             const Icon = area.icon ? iconMap[area.icon] : Briefcase;
+                             return (
+                                <SelectItem key={area.id} value={area.id}>
+                                    <div className="flex items-center gap-2">
+                                        <Icon className="w-4 h-4" />
+                                        <span>{area.name}</span>
+                                    </div>
+                                </SelectItem>
+                            )
+                        })}
+                    </SelectContent>
+                </Select>
+            </div>
+            
+            {selectedArea && (
+                <div className="mt-6">
+                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                        <Card className="shadow-lg">
+                            <CardHeader>
+                                <CardTitle className="text-lg flex items-center gap-2">
+                                    <TrendingUp className="w-5 h-5 text-primary" />
+                                    Indicadores Chave de Performance (KPIs)
+                                </CardTitle>
+                                <CardDescription>Métricas de performance para acompanhamento contínuo.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-6">
+                                {selectedArea.kpis.map(kpi => {
+                                    const startDate = kpi.startDate ? parseISO(kpi.startDate) : null;
+                                    const endDate = kpi.endDate ? parseISO(kpi.endDate) : null;
+                                    
+                                    let chartData = [];
+                                    if(startDate && endDate && isValid(startDate) && isValid(endDate)) {
+                                        const monthNamesInRange = eachMonthOfInterval({ start: startDate, end: endDate })
+                                            .map(d => format(d, 'MMM', { locale: ptBR }));
                                             
-                                            chartData = monthNamesInRange.map(monthName => ({
-                                                month: monthName,
-                                                Realizado: monthDataMap.get(monthName) || null
-                                            }));
-                                        } else {
-                                            chartData = kpi.series || [];
-                                        }
-
-                                        const chartDataWithTarget = chartData.map(seriesItem => ({
-                                            ...seriesItem,
-                                            Meta: kpi.targetValue,
+                                        const monthDataMap = new Map((kpi.series || []).map(s => [s.month, s.Realizado]));
+                                        
+                                        chartData = monthNamesInRange.map(monthName => ({
+                                            month: monthName,
+                                            Realizado: monthDataMap.get(monthName) || null
                                         }));
+                                    } else {
+                                        chartData = kpi.series || [];
+                                    }
 
-                                        return (
-                                            <div key={kpi.id}>
-                                                <h4 className="font-semibold text-sm mb-2 text-foreground/80">{kpi.name}</h4>
-                                                <KpiChart data={chartDataWithTarget} unit={kpi.unit} />
-                                            </div>
-                                    )})}
-                                </CardContent>
-                            </Card>
-                            
-                            <Card className="shadow-lg">
-                                <CardHeader>
-                                    <CardTitle className="text-lg flex items-center gap-2">
-                                        <ListChecks className="w-5 h-5 text-primary" />
-                                        Resultados-Chave (OKRs)
-                                    </CardTitle>
-                                    <CardDescription>Progresso dos objetivos estratégicos da área.</CardDescription>
-                                </CardHeader>
-                                <CardContent className="space-y-4">
-                                    {area.okrs.map(okr => (
-                                        <div key={okr.id}>
-                                            <div className="flex justify-between items-center mb-1">
-                                                <p 
-                                                    className="text-sm font-body font-medium text-foreground/90 cursor-pointer hover:underline"
-                                                    onClick={() => setSelectedOkr(okr)}
-                                                >
-                                                    {okr.name}
-                                                </p>
-                                                <div className="flex items-center gap-3">
-                                                     <span className={cn(`text-xs font-semibold px-2 py-0.5 rounded-full`, 
-                                                        okr.status === 'Em Dia' ? 'bg-blue-100 text-blue-800' :
-                                                        okr.status === 'Em Risco' ? 'bg-orange-100 text-orange-800' :
-                                                        okr.status === 'Concluído' ? 'bg-green-100 text-green-800' : ''
-                                                      )}>{okr.status}</span>
-                                                    <div className="flex items-center gap-1 text-sm font-semibold font-body">
-                                                        <TrendIndicator okr={okr} />
-                                                        <span>{okr.progress}%</span>
-                                                        {okr.previousUpdate && (
-                                                            <span className="text-xs text-muted-foreground font-normal">
-                                                                (de {okr.previousProgress}% em {format(new Date(okr.previousUpdate), 'dd/MM/yy')})
-                                                            </span>
-                                                        )}
-                                                    </div>
+                                    const chartDataWithTarget = chartData.map(seriesItem => ({
+                                        ...seriesItem,
+                                        Meta: kpi.targetValue,
+                                    }));
+
+                                    return (
+                                        <div key={kpi.id}>
+                                            <h4 className="font-semibold text-sm mb-2 text-foreground/80">{kpi.name}</h4>
+                                            <KpiChart data={chartDataWithTarget} unit={kpi.unit} />
+                                        </div>
+                                )})}
+                            </CardContent>
+                        </Card>
+                        
+                        <Card className="shadow-lg">
+                            <CardHeader>
+                                <CardTitle className="text-lg flex items-center gap-2">
+                                    <ListChecks className="w-5 h-5 text-primary" />
+                                    Resultados-Chave (OKRs)
+                                </CardTitle>
+                                <CardDescription>Progresso dos objetivos estratégicos da área.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                {selectedArea.okrs.map(okr => (
+                                    <div key={okr.id}>
+                                        <div className="flex justify-between items-center mb-1">
+                                            <p 
+                                                className="text-sm font-body font-medium text-foreground/90 cursor-pointer hover:underline"
+                                                onClick={() => setSelectedOkr(okr)}
+                                            >
+                                                {okr.name}
+                                            </p>
+                                            <div className="flex items-center gap-3">
+                                                 <span className={cn(`text-xs font-semibold px-2 py-0.5 rounded-full`, 
+                                                    okr.status === 'Em Dia' ? 'bg-blue-100 text-blue-800' :
+                                                    okr.status === 'Em Risco' ? 'bg-orange-100 text-orange-800' :
+                                                    okr.status === 'Concluído' ? 'bg-green-100 text-green-800' : ''
+                                                  )}>{okr.status}</span>
+                                                <div className="flex items-center gap-1 text-sm font-semibold font-body">
+                                                    <TrendIndicator okr={okr} />
+                                                    <span>{okr.progress}%</span>
+                                                    {okr.previousUpdate && (
+                                                        <span className="text-xs text-muted-foreground font-normal">
+                                                            (de {okr.previousProgress}% em {format(new Date(okr.previousUpdate), 'dd/MM/yy')})
+                                                        </span>
+                                                    )}
                                                 </div>
                                             </div>
-                                            <Progress value={okr.progress} className="h-2" aria-label={okr.name} />
-                                            <div className="text-xs text-muted-foreground mt-1 flex items-center justify-between">
-                                                {okr.deadline && (
-                                                    <div className="flex items-center gap-1">
-                                                        <CalendarDays className="w-3 h-3" />
-                                                        <span>Prazo: {format(new Date(okr.deadline), 'dd/MM/yyyy', { timeZone: 'UTC' })}</span>
-                                                    </div>
-                                                )}
-                                                {okr.lastUpdate && (
-                                                    <div className="flex items-center gap-1">
-                                                        <History className="w-3 h-3"/>
-                                                        <span>Atualizado em: {format(new Date(okr.lastUpdate), 'dd/MM/yyyy')}</span>
-                                                    </div>
-                                                )}
-                                            </div>
                                         </div>
-                                    ))}
-                                </CardContent>
-                            </Card>
-                        </div>
-                    </TabsContent>
-                ))}
-            </Tabs>
+                                        <Progress value={okr.progress} className="h-2" aria-label={okr.name} />
+                                        <div className="text-xs text-muted-foreground mt-1 flex items-center justify-between">
+                                            {okr.deadline && (
+                                                <div className="flex items-center gap-1">
+                                                    <CalendarDays className="w-3 h-3" />
+                                                    <span>Prazo: {format(new Date(okr.deadline), 'dd/MM/yyyy', { timeZone: 'UTC' })}</span>
+                                                </div>
+                                            )}
+                                            {okr.lastUpdate && (
+                                                <div className="flex items-center gap-1">
+                                                    <History className="w-3 h-3"/>
+                                                    <span>Atualizado em: {format(new Date(okr.lastUpdate), 'dd/MM/yyyy')}</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </CardContent>
+                        </Card>
+                    </div>
+                </div>
+            )}
         </div>
         </>
     );
