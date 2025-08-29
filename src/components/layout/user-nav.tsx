@@ -22,6 +22,11 @@ export function UserNav() {
   const { logout, isAdmin } = useAuth();
   const { setTheme } = useTheme();
 
+  const buildTimestamp = process.env.NEXT_PUBLIC_BUILD_TIMESTAMP;
+  const buildDate = buildTimestamp 
+    ? new Date(parseInt(buildTimestamp, 10)).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short'})
+    : 'N/A';
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -69,6 +74,12 @@ export function UserNav() {
          <DropdownMenuItem onClick={logout}>
             <LogOut className="mr-2 h-4 w-4" />
             <span>Sair</span>
+         </DropdownMenuItem>
+         <DropdownMenuSeparator />
+         <DropdownMenuItem disabled>
+            <span className="text-xs text-muted-foreground">
+                Última publicação: {buildDate}
+            </span>
          </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
