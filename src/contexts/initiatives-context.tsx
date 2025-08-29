@@ -16,6 +16,7 @@ interface InitiativesContextType {
   addInitiative: (initiative: InitiativeFormData) => Promise<void>;
   updateInitiative: (initiativeId: string, data: InitiativeFormData) => Promise<void>;
   deleteInitiative: (initiativeId: string) => Promise<void>;
+  archiveInitiative: (initiativeId: string) => Promise<void>;
   updateInitiativeStatus: (initiativeId: string, newStatus: InitiativeStatus) => void;
   updateSubItem: (initiativeId: string, subItemId: string, completed: boolean) => Promise<void>;
   bulkAddInitiatives: (newInitiatives: Omit<Initiative, 'id' | 'lastUpdate' | 'topicNumber' | 'progress' | 'keyMetrics' | 'subItems' | 'deadline'>[]) => void;
@@ -55,26 +56,30 @@ export const InitiativesProvider = ({ children }: { children: ReactNode }) => {
             ...doc.data()
         } as Initiative));
 
-        // First pass: calculate progress for items with subItems
-        const initiativesWithSubItemProgress = rawInitiatives.map(init => ({
-            ...init,
-            progress: init.subItems && init.subItems.length > 0
-                ? calculateProgressFromSubItems(init.subItems)
-                : init.progress || 0,
-        }));
+        // First pass: calculate progress for items
+        const initiativesWithProgress = rawInitiatives.map(init => {
+            let progress = init.progress || 0;
+            if (init.subItems && init.subItems.length > 0) {
+                progress = calculateProgressFromSubItems(init.subItems);
+            } else if (init.status === 'Concluído') {
+                progress = 100;
+            }
+            return { ...init, progress };
+        });
 
         // Second pass: calculate progress for parent items
-        const initiativesWithFinalProgress = initiativesWithSubItemProgress.map(init => {
+        const initiativesWithFinalProgress = initiativesWithProgress.map(init => {
             if (rawInitiatives.some(child => child.parentId === init.id)) {
                 return {
                     ...init,
-                    progress: calculateParentProgress(init.id, initiativesWithSubItemProgress),
+                    progress: calculateParentProgress(init.id, initiativesWithProgress),
                 };
             }
             return init;
         });
 
-        setInitiatives(initiativesWithFinalProgress);
+        // Filter out archived initiatives from the main view
+        setInitiatives(initiativesWithFinalProgress.filter(i => !i.archived));
     } catch (error) {
         console.error("Error fetching initiatives: ", error);
     } finally {
@@ -103,6 +108,7 @@ export const InitiativesProvider = ({ children }: { children: ReactNode }) => {
         progress: 0, 
         keyMetrics: [],
         parentId: null,
+        archived: false,
         subItems: initiativeData.subItems?.map(si => ({...si, id: doc(collection(db, 'dummy')).id})) || [],
     };
 
@@ -131,6 +137,7 @@ export const InitiativesProvider = ({ children }: { children: ReactNode }) => {
           keyMetrics: [],
           parentId: null,
           subItems: [],
+          archived: false,
         };
         const docRef = doc(initiativesCollectionRef);
         batch.set(docRef, newInitiative);
@@ -167,6 +174,19 @@ export const InitiativesProvider = ({ children }: { children: ReactNode }) => {
         fetchInitiatives();
     } catch (error) {
         console.error("Error deleting initiative: ", error);
+    }
+  }, [fetchInitiatives]);
+
+  const archiveInitiative = useCallback(async (initiativeId: string) => {
+    const initiativeDocRef = doc(db, 'initiatives', initiativeId);
+    try {
+      await updateDoc(initiativeDocRef, {
+        archived: true,
+        lastUpdate: new Date().toISOString(),
+      });
+      fetchInitiatives();
+    } catch (error) {
+      console.error("Error archiving initiative: ", error);
     }
   }, [fetchInitiatives]);
 
@@ -232,7 +252,7 @@ export const InitiativesProvider = ({ children }: { children: ReactNode }) => {
   }, [initiatives]);
 
   return (
-    <InitiativesContext.Provider value={{ initiatives, addInitiative, bulkAddInitiatives, updateInitiative, deleteInitiative, updateInitiativeStatus, updateSubItem, isLoading }}>
+    <InitiativesContext.Provider value={{ initiatives, addInitiative, bulkAddInitiatives, updateInitiative, deleteInitiative, archiveInitiative, updateInitiativeStatus, updateSubItem, isLoading }}>
       {children}
     </InitiativesContext.Provider>
   );

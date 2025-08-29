@@ -24,6 +24,7 @@ export interface Initiative {
   keyMetrics: { name: string; value: string; trend: 'up' | 'down' | 'neutral' }[];
   icon?: React.ElementType; // Optional: for specific task icons
   subItems?: SubItem[];
+  archived?: boolean;
 }
 
 export type UserRole = 'PMO' | 'Líder' | 'Colaborador';

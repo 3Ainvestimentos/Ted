@@ -1,9 +1,10 @@
 
+
 "use client";
 
 import { STATUS_ICONS } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, ChevronDown, ChevronRight, Filter, CornerDownRight, ChevronsUpDown } from "lucide-react";
+import { ExternalLink, ChevronDown, ChevronRight, Filter, CornerDownRight, ChevronsUpDown, Archive } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import React, { useState, useMemo } from "react";
@@ -36,7 +37,7 @@ const sortInitiatives = (initiatives: Initiative[]) => {
 };
 
 export function InitiativesTable({ initiatives, onInitiativeClick }: InitiativesTableProps) {
-  const { updateSubItem } = useInitiatives();
+  const { updateSubItem, archiveInitiative } = useInitiatives();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   
@@ -129,6 +130,7 @@ export function InitiativesTable({ initiatives, onInitiativeClick }: Initiatives
                 const StatusIcon = STATUS_ICONS[initiative.status];
                 const hasSubItems = initiative.subItems && initiative.subItems.length > 0;
                 const isExpanded = expandedTopics.has(initiative.id);
+                const isArchivable = initiative.status === 'Concluído' || initiative.status === 'Suspenso';
 
                 return (
                   <React.Fragment key={initiative.id}>
@@ -164,9 +166,15 @@ export function InitiativesTable({ initiatives, onInitiativeClick }: Initiatives
                       </div>
                     </TableCell>
                     <TableCell className="text-right">
-                       <Button variant="outline" size="sm" onClick={() => onInitiativeClick(initiative)}>
-                           Ver Dossiê <ExternalLink className="ml-2 h-4 w-4" />
-                       </Button>
+                       {isArchivable ? (
+                          <Button variant="outline" size="sm" onClick={() => archiveInitiative(initiative.id)}>
+                            Arquivar <Archive className="ml-2 h-4 w-4" />
+                          </Button>
+                       ) : (
+                         <Button variant="outline" size="sm" onClick={() => onInitiativeClick(initiative)}>
+                             Ver Dossiê <ExternalLink className="ml-2 h-4 w-4" />
+                         </Button>
+                       )}
                     </TableCell>
                   </TableRow>
                    {isExpanded && hasSubItems && initiative.subItems.map(subItem => (
