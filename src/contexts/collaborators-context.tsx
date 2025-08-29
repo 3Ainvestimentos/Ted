@@ -71,13 +71,16 @@ export const CollaboratorsProvider = ({ children }: { children: ReactNode }) => 
 
   const updateCollaboratorPermissions = useCallback(async (id: string, permissionKey: string, value: boolean) => {
     const collaboratorDocRef = doc(db, 'collaborators', id);
+    // Firestore field paths cannot contain '/'. We remove it.
+    const validPermissionKey = permissionKey.startsWith('/') ? permissionKey.substring(1) : permissionKey;
+
     try {
-        const fieldToUpdate = `permissions.${permissionKey}`;
+        const fieldToUpdate = `permissions.${validPermissionKey}`;
         await updateDoc(collaboratorDocRef, { [fieldToUpdate]: value });
         setCollaborators(prev => 
             prev.map(c => 
                 c.id === id 
-                    ? { ...c, permissions: { ...(c.permissions || {}), [permissionKey]: value } }
+                    ? { ...c, permissions: { ...(c.permissions || {}), [validPermissionKey]: value } }
                     : c
             )
         );

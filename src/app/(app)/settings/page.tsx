@@ -126,15 +126,18 @@ function PermissionsTabContent() {
                           </div>
                         </div>
                       </TableCell>
-                      {navItemsForPermissions.map((navItem) => (
+                      {navItemsForPermissions.map((navItem) => {
+                        const permissionKey = navItem.href.startsWith('/') ? navItem.href.substring(1) : navItem.href;
+                        return (
                         <TableCell key={navItem.href} className="text-center">
                           <Switch
-                            checked={user.permissions?.[navItem.href] ?? false}
+                            checked={user.permissions?.[permissionKey] ?? false}
                             onCheckedChange={(checked) => handlePermissionChange(user.id, navItem.href, checked)}
                             aria-label={`Permissão para ${navItem.title} para ${user.name}`}
                           />
                         </TableCell>
-                      ))}
+                        )
+                      })}
                       <TableCell className="text-right">
                          <DropdownMenu>
                           <DropdownMenuTrigger asChild>
