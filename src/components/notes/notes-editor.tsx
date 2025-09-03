@@ -5,25 +5,18 @@ import { useEffect, useCallback } from 'react';
 import { useNotes } from '@/contexts/notes-context';
 import { Textarea } from '@/components/ui/textarea';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
 import { debounce } from 'lodash';
+import { format } from 'date-fns';
 
 export function NotesEditor() {
-  const { noteContent, setNoteContent, saveNote, isLoading, isSaving } = useNotes();
-  const { toast } = useToast();
+  const { noteContent, setNoteContent, saveNote, isLoading, isSaving, lastUpdated } = useNotes();
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedSave = useCallback(
     debounce(() => {
-        saveNote().then(() => {
-            toast({
-              title: "Salvo!",
-              description: "Suas anotações foram salvas.",
-              duration: 2000,
-            });
-        });
+        saveNote();
     }, 1500), // 1.5 seconds debounce delay
-    [saveNote, toast]
+    [saveNote]
   );
   
   useEffect(() => {
@@ -41,18 +34,24 @@ export function NotesEditor() {
   }
 
   return (
-    <div className="relative flex-grow">
+    <div className="relative flex-grow flex flex-col">
       <Textarea
         placeholder="Comece a digitar suas anotações aqui..."
         value={noteContent}
         onChange={(e) => setNoteContent(e.target.value)}
-        className="w-full h-full resize-none text-base p-6"
+        className="w-full h-full resize-none text-base p-6 flex-grow"
       />
-      {isSaving && (
-        <div className="absolute bottom-4 right-4 text-xs text-muted-foreground">
-          Salvando...
-        </div>
-      )}
+      <div className="flex justify-end items-center h-8 px-4 py-1 text-xs">
+          {isSaving ? (
+            <span style={{ color: '#DFB87F' }}>Salvando...</span>
+          ) : lastUpdated ? (
+             <span style={{ color: '#DFB87F' }}>
+                Atualizado em {format(lastUpdated, "dd/MM/yyyy 'às' HH:mm:ss")}
+            </span>
+          ) : (
+             <span className="text-muted-foreground">Suas notas serão salvas automaticamente.</span>
+          )}
+      </div>
     </div>
   );
 }
