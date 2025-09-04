@@ -36,7 +36,7 @@ export function CreateInitiativeModal({ isOpen, onOpenChange }: CreateInitiative
 
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-3xl">
+            <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>Criar Nova Iniciativa</DialogTitle>
                     <DialogDescription>

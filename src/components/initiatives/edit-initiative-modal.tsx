@@ -78,7 +78,7 @@ export function EditInitiativeModal({ isOpen, onOpenChange, initiative }: EditIn
 
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-3xl">
+            <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>Editar Iniciativa</DialogTitle>
                     <DialogDescription>
