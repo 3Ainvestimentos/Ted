@@ -13,7 +13,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { CollaboratorsTable } from './collaborators-table';
 import type { Collaborator } from '@/types';
 import { UpsertCollaboratorModal } from './upsert-collaborator-modal';
-import { ImportCollaboratorsModal } from './import-collaborators-modal';
 import { Button } from '../ui/button';
 import { PlusCircle, Upload } from 'lucide-react';
 import { Separator } from '../ui/separator';
@@ -29,7 +28,6 @@ export function PermissionsManager() {
   const { collaborators, isLoading, updateCollaboratorPermissions } = useCollaborators();
   const { toast } = useToast();
   const [isUpsertModalOpen, setIsUpsertModalOpen] = useState(false);
-  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [selectedCollaborator, setSelectedCollaborator] = useState<Collaborator | null>(null);
 
   const handlePermissionChange = async (userId: string, navHref: string, isEnabled: boolean) => {
@@ -68,10 +66,6 @@ export function PermissionsManager() {
           isOpen={isUpsertModalOpen}
           onOpenChange={setIsUpsertModalOpen}
           collaborator={selectedCollaborator}
-      />
-      <ImportCollaboratorsModal
-          isOpen={isImportModalOpen}
-          onOpenChange={setIsImportModalOpen}
       />
 
       <CardHeader>
@@ -156,9 +150,6 @@ export function PermissionsManager() {
       </CardHeader>
       <CardContent>
         <div className="flex justify-end gap-2 mb-4">
-            <Button variant="outline" onClick={() => setIsImportModalOpen(true)}>
-                <Upload className="mr-2 h-4 w-4" /> Importar CSV
-            </Button>
             <Button onClick={handleOpenCreateModal}>
                 <PlusCircle className="mr-2 h-4 w-4" /> Adicionar Usuário
             </Button>
