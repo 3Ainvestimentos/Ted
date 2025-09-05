@@ -10,6 +10,13 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useCollaborators } from '@/contexts/collaborators-context';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
+import { CollaboratorsTable } from './collaborators-table';
+import type { Collaborator } from '@/types';
+import { UpsertCollaboratorModal } from './upsert-collaborator-modal';
+import { ImportCollaboratorsModal } from './import-collaborators-modal';
+import { Button } from '../ui/button';
+import { PlusCircle, Upload } from 'lucide-react';
+import { Separator } from '../ui/separator';
 
 const getInitials = (name: string) => {
   const parts = name.split(' ');
@@ -21,6 +28,9 @@ const getInitials = (name: string) => {
 export function PermissionsManager() {
   const { collaborators, isLoading, updateCollaboratorPermissions } = useCollaborators();
   const { toast } = useToast();
+  const [isUpsertModalOpen, setIsUpsertModalOpen] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [selectedCollaborator, setSelectedCollaborator] = useState<Collaborator | null>(null);
 
   const handlePermissionChange = async (userId: string, navHref: string, isEnabled: boolean) => {
     try {
@@ -41,8 +51,29 @@ export function PermissionsManager() {
   
   const navItemsForPermissions = NAV_ITEMS_CONFIG.filter(item => !item.isDivider && !item.isFooter);
 
+  const handleOpenCreateModal = () => {
+    setSelectedCollaborator(null);
+    setIsUpsertModalOpen(true);
+  };
+
+  const handleOpenEditModal = (collaborator: Collaborator) => {
+    setSelectedCollaborator(collaborator);
+    setIsUpsertModalOpen(true);
+  };
+
+
   return (
     <>
+      <UpsertCollaboratorModal 
+          isOpen={isUpsertModalOpen}
+          onOpenChange={setIsUpsertModalOpen}
+          collaborator={selectedCollaborator}
+      />
+      <ImportCollaboratorsModal
+          isOpen={isImportModalOpen}
+          onOpenChange={setIsImportModalOpen}
+      />
+
       <CardHeader>
         <CardTitle>Matriz de Permissões de Acesso</CardTitle>
         <CardDescription>Controle quais seções cada colaborador pode visualizar e interagir na barra lateral.</CardDescription>
@@ -110,13 +141,29 @@ export function PermissionsManager() {
               ) : (
                 <TableRow>
                   <TableCell colSpan={navItemsForPermissions.length + 1} className="h-24 text-center">
-                    Nenhum colaborador encontrado. Adicione um na aba "Equipe".
+                    Nenhum colaborador encontrado.
                   </TableCell>
                 </TableRow>
               )}
             </TableBody>
           </Table>
         </div>
+      </CardContent>
+      <Separator />
+       <CardHeader>
+        <CardTitle>Usuários Cadastrados</CardTitle>
+        <CardDescription>Adicione, edite ou importe a lista de usuários com acesso à plataforma.</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="flex justify-end gap-2 mb-4">
+            <Button variant="outline" onClick={() => setIsImportModalOpen(true)}>
+                <Upload className="mr-2 h-4 w-4" /> Importar CSV
+            </Button>
+            <Button onClick={handleOpenCreateModal}>
+                <PlusCircle className="mr-2 h-4 w-4" /> Adicionar Usuário
+            </Button>
+        </div>
+        <CollaboratorsTable onEdit={handleOpenEditModal} />
       </CardContent>
     </>
   );

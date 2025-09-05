@@ -76,13 +76,6 @@ const adminModules = [
         disabled: false,
     },
     {
-        name: "team",
-        title: "Equipe",
-        icon: Users,
-        component: <TeamTabContent />,
-        disabled: false,
-    },
-    {
         name: "permissions",
         title: "Permissões",
         icon: GanttChartSquare,
@@ -90,18 +83,25 @@ const adminModules = [
         disabled: false,
     },
     {
+        name: "team",
+        title: "Equipe",
+        icon: Users,
+        component: <TeamTabContent />,
+        disabled: true,
+    },
+    {
         name: "remuneration",
         title: "Remuneração",
         icon: TrendingUp,
         component: <RemunerationTabContent />,
-        disabled: false,
+        disabled: true,
     },
     {
         name: "positions",
         title: "Cargos",
         icon: Briefcase,
         component: <PositionTabContent />,
-        disabled: false,
+        disabled: true,
     },
     {
         name: "maintenance",
