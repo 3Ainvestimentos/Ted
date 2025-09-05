@@ -4,12 +4,17 @@
 import type { Collaborator, RemunerationHistory, PositionHistory } from '@/types';
 import React, { createContext, useContext, useState, ReactNode, useCallback, useEffect } from 'react';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, doc, updateDoc, writeBatch, query, where, orderBy, getDoc, arrayUnion } from 'firebase/firestore';
+import { collection, getDocs, doc, updateDoc, writeBatch, query, where, orderBy, getDoc, arrayUnion, addDoc, deleteDoc } from 'firebase/firestore';
+
+type CollaboratorData = Omit<Collaborator, 'id'>;
 
 interface TeamControlContextType {
   collaborators: Collaborator[];
   isLoading: boolean;
   refetch: () => void;
+  addCollaborator: (collaborator: Omit<Collaborator, 'id'>) => Promise<void>;
+  updateCollaborator: (id: string, collaborator: Partial<Omit<Collaborator, 'id'>>) => Promise<void>;
+  deleteCollaborator: (id: string) => Promise<void>;
   updateCollaboratorHistory: (collaboratorId: string, historyType: 'remunerationHistory' | 'positionHistory', data: any[]) => Promise<void>;
   addHistoryEntry: (collaboratorId: string, historyType: 'remunerationHistory' | 'positionHistory', entry: RemunerationHistory | PositionHistory) => Promise<void>;
   bulkUpdateRemuneration: (csvData: any[]) => Promise<void>;
@@ -42,6 +47,42 @@ export const TeamControlProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     fetchCollaborators();
   }, [fetchCollaborators]);
+
+  const addCollaborator = async (collaboratorData: CollaboratorData) => {
+    try {
+      await addDoc(collection(db, 'collaborators'), {
+        ...collaboratorData,
+        remunerationHistory: [],
+        positionHistory: [],
+      });
+      await fetchCollaborators();
+    } catch (error) {
+      console.error("Error adding collaborator: ", error);
+      throw error;
+    }
+  };
+
+  const updateCollaborator = async (id: string, collaboratorData: Partial<CollaboratorData>) => {
+    try {
+      const collaboratorDocRef = doc(db, 'collaborators', id);
+      await updateDoc(collaboratorDocRef, collaboratorData);
+      await fetchCollaborators();
+    } catch (error) {
+      console.error("Error updating collaborator: ", error);
+      throw error;
+    }
+  };
+
+  const deleteCollaborator = async (id: string) => {
+    try {
+      const collaboratorDocRef = doc(db, 'collaborators', id);
+      await deleteDoc(collaboratorDocRef);
+      await fetchCollaborators();
+    } catch (error) {
+      console.error("Error deleting collaborator: ", error);
+      throw error;
+    }
+  };
 
   const updateCollaboratorHistory = async (collaboratorId: string, historyType: 'remunerationHistory' | 'positionHistory', data: any[]) => {
       const collaboratorDocRef = doc(db, 'collaborators', collaboratorId);
@@ -121,7 +162,7 @@ export const TeamControlProvider = ({ children }: { children: ReactNode }) => {
 
 
   return (
-    <TeamControlContext.Provider value={{ collaborators, isLoading, refetch: fetchCollaborators, updateCollaboratorHistory, addHistoryEntry, bulkUpdateRemuneration, bulkUpdatePositions }}>
+    <TeamControlContext.Provider value={{ collaborators, isLoading, refetch: fetchCollaborators, addCollaborator, updateCollaborator, deleteCollaborator, updateCollaboratorHistory, addHistoryEntry, bulkUpdateRemuneration, bulkUpdatePositions }}>
       {children}
     </TeamControlContext.Provider>
   );

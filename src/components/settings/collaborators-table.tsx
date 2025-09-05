@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import type { Collaborator } from '@/types';
 import { Skeleton } from '../ui/skeleton';
-import { useCollaborators } from '@/contexts/collaborators-context';
+import { useTeamControl } from '@/contexts/team-control-context';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,6 +28,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 
 const getInitials = (name: string) => {
+  if (!name) return '??';
   const parts = name.split(' ');
   if (parts.length === 0) return '??';
   if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
@@ -39,7 +40,7 @@ interface CollaboratorsTableProps {
 }
 
 export function CollaboratorsTable({ onEdit }: CollaboratorsTableProps) {
-    const { collaborators, isLoading, deleteCollaborator } = useCollaborators();
+    const { collaborators, isLoading, deleteCollaborator } = useTeamControl();
     const [isAlertOpen, setIsAlertOpen] = useState(false);
     const [selectedCollaborator, setSelectedCollaborator] = useState<Collaborator | null>(null);
     const { toast } = useToast();
@@ -86,7 +87,7 @@ export function CollaboratorsTable({ onEdit }: CollaboratorsTableProps) {
                     <AlertDialogHeader>
                     <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
                     <AlertDialogDescription>
-                        Esta ação não pode ser desfeita. Isso removerá permanentemente o colaborador.
+                        Esta ação não pode ser desfeita. Isso removerá permanentemente o colaborador e todo o seu histórico.
                     </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
@@ -104,7 +105,7 @@ export function CollaboratorsTable({ onEdit }: CollaboratorsTableProps) {
                     <TableRow>
                     <TableHead className="w-[40%]">Nome</TableHead>
                     <TableHead className="w-[30%]">Email</TableHead>
-                    <TableHead>Cargo</TableHead>
+                    <TableHead>Cargo Atual</TableHead>
                     <TableHead className="text-right w-[50px]">Ações</TableHead>
                     </TableRow>
                 </TableHeader>
