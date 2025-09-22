@@ -2,55 +2,49 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+  
+    // Permite a leitura da lista de colaboradores para verificação de autorização
+    // antes do login completo, corrigindo o loop de carregamento infinito.
+    match /collaborators/{document=**} {
+      allow read: if true; 
+      allow write: if request.auth != null; // Apenas usuários logados podem escrever
+    }
 
-    // Regra geral: por padrão, apenas usuários autenticados podem acessar os dados.
-    // Isso bloqueia todo o acesso anônimo.
-    match /{document=**} {
+    // Regras para as outras coleções: requerem autenticação
+    match /initiatives/{document=**} {
       allow read, write: if request.auth != null;
     }
 
-    // Regras específicas por coleção para maior granularidade (opcional, mas recomendado)
-    // Assegura que apenas usuários logados acessem as coleções principais.
-
-    match /initiatives/{initiativeId} {
+    match /recurringMeetings/{document=**} {
       allow read, write: if request.auth != null;
     }
 
-    match /collaborators/{collaboratorId} {
+    match /businessAreas/{document=**} {
       allow read, write: if request.auth != null;
     }
 
-    match /recurringMeetings/{meetingId} {
+    match /okrs/{document=**} {
       allow read, write: if request.auth != null;
     }
-
-    match /businessAreas/{areaId} {
-      allow read, write: if request.auth != null;
-    }
-
-    match /okrs/{okrId} {
-      allow read, write: if request.auth != null;
-    }
-
-    match /kpis/{kpiId} {
-      allow read, write: if request.auth != null;
-    }
-
-    match /settings/{settingId} {
-      // Configurações podem ser sensíveis. Apenas administradores deveriam ter acesso.
-      // Adicionaremos uma lógica de "roles" (funções) aqui em um próximo passo.
-      // Por enquanto, permitimos acesso a usuários logados.
+    
+    match /kpis/{document=**} {
       allow read, write: if request.auth != null;
     }
 
     match /notes/{userId} {
-      // Um usuário só pode ler ou escrever suas próprias notas.
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
 
-    match /tasks/{taskId} {
-      // Um usuário só pode interagir com suas próprias tarefas.
-      allow read, write: if request.auth != null && request.auth.uid == resource.data.userId;
+    match /tasks/{document=**} {
+      allow read, write: if request.auth != null;
+    }
+
+    match /settings/{document=**} {
+      allow read, write: if request.auth != null;
+    }
+
+    match /auditLogs/{document=**} {
+      allow read, write: if request.auth != null;
     }
   }
 }
