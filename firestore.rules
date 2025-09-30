@@ -2,36 +2,47 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    
+    // =================================
+    // Funções Helper de Segurança
+    // =================================
+    
+    // Função para verificar se um UID pertence a um administrador.
+    function isAdmin(userId) {
+      return get(/databases/$(database)/documents/settings/maintenance).data.adminEmails.hasAny([request.auth.token.email]);
+    }
+    
+    // =================================
+    // Regras Gerais
+    // =================================
 
-    // Regra Padrão: Negar leitura e escrita para todos por padrão.
-    // Acesso só é concedido se uma regra mais específica abaixo permitir.
+    // Regra Padrão: Negar tudo, a menos que seja explicitamente permitido abaixo.
     match /{document=**} {
       allow read, write: if false;
     }
 
-    // A coleção 'authorizedUsers' pode ser lida por qualquer pessoa para
-    // verificar a autorização de e-mail antes do login completo ser processado pela aplicação.
-    // A escrita é proibida.
+    // =================================
+    // Regras por Coleção
+    // =================================
+
+    // A coleção 'authorizedUsers' pode ser lida por qualquer um para a verificação inicial de login.
     match /authorizedUsers/{userId} {
       allow read: if true;
-      allow write: if false;
+      allow write: if isAdmin(request.auth.uid); // Apenas admins podem adicionar/remover usuários autorizados
     }
     
-    // A coleção 'collaborators' pode ser lida por qualquer usuário autenticado.
-    // A escrita também exige autenticação (gerenciada pela app).
-    match /collaborators/{collaboratorId} {
-      allow read, write: if request.auth != null;
-    }
-
-    // A configuração de manutenção pode ser lida por qualquer um para
-    // a verificação inicial do app, mas só pode ser escrita por usuários autenticados.
+    // A coleção 'settings' pode ser lida por qualquer um (para verificar o modo de manutenção).
+    // A escrita é limitada a administradores.
     match /settings/maintenance {
-        allow read: if true;
-        allow write: if request.auth != null;
+      allow read: if true;
+      allow write: if isAdmin(request.auth.uid);
     }
 
-    // Para todas as outras coleções gerais, apenas usuários autenticados (logados)
-    // podem ler ou escrever dados.
+    // A coleção 'collaborators' SÓ PODE ser listada (lida) por administradores.
+    match /collaborators/{collaboratorId} {
+      allow read, write: if isAdmin(request.auth.uid);
+    }
+    
     match /businessAreas/{areaId} {
       allow read, write: if request.auth != null;
     }
@@ -47,24 +58,21 @@ service cloud.firestore {
     match /recurringMeetings/{meetingId} {
       allow read, write: if request.auth != null;
     }
-     match /settings/{settingId} {
-      allow read, write: if request.auth != null;
-    }
-
+    
     // Coleções específicas do usuário (Notas e Tarefas)
     // Apenas o próprio usuário pode acessar seus dados.
     match /notes/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
-
+    
+    // Regra corrigida para Tasks: permite criar e depois gerenciar o próprio recurso.
     match /tasks/{taskId} {
-       // Leitura, atualização e exclusão: o userId no documento deve corresponder ao usuário logado.
-       allow read, update, delete: if request.auth != null && request.auth.uid == resource.data.userId;
-       // Criação: o userId nos novos dados deve corresponder ao usuário logado.
-       allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow read, update, delete: if request.auth != null && request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
     }
+
     match /auditLogs/{logId} {
-        allow read, write: if request.auth != null;
+      allow read, write: if isAdmin(request.auth.uid);
     }
   }
 }
