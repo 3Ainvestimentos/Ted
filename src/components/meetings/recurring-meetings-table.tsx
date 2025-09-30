@@ -203,7 +203,7 @@ export function RecurringMeetingsTable() {
                         {meeting.name}
                     </TableCell>
                     <TableCell>
-                        A cada {meeting.recurrence.value} {meeting.recurrence.unit}
+                        {meeting.recurrence.value} {meeting.recurrence.unit}
                     </TableCell>
                     <TableCell>{format(lastOccurrenceLocal, 'dd/MM/yyyy')}</TableCell>
                     <TableCell className={cn(isOverdue && 'text-destructive font-bold')}>
