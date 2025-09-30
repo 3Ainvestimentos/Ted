@@ -3,13 +3,10 @@
 
 import type { UserRole } from '@/types';
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
-import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut, User as FirebaseUser } from 'firebase/auth';
-import { app, db } from '@/lib/firebase';
-import { useToast } from '@/hooks/use-toast';
-import { collection, getDocs, query, where, doc, getDoc } from 'firebase/firestore';
+import { useRouter } from 'next/navigation';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 import type { MaintenanceSettings } from '@/types';
-
 
 interface User {
   uid: string;
@@ -22,7 +19,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   user: User | null;
   isAdmin: boolean;
-  login: () => Promise<void>;
+  login: (email: string, pass: string) => Promise<void>;
   logout: () => Promise<void>;
   isLoading: boolean;
   isUnderMaintenance: boolean;
@@ -31,113 +28,80 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Mock user for simple auth
+const MOCK_USER: User = {
+    uid: 'mock-admin-uid',
+    name: 'Admin TED',
+    email: 'admin@ted.com.br',
+    role: 'PMO'
+};
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isUnderMaintenance, setIsUnderMaintenance] = useState(false);
   const [adminEmails, setAdminEmails] = useState<string[]>([]);
   const router = useRouter();
-  const { toast } = useToast();
-  
-  const auth = getAuth(app);
-  const provider = new GoogleAuthProvider();
 
   const isAuthenticated = !!user;
-  const isAdmin = user ? adminEmails.includes(user.email || '') : false;
-
-  const isUserAuthorized = async (email: string, currentAdminEmails: string[]): Promise<boolean> => {
-    if (!email) return false;
-
-    // 1. Admins always have access
-    if (currentAdminEmails.includes(email)) {
-        return true;
-    }
-    
-    // 2. Check for individual email in the public authorizedUsers list
-    try {
-        const authorizedUsersRef = collection(db, 'authorizedUsers');
-        const q = query(authorizedUsersRef, where('email', '==', email));
-        const querySnapshot = await getDocs(q);
-        return !querySnapshot.empty;
-    } catch (error) {
-        console.error("Erro ao verificar autorização do usuário:", error);
-        return false;
-    }
-  };
+  const isAdmin = user?.role === 'PMO';
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
-      setIsLoading(true);
-      
-      const maintenanceDocRef = doc(db, 'settings', 'maintenance');
-      const maintenanceSnap = await getDoc(maintenanceDocRef);
-      const maintenanceSettings = maintenanceSnap.exists() ? (maintenanceSnap.data() as MaintenanceSettings) : { isEnabled: false, adminEmails: [] };
-      setAdminEmails(maintenanceSettings.adminEmails);
+    const checkSession = async () => {
+        setIsLoading(true);
+        const maintenanceDocRef = doc(db, 'settings', 'maintenance');
+        const maintenanceSnap = await getDoc(maintenanceDocRef);
+        const maintenanceSettings = maintenanceSnap.exists() ? (maintenanceSnap.data() as MaintenanceSettings) : { isEnabled: false, adminEmails: [] };
+        setAdminEmails(maintenanceSettings.adminEmails);
 
-      if (firebaseUser && firebaseUser.email) {
-        
-        // Maintenance Mode Check
-        if(maintenanceSettings.isEnabled && !maintenanceSettings.adminEmails.includes(firebaseUser.email)) {
+        // Check if user is in maintenance mode
+        if (maintenanceSettings.isEnabled && !maintenanceSettings.adminEmails.includes(user?.email || '')) {
             setIsUnderMaintenance(true);
-            await signOut(auth);
             setUser(null);
-            setIsLoading(false);
+            sessionStorage.removeItem('user-session');
             router.push('/login');
+            setIsLoading(false);
             return;
         }
 
-        setIsUnderMaintenance(false);
-        const isAuthorized = await isUserAuthorized(firebaseUser.email, maintenanceSettings.adminEmails);
-
-        if (isAuthorized) {
-          const appUser: User = {
-            uid: firebaseUser.uid,
-            name: firebaseUser.displayName,
-            email: firebaseUser.email,
-            role: maintenanceSettings.adminEmails.includes(firebaseUser.email) ? 'PMO' : 'Colaborador',
-          };
-          setUser(appUser);
-        } else {
-          toast({
-              variant: 'destructive',
-              title: 'Acesso Negado',
-              description: 'Seu e-mail não está autorizado a acessar esta aplicação.',
-          });
-          await signOut(auth);
-          setUser(null);
+        // Check for existing session in sessionStorage
+        const session = sessionStorage.getItem('user-session');
+        if (session) {
+            const sessionUser = JSON.parse(session);
+            // Additional check if user is admin when maintenance is on
+            if(maintenanceSettings.isEnabled && !maintenanceSettings.adminEmails.includes(sessionUser.email)) {
+                 setIsUnderMaintenance(true);
+                 setUser(null);
+                 sessionStorage.removeItem('user-session');
+                 router.push('/login');
+            } else {
+                setUser(sessionUser);
+            }
         }
-      } else {
-        setUser(null);
-      }
-      setIsLoading(false);
-    });
+        setIsLoading(false);
+    };
+    checkSession();
+  }, [router, user?.email]);
 
-    return () => unsubscribe();
-  }, [auth]);
-
-  const login = async () => {
+  const login = async (email: string, pass: string) => {
     setIsLoading(true);
-    try {
-      await signInWithPopup(auth, provider);
-      // onAuthStateChanged will handle the rest
-    } catch (error) {
-      console.error("Falha na autenticação com o Google", error);
-       toast({
-          variant: 'destructive',
-          title: 'Erro de Autenticação',
-          description: 'Não foi possível fazer o login. Por favor, tente novamente.',
-      });
-       setIsLoading(false);
+
+    // Simple hardcoded authentication
+    if (email.toLowerCase() === 'admin@ted.com.br' && pass === 'ted@2024') {
+        sessionStorage.setItem('user-session', JSON.stringify(MOCK_USER));
+        setUser(MOCK_USER);
+        router.push('/strategic-initiatives');
+    } else {
+        throw new Error('Credenciais inválidas.');
     }
+    
+    setIsLoading(false);
   };
 
   const logout = async () => {
-    try {
-      await signOut(auth);
-      router.push('/login');
-    } catch (error) {
-      console.error("Falha ao fazer logout", error);
-    }
+    setUser(null);
+    sessionStorage.removeItem('user-session');
+    router.push('/login');
   };
   
   return (
