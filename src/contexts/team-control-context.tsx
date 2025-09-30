@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import type { Collaborator, RemunerationHistory, PositionHistory } from '@/types';
