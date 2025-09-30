@@ -2,51 +2,20 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // REGRA PADRÃO: Nega acesso a tudo por padrão.
-    match /{document=**} {
-      allow read, write: if false;
-    }
-
-    // Permite que a aplicação verifique o modo manutenção antes do login.
-    // A escrita é protegida e só pode ser feita por usuários autenticados (administradores),
-    // conforme lógica da aplicação.
+    // Permite leitura pública para verificar o modo de manutenção antes do login
     match /settings/maintenance {
-        allow read: if true;
-        allow write: if request.auth != null;
+      allow read: if true;
+      allow write: if request.auth != null;
     }
 
-    // REGRA GERAL PARA DADOS DA APLICAÇÃO:
-    // Exige que o usuário esteja autenticado para ler ou escrever na maioria das coleções.
-    // Isso cobre 'initiatives', 'collaborators', 'tasks', 'notes', etc.
-    match /initiatives/{docId} {
-      allow read, write: if request.auth != null;
+    // Permite leitura pública para que o sistema de login possa validar se um e-mail é autorizado
+    match /authorizedUsers/{userId} {
+      allow read: if true;
+      allow write: if request.auth != null;
     }
-    match /collaborators/{docId} {
-      allow read, write: if request.auth != null;
-    }
-    match /tasks/{docId} {
-      allow read, write: if request.auth != null;
-    }
-    match /notes/{docId} {
-      allow read, write: if request.auth != null;
-    }
-    match /businessAreas/{docId} {
-      allow read, write: if request.auth != null;
-    }
-    match /kpis/{docId} {
-      allow read, write: if request.auth != null;
-    }
-    match /okrs/{docId} {
-      allow read, write: if request.auth != null;
-    }
-    match /recurringMeetings/{docId} {
-      allow read, write: if request.auth != null;
-    }
-     match /auditLogs/{docId} {
-        allow read, write: if request.auth != null;
-    }
-     match /authorizedUsers/{docId} {
+
+    // Regra geral: Para todos os outros documentos, exige que o usuário esteja autenticado.
+    match /{document=**} {
       allow read, write: if request.auth != null;
     }
   }
