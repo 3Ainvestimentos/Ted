@@ -27,14 +27,17 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
 
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
-        router.replace('/strategic-initiatives');
+        router.replace('/'); // Redirect to the root of the app, layout will handle the rest.
     }
   }, [isLoading, isAuthenticated, router]);
   
   useEffect(() => {
+    // This is just to clear the maintenance flag on component unmount
     return () => {
         setIsUnderMaintenance(false);
     }
@@ -43,9 +46,10 @@ export default function LoginPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setIsSubmitting(true);
     try {
       await login(email, password);
-      // onAuthStateChanged will redirect
+      // The useEffect above will handle the redirect once isAuthenticated is true.
     } catch (err: any) {
       setError(err.message);
       toast({
@@ -53,11 +57,13 @@ export default function LoginPage() {
         title: "Erro de Login",
         description: err.message || "Verifique suas credenciais e tente novamente.",
       });
+    } finally {
+        setIsSubmitting(false);
     }
   };
 
 
-  if (isLoading && !isAuthenticated) {
+  if (isLoading) {
     return (
         <div className="flex items-center justify-center min-h-screen bg-background">
             <LoadingSpinner className="h-8 w-8" />
@@ -83,6 +89,7 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                disabled={isSubmitting}
               />
             </div>
             <div className="space-y-2">
@@ -93,6 +100,7 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                disabled={isSubmitting}
               />
             </div>
              {error && (
@@ -102,8 +110,8 @@ export default function LoginPage() {
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? <LoadingSpinner className="mr-2 h-4 w-4" /> : null}
+            <Button type="submit" className="w-full" disabled={isSubmitting}>
+              {isSubmitting ? <LoadingSpinner className="mr-2 h-4 w-4" /> : null}
               Entrar
             </Button>
           </form>

@@ -10,10 +10,12 @@ export default function AppPage() {
   const { isLoading, isAuthenticated } = useAuth();
 
   useEffect(() => {
-    if (!isLoading && isAuthenticated) {
+    // No need to check for isLoading here because the layout handles it.
+    // If we've reached this page, the user is authenticated.
+    if (isAuthenticated) {
       router.replace('/strategic-initiatives');
     }
-  }, [isLoading, isAuthenticated, router]);
+  }, [isAuthenticated, router]);
 
   return (
     <div className="flex h-screen w-full items-center justify-center bg-background">

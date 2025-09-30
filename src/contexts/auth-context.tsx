@@ -4,9 +4,6 @@
 import type { UserRole } from '@/types';
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
-import { doc, getDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
-import type { MaintenanceSettings } from '@/types';
 
 interface User {
   uid: string;
@@ -55,55 +52,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const isAdmin = user?.role === 'PMO';
 
   useEffect(() => {
-    const checkSession = async () => {
-        setIsLoading(true);
-        const maintenanceDocRef = doc(db, 'settings', 'maintenance');
-        const maintenanceSnap = await getDoc(maintenanceDocRef);
-        const maintenanceSettings = maintenanceSnap.exists() ? (maintenanceSnap.data() as MaintenanceSettings) : { isEnabled: false, adminEmails: [] };
-
-        // Check for existing session in sessionStorage
+    // This effect runs only once on mount to check for an existing session.
+    try {
         const session = sessionStorage.getItem('user-session');
         if (session) {
             const sessionUser = JSON.parse(session);
-            // Check if user is allowed during maintenance
-            if(maintenanceSettings.isEnabled && !maintenanceSettings.adminEmails.includes(sessionUser.email)) {
-                 setIsUnderMaintenance(true);
-                 setUser(null);
-                 sessionStorage.removeItem('user-session');
-                 router.push('/login');
-            } else {
-                setUser(sessionUser);
-            }
-        } else {
-            // No session, check if maintenance is on for everyone else
-            if (maintenanceSettings.isEnabled) {
-                 setIsUnderMaintenance(true);
-                 router.push('/login');
-            }
+            setUser(sessionUser);
         }
+    } catch (error) {
+        console.error("Failed to parse user session", error);
+        setUser(null);
+    } finally {
         setIsLoading(false);
-    };
-    checkSession();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    }
   }, []);
 
   const login = async (email: string, pass: string) => {
-    setIsLoading(true);
-
     const normalizedEmail = email.toLowerCase();
     const userToLogin = ALLOWED_USERS.find(u => u.email === normalizedEmail);
 
-    // Simple hardcoded authentication
     if (userToLogin && pass === 'ted@2024') {
         sessionStorage.setItem('user-session', JSON.stringify(userToLogin));
         setUser(userToLogin);
-        router.push('/strategic-initiatives');
+        // Let the layout handle the redirect, just update the state here.
     } else {
-        setIsLoading(false);
         throw new Error('Credenciais inválidas.');
     }
-    
-    // No need to set loading to false here as the page will redirect and re-render.
   };
 
   const logout = async () => {

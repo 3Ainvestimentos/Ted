@@ -48,16 +48,20 @@ export default function AppLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { user, isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
+    // This is the single source of truth for redirection.
+    // If loading is finished and the user is not authenticated, redirect to login.
     if (!isLoading && !isAuthenticated) {
       router.replace('/login');
     }
   }, [isLoading, isAuthenticated, router]);
 
-  if (isLoading || !isAuthenticated) {
+  // While loading, show a spinner to prevent flicker or showing the login page incorrectly.
+  if (isLoading) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
         <LoadingSpinner className="h-12 w-12" />
@@ -65,17 +69,29 @@ export default function AppLayout({
     );
   }
 
+  // If authenticated, render the app content.
+  // The check above will redirect if not authenticated, so we don't need to check again here.
+  if (isAuthenticated) {
+    return (
+      <InitiativesProvider>
+        <MeetingsProvider>
+          <StrategicPanelProvider>
+            <TasksProvider>
+              <NotesProvider>
+                  <AppContent>{children}</AppContent>
+              </NotesProvider>
+            </TasksProvider>
+          </StrategicPanelProvider>
+        </MeetingsProvider>
+      </InitiativesProvider>
+    );
+  }
+
+  // This will be shown briefly while the redirect happens.
+  // Can also be a spinner.
   return (
-    <InitiativesProvider>
-      <MeetingsProvider>
-        <StrategicPanelProvider>
-          <TasksProvider>
-            <NotesProvider>
-                <AppContent>{children}</AppContent>
-            </NotesProvider>
-          </TasksProvider>
-        </StrategicPanelProvider>
-      </MeetingsProvider>
-    </InitiativesProvider>
+      <div className="flex h-screen w-full items-center justify-center bg-background">
+        <LoadingSpinner className="h-12 w-12" />
+      </div>
   );
 }
