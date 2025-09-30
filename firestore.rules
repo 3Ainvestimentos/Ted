@@ -2,25 +2,12 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // Regra Pública: Permite a leitura de configurações essenciais ANTES do login.
-    // Isso é necessário para que a aplicação verifique o modo de manutenção.
-    match /settings/maintenance {
-      allow read: if true;
-      allow write: if request.auth != null; // Apenas autenticados (admins) podem escrever.
-    }
-    
-    // Regra Pública: Permite que a aplicação verifique se um email está autorizado
-    // durante o processo de login, antes do usuário estar autenticado.
-    match /authorizedUsers/{userId} {
-        allow read: if true;
-        allow write: if request.auth != null;
-    }
 
-    // Regra Geral Protegida: Para todos os outros documentos e coleções
-    // (initiatives, tasks, collaborators, etc.), o acesso de leitura e escrita
-    // é permitido APENAS se o usuário estiver autenticado.
-    match /{path=**} {
+    // REGRA GERAL: Permite que qualquer usuário autenticado leia e escreva em
+    // qualquer documento de qualquer coleção.
+    // Isso garante que, após o login, a aplicação tenha permissão para
+    // buscar e exibir todas as informações necessárias.
+    match /{document=**} {
       allow read, write: if request.auth != null;
     }
   }
