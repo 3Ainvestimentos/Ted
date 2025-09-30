@@ -4,6 +4,10 @@
 import type { UserRole } from '@/types';
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 
 interface User {
   uid: string;
@@ -25,20 +29,9 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Mock users for simple auth
-const ALLOWED_USERS: User[] = [
-    {
-        uid: 'mock-matheus-uid',
-        name: 'Matheus',
-        email: 'matheus@3ainvestimentos.com.br',
-        role: 'PMO'
-    },
-    {
-        uid: 'mock-thiago-uid',
-        name: 'Thiago',
-        email: 'thiago@3ainvestimentos.com.br',
-        role: 'PMO'
-    }
+const ALLOWED_EMAILS = [
+    'matheus@3ainvestimentos.com.br',
+    'thiago@3ainvestimentos.com.br'
 ];
 
 
@@ -47,49 +40,83 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isUnderMaintenance, setIsUnderMaintenance] = useState(false);
   const router = useRouter();
+  const auth = getAuth();
 
   const isAuthenticated = !!user;
   const isAdmin = user?.role === 'PMO';
-
+  
   useEffect(() => {
-    // This effect runs only once on mount to check for an existing session.
-    try {
-        const session = sessionStorage.getItem('user-session');
-        if (session) {
-            const sessionUser = JSON.parse(session);
-            setUser(sessionUser);
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+        if (firebaseUser) {
+            const userDocRef = doc(db, 'collaborators', firebaseUser.uid);
+            const userDocSnap = await getDoc(userDocRef);
+            if (userDocSnap.exists()) {
+                const userData = userDocSnap.data();
+                setUser({
+                    uid: firebaseUser.uid,
+                    email: firebaseUser.email,
+                    name: userData.name || firebaseUser.email,
+                    role: userData.role || 'Colaborador',
+                });
+            } else {
+                 setUser({
+                    uid: firebaseUser.uid,
+                    email: firebaseUser.email,
+                    name: firebaseUser.email,
+                    role: 'Colaborador',
+                 });
+            }
+        } else {
+            setUser(null);
         }
-    } catch (error) {
-        console.error("Failed to parse user session", error);
-        setUser(null);
-    } finally {
         setIsLoading(false);
-    }
-  }, []);
+    });
+
+    return () => unsubscribe();
+  }, [auth]);
+
 
   const login = async (email: string, pass: string) => {
-    const normalizedEmail = email.toLowerCase();
-    const userToLogin = ALLOWED_USERS.find(u => u.email === normalizedEmail);
-
-    if (userToLogin && pass === 'ted@2024') {
-        sessionStorage.setItem('user-session', JSON.stringify(userToLogin));
-        setUser(userToLogin);
-        // Let the layout handle the redirect, just update the state here.
-    } else {
-        throw new Error('Credenciais inválidas.');
+    if (!ALLOWED_EMAILS.includes(email.toLowerCase())) {
+        throw new Error('Usuário não autorizado.');
+    }
+    
+    try {
+        await signInWithEmailAndPassword(auth, email, pass);
+        // onAuthStateChanged will handle setting the user and loading state
+    } catch (error: any) {
+        if (error.code === 'auth/user-not-found') {
+            // If user does not exist, create it.
+            try {
+                await createUserWithEmailAndPassword(auth, email, pass);
+                // After creation, signIn will be automatic, and onAuthStateChanged will trigger.
+            } catch (createError: any) {
+                 throw new Error(`Falha ao criar usuário: ${createError.message}`);
+            }
+        } else {
+            // For other errors like wrong password
+            throw new Error('Credenciais inválidas.');
+        }
     }
   };
 
   const logout = async () => {
-    setUser(null);
-    sessionStorage.removeItem('user-session');
+    await signOut(auth);
     router.push('/login');
   };
   
+  if (isLoading) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-background">
+        <LoadingSpinner className="h-12 w-12" />
+      </div>
+    );
+  }
+
   return (
     <AuthContext.Provider value={{ isAuthenticated, user, isAdmin, login, logout, isLoading, isUnderMaintenance, setIsUnderMaintenance }}>
       {children}
-    </AuthContext.Provider>
+    </Auth.Provider>
   );
 };
 
