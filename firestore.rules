@@ -3,65 +3,51 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // REGRA PADRÃO: Negar acesso a tudo por padrão.
+    // REGRA PADRÃO: Nega acesso a tudo por padrão.
     match /{document=**} {
       allow read, write: if false;
     }
 
-    // Acesso Público para Autorização e Configurações
-    // Permite que a aplicação verifique a lista de emails autorizados antes do login.
-    match /authorizedUsers/{userId} {
-      allow read: if true;
-      allow write: if request.auth != null; // Apenas usuários logados podem (potencialmente) escrever.
-    }
-
     // Permite que a aplicação verifique o modo manutenção antes do login.
+    // A escrita é protegida e só pode ser feita por usuários autenticados (administradores),
+    // conforme lógica da aplicação.
     match /settings/maintenance {
         allow read: if true;
-        allow write: if request.auth != null; // Apenas usuários logados podem alterar.
+        allow write: if request.auth != null;
     }
-    
-    // Acesso Restrito para Coleções da Aplicação
-    // Exige que o usuário esteja autenticado para ler ou escrever em qualquer uma destas coleções.
-    // A lógica de quem pode ver o quê (ex: admin vs. usuário normal) é controlada na aplicação.
-    match /collaborators/{collaboratorId} {
+
+    // REGRA GERAL PARA DADOS DA APLICAÇÃO:
+    // Exige que o usuário esteja autenticado para ler ou escrever na maioria das coleções.
+    // Isso cobre 'initiatives', 'collaborators', 'tasks', 'notes', etc.
+    match /initiatives/{docId} {
       allow read, write: if request.auth != null;
     }
-    match /businessAreas/{areaId} {
+    match /collaborators/{docId} {
       allow read, write: if request.auth != null;
     }
-    match /initiatives/{initiativeId} {
+    match /tasks/{docId} {
       allow read, write: if request.auth != null;
     }
-    match /kpis/{kpiId} {
+    match /notes/{docId} {
       allow read, write: if request.auth != null;
     }
-    match /okrs/{okrId} {
+    match /businessAreas/{docId} {
       allow read, write: if request.auth != null;
     }
-    match /recurringMeetings/{meetingId} {
+    match /kpis/{docId} {
       allow read, write: if request.auth != null;
     }
-    match /settings/{settingId} {
-       allow read, write: if request.auth != null;
+    match /okrs/{docId} {
+      allow read, write: if request.auth != null;
     }
-     match /auditLogs/{logId} {
+    match /recurringMeetings/{docId} {
+      allow read, write: if request.auth != null;
+    }
+     match /auditLogs/{docId} {
         allow read, write: if request.auth != null;
     }
-
-    // Acesso Específico do Dono do Documento
-
-    // Apenas o dono pode ler/escrever suas próprias notas.
-    match /notes/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-    }
-
-    // Regra para Tarefas:
-    // create: Permite criar se o 'userId' da nova tarefa for o seu.
-    // read, update, delete: Permite ler, atualizar ou deletar se o 'userId' da tarefa existente for o seu.
-    match /tasks/{taskId} {
-      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
-      allow read, update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+     match /authorizedUsers/{docId} {
+      allow read, write: if request.auth != null;
     }
   }
 }
