@@ -53,7 +53,6 @@ export default function AppLayout({
   const pathname = usePathname();
 
   useEffect(() => {
-    // This is the single source of truth for redirection.
     // If loading is finished and the user is not authenticated, redirect to login.
     if (!isLoading && !isAuthenticated) {
       router.replace('/login');

@@ -4,7 +4,9 @@
 import type { UserRole } from '@/types';
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
-import { MOCK_COLLABORATORS } from '@/lib/constants'; // Assuming user data is here
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, type User as FirebaseUser } from "firebase/auth";
+import { app } from '@/lib/firebase';
+import { MOCK_COLLABORATORS } from '@/lib/constants';
 
 interface User {
   uid: string;
@@ -20,97 +22,77 @@ interface AuthContextType {
   login: (email: string, pass: string) => Promise<void>;
   logout: () => Promise<void>;
   isLoading: boolean;
-  isUnderMaintenance: boolean;
+  isUnderMaintenance: boolean; // Assuming this might be needed later
   setIsUnderMaintenance: (isUnder: boolean) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const auth = getAuth(app);
 
-// Define allowed users directly, pulling from a central mock if available
-const ALLOWED_USERS = MOCK_COLLABORATORS.map(c => ({
-    email: c.email.toLowerCase(),
-    uid: c.id,
-    name: c.name,
-    role: c.cargo as UserRole
-}));
-const ALLOWED_EMAILS = ALLOWED_USERS.map(u => u.email);
-
+// Define allowed users from the mock collaborators constant
+const ALLOWED_USERS_MAP = new Map(MOCK_COLLABORATORS.map(c => [c.email.toLowerCase(), c]));
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isUnderMaintenance, setIsUnderMaintenance] = useState(false);
-  const router = useRouter();
 
-  const isAuthenticated = !!user;
-  const isAdmin = user?.role === 'PMO';
-  
   useEffect(() => {
-    // This effect runs only once on mount to check for an existing session.
-    const checkSession = () => {
-        try {
-            const session = sessionStorage.getItem('user-session');
-            if (session) {
-                const userData = JSON.parse(session);
-                setUser(userData);
-            }
-        } catch (error) {
-            console.error("Failed to parse user session:", error);
-            sessionStorage.removeItem('user-session');
-        } finally {
-            setIsLoading(false);
-        }
-    };
-    checkSession();
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser) {
+        const collaboratorData = ALLOWED_USERS_MAP.get(firebaseUser.email?.toLowerCase() || '');
+        setUser({
+          uid: firebaseUser.uid,
+          email: firebaseUser.email,
+          name: collaboratorData?.name || 'Usuário',
+          role: collaboratorData?.cargo as UserRole || 'Colaborador'
+        });
+      } else {
+        setUser(null);
+      }
+      setIsLoading(false);
+    });
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
   }, []);
 
-
   const login = async (email: string, pass: string) => {
-    setIsLoading(true);
-
     const lowerCaseEmail = email.toLowerCase();
-    
-    // 1. Check if email is allowed
-    if (!ALLOWED_EMAILS.includes(lowerCaseEmail)) {
-        setIsLoading(false);
-        throw new Error('Usuário não autorizado.');
-    }
 
-    // 2. Check hardcoded password
+    if (!ALLOWED_USERS_MAP.has(lowerCaseEmail)) {
+      throw new Error("Usuário não autorizado.");
+    }
+    
     if (pass !== 'ted@2024') {
-        setIsLoading(false);
         throw new Error('Credenciais inválidas.');
     }
 
-    // 3. Find user data from our mock list
-    const userData = ALLOWED_USERS.find(u => u.email === lowerCaseEmail);
-    if (!userData) {
-        setIsLoading(false);
-        // This should technically never happen if email is in ALLOWED_EMAILS
-        throw new Error('Usuário não encontrado.');
+    try {
+      await signInWithEmailAndPassword(auth, lowerCaseEmail, pass);
+    } catch (error: any) {
+      if (error.code === 'auth/user-not-found') {
+        // If user does not exist, create them
+        try {
+          await createUserWithEmailAndPassword(auth, lowerCaseEmail, pass);
+        } catch (createError: any) {
+          throw new Error(`Falha ao criar usuário: ${createError.message}`);
+        }
+      } else if (error.code === 'auth/wrong-password') {
+          throw new Error('Credenciais inválidas.');
+      } else {
+        throw new Error(`Erro de login: ${error.message}`);
+      }
     }
-
-    // 4. Set session and state
-    const userToSave: User = {
-        uid: userData.uid,
-        name: userData.name,
-        email: userData.email,
-        role: userData.role
-    };
-
-    sessionStorage.setItem('user-session', JSON.stringify(userToSave));
-    setUser(userToSave);
-    
-    // Let the layout handle the redirection
-    setIsLoading(false);
   };
 
   const logout = async () => {
-    sessionStorage.removeItem('user-session');
-    setUser(null);
-    router.push('/login');
+    await signOut(auth);
   };
-  
+
+  const isAuthenticated = !!user;
+  const isAdmin = user?.role === 'PMO';
+
   return (
     <AuthContext.Provider value={{ isAuthenticated, user, isAdmin, login, logout, isLoading, isUnderMaintenance, setIsUnderMaintenance }}>
       {children}

@@ -32,7 +32,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
-        router.replace('/'); // Redirect to the root of the app, layout will handle the rest.
+        router.replace('/strategic-initiatives'); // Redirect to a default page after login
     }
   }, [isLoading, isAuthenticated, router]);
 
