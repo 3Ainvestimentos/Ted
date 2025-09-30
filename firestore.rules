@@ -3,22 +3,65 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Regra 1: Permite leitura pública para configurações e autorização, necessário para a tela de login.
-    // A escrita permanece protegida.
-    match /settings/{docId} {
-      allow read: if true;
-      allow write: if request.auth != null;
+    // REGRA PADRÃO: Negar acesso a tudo por padrão.
+    match /{document=**} {
+      allow read, write: if false;
     }
 
+    // Acesso Público para Autorização e Configurações
+    // Permite que a aplicação verifique a lista de emails autorizados antes do login.
     match /authorizedUsers/{userId} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow write: if request.auth != null; // Apenas usuários logados podem (potencialmente) escrever.
+    }
+
+    // Permite que a aplicação verifique o modo manutenção antes do login.
+    match /settings/maintenance {
+        allow read: if true;
+        allow write: if request.auth != null; // Apenas usuários logados podem alterar.
     }
     
-    // Regra 2: Para todos os outros documentos (initiatives, collaborators, tasks, etc.),
-    // exige que o usuário esteja autenticado para ler ou escrever.
-    match /{document=**} {
+    // Acesso Restrito para Coleções da Aplicação
+    // Exige que o usuário esteja autenticado para ler ou escrever em qualquer uma destas coleções.
+    // A lógica de quem pode ver o quê (ex: admin vs. usuário normal) é controlada na aplicação.
+    match /collaborators/{collaboratorId} {
       allow read, write: if request.auth != null;
+    }
+    match /businessAreas/{areaId} {
+      allow read, write: if request.auth != null;
+    }
+    match /initiatives/{initiativeId} {
+      allow read, write: if request.auth != null;
+    }
+    match /kpis/{kpiId} {
+      allow read, write: if request.auth != null;
+    }
+    match /okrs/{okrId} {
+      allow read, write: if request.auth != null;
+    }
+    match /recurringMeetings/{meetingId} {
+      allow read, write: if request.auth != null;
+    }
+    match /settings/{settingId} {
+       allow read, write: if request.auth != null;
+    }
+     match /auditLogs/{logId} {
+        allow read, write: if request.auth != null;
+    }
+
+    // Acesso Específico do Dono do Documento
+
+    // Apenas o dono pode ler/escrever suas próprias notas.
+    match /notes/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Regra para Tarefas:
+    // create: Permite criar se o 'userId' da nova tarefa for o seu.
+    // read, update, delete: Permite ler, atualizar ou deletar se o 'userId' da tarefa existente for o seu.
+    match /tasks/{taskId} {
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow read, update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
     }
   }
 }
