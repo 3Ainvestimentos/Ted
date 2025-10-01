@@ -15,7 +15,7 @@ import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { ThreeARivaLogo } from "@/components/icons/3ariva-logo";
+import Image from "next/image";
 
 export default function LoginPage() {
   const { login, isLoading } = useAuth();
@@ -55,7 +55,14 @@ export default function LoginPage() {
     <div className="flex items-center justify-center min-h-screen p-4 bg-gray-100 dark:bg-gray-900" style={{ backgroundImage: "url('/background.png')", backgroundSize: 'cover', backgroundPosition: 'center' }}>
       <Card className="w-full max-w-md shadow-2xl bg-card text-card-foreground rounded-xl">
         <CardHeader className="flex items-center justify-center p-8 pb-4">
-           <ThreeARivaLogo className="h-24" />
+           <Image 
+            src="https://firebasestorage.googleapis.com/v0/b/a-riva-hub.firebasestorage.app/o/Imagens%20institucionais%20(logos%20e%20etc)%2Flogo%20oficial%20preta.png?alt=media&token=ce88dc80-01cd-4295-b443-951e6c0210aa"
+            alt="3A Riva Investimentos Logo"
+            width={200}
+            height={80}
+            className="h-auto"
+            priority
+           />
         </CardHeader>
         <CardContent className="p-8 pt-4">
           <div className="space-y-4">
