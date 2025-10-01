@@ -73,13 +73,13 @@ export default function LoginPage() {
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
-            <Button onClick={handleLogin} variant="outline" className="w-full h-12 text-base bg-white hover:bg-gray-50 border-gray-300" disabled={isSubmitting}>
+            <Button onClick={handleLogin} variant="outline" className="w-full h-12 text-base bg-white hover:bg-white border-gray-300" disabled={isSubmitting}>
               {isSubmitting ? (
                 <LoadingSpinner className="mr-2 h-4 w-4" />
               ) : (
                 <Image
                   src="https://firebasestorage.googleapis.com/v0/b/a-riva-hub.firebasestorage.app/o/Imagens%20institucionais%20(logos%20e%20etc)%2Fgoogle_color_icon.png?alt=media&token=86644368-251c-4b5a-986a-669b36d22b82"
-                  alt="Google logo"
+                  alt="Google G icon"
                   width={20}
                   height={20}
                   className="mr-3 h-5 w-5"
