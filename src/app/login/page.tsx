@@ -78,7 +78,7 @@ export default function LoginPage() {
                 <LoadingSpinner className="mr-2 h-4 w-4" />
               ) : (
                 <Image
-                  src="https://firebasestorage.googleapis.com/v0/b/a-riva-hub.firebasestorage.app/o/Imagens%20institucionais%20(logos%20e%20etc)%2Fgoogle_color_icon.png?alt=media&token=86644368-251c-4b5a-986a-669b36d22b82"
+                  src="https://img.icons8.com/?size=100&id=17949&format=png&color=000000"
                   alt="Google G icon"
                   width={20}
                   height={20}
