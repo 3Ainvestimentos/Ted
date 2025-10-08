@@ -4,7 +4,7 @@
 import type { UserRole } from '@/types';
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { getAuth, signInWithRedirect, GoogleAuthProvider, onAuthStateChanged, signOut, User as FirebaseUser, getRedirectResult, setPersistence, browserLocalPersistence } from 'firebase/auth';
+import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, User as FirebaseUser, getRedirectResult, setPersistence, browserLocalPersistence } from 'firebase/auth';
 import { app } from '@/lib/firebase';
 import { useSettings } from './settings-context';
 import { MOCK_COLLABORATORS } from '@/lib/constants';
@@ -98,7 +98,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const login = async () => {
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
-    await signInWithRedirect(auth, provider);
+    try {
+        await signInWithPopup(auth, provider);
+    } catch (error) {
+        console.error("Popup login error:", error);
+    }
   };
 
   const logout = async () => {
