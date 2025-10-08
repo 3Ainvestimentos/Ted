@@ -14,11 +14,6 @@ const firebaseConfig = {
   "messagingSenderId": "948379117536"
 };
 
-// Dynamically set authDomain for local development to fix auth/unauthorized-domain error
-if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
-    firebaseConfig.authDomain = `${window.location.hostname}:9002`;
-}
-
 // Initialize Firebase
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const db = getFirestore(app);
