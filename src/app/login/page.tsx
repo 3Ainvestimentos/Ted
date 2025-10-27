@@ -16,19 +16,29 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+
 
 export default function LoginPage() {
-  const { login, isLoading } = useAuth();
+  const { login, isLoading, isAuthenticated } = useAuth();
   const { toast } = useToast();
+  const router = useRouter();
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Redirect if user is already authenticated
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      router.replace('/strategic-initiatives');
+    }
+  }, [isLoading, isAuthenticated, router]);
 
   const handleLogin = async () => {
     setError('');
     setIsSubmitting(true);
     try {
       await login();
-      // The AuthProvider's useEffect will handle the redirect on successful login.
+      // The useEffect above will handle the redirect on successful login.
     } catch (err: any) {
       const errorMessage = err.message || "Ocorreu um erro durante o login. Tente novamente.";
       setError(errorMessage);
@@ -43,7 +53,8 @@ export default function LoginPage() {
   };
 
   // The main layout and auth provider will show a spinner while loading
-  if (isLoading) {
+  // We also handle the case where the user is already logged in and we are just waiting for redirect.
+  if (isLoading || isAuthenticated) {
     return (
         <div className="flex items-center justify-center min-h-screen bg-background">
             <LoadingSpinner className="h-8 w-8" />

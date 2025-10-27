@@ -42,94 +42,59 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const auth = getAuth(app);
+    setPersistence(auth, browserLocalPersistence);
 
-    const handleAuth = async () => {
-        try {
-            await setPersistence(auth, browserLocalPersistence);
-
-            const result = await getRedirectResult(auth);
-            if (result) {
-                const email = result.user.email;
-                if (!email || !ALLOWED_EMAILS.includes(email)) {
-                    await signOut(auth);
-                    throw new Error("Usuário não autorizado.");
-                }
-            }
-
-            const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-              if (firebaseUser && firebaseUser.email && ALLOWED_EMAILS.includes(firebaseUser.email)) {
-                const collaboratorData = MAPPED_USERS.get(firebaseUser.email);
-                const userProfile: User = {
-                  uid: firebaseUser.uid,
-                  name: firebaseUser.displayName,
-                  email: firebaseUser.email,
-                  role: collaboratorData?.cargo as UserRole || 'Colaborador',
-                  permissions: collaboratorData?.permissions || {},
-                };
-                setUser(userProfile);
-              } else {
-                setUser(null);
-                if (firebaseUser) {
-                   signOut(auth);
-                }
-              }
-              setIsLoading(false);
-            });
-
-            return unsubscribe;
-
-        } catch (error) {
-            console.error("Auth process error:", error);
-            setIsLoading(false);
-            setUser(null);
-            router.push('/login');
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser && firebaseUser.email && ALLOWED_EMAILS.includes(firebaseUser.email)) {
+        const collaboratorData = MAPPED_USERS.get(firebaseUser.email);
+        const userProfile: User = {
+          uid: firebaseUser.uid,
+          name: firebaseUser.displayName,
+          email: firebaseUser.email,
+          role: collaboratorData?.cargo as UserRole || 'Colaborador',
+          permissions: collaboratorData?.permissions || {},
+        };
+        setUser(userProfile);
+      } else {
+        setUser(null);
+        if (firebaseUser) {
+           signOut(auth);
         }
-    };
-    
-    const unsubscribePromise = handleAuth();
+      }
+      setIsLoading(false);
+    });
 
-    return () => {
-        unsubscribePromise.then(unsubscribe => {
-            if(unsubscribe) unsubscribe();
-        });
-    };
-  }, [router]);
+    return () => unsubscribe();
+  }, []);
 
   const login = async () => {
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
     try {
         await signInWithPopup(auth, provider);
+        // On successful login, the onAuthStateChanged listener will handle setting the user
+        // and the layout/page will handle the redirect.
     } catch (error) {
         console.error("Popup login error:", error);
+        // Re-throw the error to be caught by the login page component
+        throw error;
     }
   };
 
   const logout = async () => {
     const auth = getAuth(app);
     await signOut(auth);
-    setUser(null);
-    router.push('/login');
+    setUser(null); // Explicitly clear user state
+    router.push('/login'); // Redirect to login after logout
   };
 
   const isAuthenticated = !!user;
   const isAdmin = user?.role === 'PMO';
   const isUnderMaintenance = !!maintenanceSettings?.isEnabled && !maintenanceSettings?.adminEmails.includes(user?.email || '');
 
-  // Redirect logic within a useEffect to avoid rendering protected routes unnecessarily
-  useEffect(() => {
-    const isLoginPage = pathname === '/login';
-
-    if (!isLoading && !isAuthenticated && !isLoginPage) {
-      router.replace('/login');
-    }
-
-    if (!isLoading && isAuthenticated && (isLoginPage || pathname === '/')) {
-      router.replace('/strategic-initiatives');
-    }
-  }, [isLoading, isAuthenticated, pathname, router]);
-
-  if (isLoading || (!isAuthenticated && pathname !== '/login')) {
+  // This is a guard for the entire authenticated part of the app.
+  // It handles the initial loading state.
+  if (isLoading || isLoadingSettings) {
       return (
         <div className="flex h-screen w-full items-center justify-center bg-background">
           <LoadingSpinner className="h-12 w-12" />
@@ -137,8 +102,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       );
   }
 
+
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, isAdmin, login, logout, isLoading, isUnderMaintenance }}>
+    <AuthContext.Provider value={{ isAuthenticated, user, isAdmin, login, logout, isLoading: (isLoading || isLoadingSettings), isUnderMaintenance }}>
       {children}
     </AuthContext.Provider>
   );
