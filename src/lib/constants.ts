@@ -6,7 +6,6 @@ export const NAV_ITEMS_CONFIG: NavItem[] = [
   { title: 'Iniciativas Estratégicas', href: '/strategic-initiatives', icon: Target },
   { title: 'Painel Estratégico', href: '/strategic-panel', icon: LayoutDashboard },
   { title: 'Agenda de Reuniões', href: '/meeting-agenda', icon: CalendarClock },
-  { title: 'Controle de Equipe', href: '/team-control', icon: Users },
   { title: 'Tarefas', href: '/tasks', icon: ClipboardList },
   { title: 'Anotações', href: '/notes', icon: StickyNote },
 ];
