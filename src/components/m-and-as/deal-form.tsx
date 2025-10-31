@@ -21,7 +21,7 @@ const subItemSchema = z.object({
 });
 
 const dealSchema = z.object({
-  title: z.string().min(5, "O título deve ter pelo menos 5 caracteres."),
+  title: z.string().min(3, "O título deve ter pelo menos 3 caracteres."),
   description: z.string().min(10, "A descrição deve ter pelo menos 10 caracteres."),
   status: z.enum(['Pendente', 'Em execução', 'Concluído', 'Suspenso']),
   priority: z.enum(['Baixa', 'Média', 'Alta']),
