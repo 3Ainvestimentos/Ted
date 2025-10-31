@@ -111,7 +111,7 @@ export function UpsertKpiModal({ isOpen, onOpenChange, areaId, kpi }: UpsertKpiM
         } else {
             replace([]);
         }
-    }, [startDate, endDate, replace]);
+    }, [startDate, endDate, replace, currentSeries]);
     
     const onSubmit = async (data: UpsertKpiFormData) => {
         setIsLoading(true);

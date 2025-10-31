@@ -49,7 +49,7 @@ export function UpsertOkrModal({ isOpen, onOpenChange, areaId, okr }: UpsertOkrM
         resolver: zodResolver(formSchema),
     });
 
-    const progressValue = watch('progress', isEditing ? okr.progress : 0);
+    const progressValue = watch('progress', isEditing && okr ? okr.progress : 0);
 
     useEffect(() => {
         if (okr) {
