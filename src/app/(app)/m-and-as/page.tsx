@@ -3,7 +3,7 @@
 
 import React, { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, LayoutGrid, List, Upload, Loader2 } from "lucide-react";
+import { PlusCircle, LayoutGrid, List } from "lucide-react";
 import { useMnaDeals } from "@/contexts/m-and-as-context";
 import { InitiativesTable } from "@/components/initiatives/initiatives-table";
 import { InitiativesKanban } from "@/components/initiatives/initiatives-kanban";
@@ -14,7 +14,6 @@ import type { MnaDeal } from "@/types";
 import { CreateInitiativeModal } from "@/components/initiatives/create-initiative-modal";
 import { Skeleton } from "@/components/ui/skeleton";
 import { InitiativeDossierModal } from "@/components/initiatives/initiative-dossier-modal";
-import { ImportInitiativesModal } from "@/components/initiatives/import-initiatives-modal";
 
 
 type ViewMode = "table" | "kanban";
@@ -23,7 +22,6 @@ export default function MnaPage() {
   const { deals, isLoading } = useMnaDeals();
   const [viewMode, setViewMode] = useState<ViewMode>("kanban");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [selectedDeal, setSelectedDeal] = useState<MnaDeal | null>(null);
 
   const openDossier = (deal: MnaDeal) => {
@@ -41,7 +39,6 @@ export default function MnaPage() {
   return (
     <DndProvider backend={HTML5Backend}>
       <CreateInitiativeModal isOpen={isCreateModalOpen} onOpenChange={setIsCreateModalOpen} />
-      <ImportInitiativesModal isOpen={isImportModalOpen} onOpenChange={setIsImportModalOpen} />
       
       {selectedDeal && (
         <InitiativeDossierModal
@@ -79,9 +76,6 @@ export default function MnaPage() {
             </div>
             <Button onClick={() => setIsCreateModalOpen(true)}>
               <PlusCircle className="mr-2 h-4 w-4" /> Criar Deal
-            </Button>
-             <Button variant="outline" onClick={() => setIsImportModalOpen(true)}>
-              <Upload className="mr-2 h-4 w-4" /> Importar CSV
             </Button>
           </div>
         </div>

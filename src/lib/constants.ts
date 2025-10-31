@@ -4,7 +4,6 @@ import { LayoutDashboard, Target, CalendarClock, Settings, Shield, User, BarChar
 
 export const NAV_ITEMS_CONFIG: NavItem[] = [
   { title: 'Iniciativas Estratégicas', href: '/strategic-initiatives', icon: Target },
-  { title: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { title: 'M&As', href: '/m-and-as', icon: Handshake },
   { title: 'Agenda de Reuniões', href: '/meeting-agenda', icon: CalendarClock },
   { title: 'Tarefas', href: '/tasks', icon: ClipboardList },
