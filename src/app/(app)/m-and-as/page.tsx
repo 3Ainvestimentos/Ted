@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { PlusCircle, LayoutGrid, List } from "lucide-react";
 import { useMnaDeals } from "@/contexts/m-and-as-context";
 import { InitiativesTable } from "@/components/initiatives/initiatives-table";
-import { InitiativesKanban } from "@/components/initiatives/initiatives-kanban";
+import { MnaKanban } from "@/components/m-and-as/mna-kanban";
 import { PageHeader } from "@/components/layout/page-header";
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
@@ -88,7 +88,7 @@ export default function MnaPage() {
         ) : viewMode === 'table' ? (
           <InitiativesTable initiatives={initiatives} onInitiativeClick={openDossier} />
         ) : (
-          <InitiativesKanban initiatives={activeDeals} onInitiativeClick={openDossier} />
+          <MnaKanban deals={activeDeals} onDealClick={openDossier} />
         )}
       </div>
     </DndProvider>
