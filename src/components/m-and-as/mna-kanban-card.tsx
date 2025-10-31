@@ -90,12 +90,10 @@ export function MnaKanbanCard({ task, onClick }: MnaKanbanCardProps) {
                             {task.cidade}
                         </Badge>
                      )}
-                     {task.auc && (
-                        <Badge variant="secondary" className="font-normal">
-                           <DollarSign className="mr-1 h-3 w-3" />
-                           {formatAuc(task.auc)}
-                        </Badge>
-                     )}
+                     <Badge variant={task.auc ? "secondary" : "outline"} className="font-normal">
+                        <DollarSign className="mr-1 h-3 w-3" />
+                        {task.auc ? formatAuc(task.auc) : "AUC pendente"}
+                     </Badge>
                 </div>
             </div>
 
