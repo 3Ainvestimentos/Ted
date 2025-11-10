@@ -8,7 +8,7 @@ import { FileText, AlertTriangle, Clock, CheckSquare, MapPin, DollarSign, Calend
 import { cn } from "@/lib/utils";
 import { useDrag } from 'react-dnd';
 import { Progress } from "../ui/progress";
-import { format, parseISO } from "date-fns";
+import { format, parseISO, isBefore, startOfToday } from "date-fns";
 
 interface MnaKanbanCardProps {
   task: MnaDeal;
@@ -66,6 +66,8 @@ export function MnaKanbanCard({ task, onClick }: MnaKanbanCardProps) {
   };
 
   const nextDeadline = getNextDeadline();
+  const isDeadlineOverdue = nextDeadline && isBefore(nextDeadline, startOfToday());
+
 
   return (
     <div ref={drag} style={{ opacity: isDragging ? 0.5 : 1 }} className="cursor-grab active:cursor-grabbing" onClick={onClick}>
@@ -109,7 +111,7 @@ export function MnaKanbanCard({ task, onClick }: MnaKanbanCardProps) {
                         {task.auc ? formatAuc(task.auc) : "AUC"}
                      </Badge>
                      {nextDeadline && (
-                        <Badge variant="outline" className="font-normal text-amber-700 border-amber-300">
+                        <Badge variant="outline" className={cn("font-normal", isDeadlineOverdue ? "text-red-700 border-red-300" : "text-amber-700 border-amber-300")}>
                            <CalendarClock className="mr-1 h-3 w-3" />
                            {format(nextDeadline, 'dd/MM')}
                         </Badge>
