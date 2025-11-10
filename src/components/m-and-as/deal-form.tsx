@@ -144,7 +144,7 @@ export function DealForm({ onSubmit, onCancel, initialData, isLoading }: DealFor
 
       <div className="space-y-4 rounded-lg border p-4">
         <div className="flex justify-between items-center">
-            <Label>Checklist de Due Diligence</Label>
+            <Label>Checklist</Label>
             <Button
               type="button"
               variant="outline"
