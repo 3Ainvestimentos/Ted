@@ -51,7 +51,7 @@ export function TasksKanban({}: TasksKanbanProps) {
 
 
     return (
-        <div className="flex-grow overflow-x-auto pb-4">
+        <div className="flex-grow overflow-x-auto pb-4 flex justify-center">
             <div className="flex gap-4 h-full">
                 {columns.map((column) => (
                     <TasksKanbanColumn 

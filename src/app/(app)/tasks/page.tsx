@@ -6,7 +6,7 @@ import { PageHeader } from "@/components/layout/page-header";
 import { TodoList } from "@/components/tasks/todo-list";
 import { TasksKanban } from '@/components/tasks/tasks-kanban';
 import { Button } from '@/components/ui/button';
-import { List, LayoutGrid } from 'lucide-react';
+import { List, LayoutGrid, PlusCircle } from 'lucide-react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { useTasks } from '@/contexts/tasks-context';
@@ -15,7 +15,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 type ViewMode = "list" | "kanban";
 
 export default function TasksPage() {
-  const [viewMode, setViewMode] = useState<ViewMode>("list");
+  const [viewMode, setViewMode] = useState<ViewMode>("kanban");
   const { isLoading } = useTasks();
 
   return (
@@ -47,6 +47,11 @@ export default function TasksPage() {
                   <span className="ml-2 hidden sm:inline">Kanban</span>
                 </Button>
               </div>
+              {viewMode === 'kanban' && (
+                <Button onClick={() => setViewMode('list')}>
+                    <PlusCircle className="mr-2 h-4 w-4" /> Adicionar Tarefa
+                </Button>
+              )}
             </div>
         </div>
 
