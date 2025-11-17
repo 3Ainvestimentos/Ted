@@ -13,9 +13,11 @@ interface TasksContextType {
   addTask: (title: string) => Promise<void>;
   updateTask: (id: string, newTitle: string) => Promise<void>;
   toggleTaskCompletion: (id: string) => Promise<void>;
+  toggleTaskPriority: (id: string) => Promise<void>;
   archiveTask: (id: string) => Promise<void>;
   deleteTask: (id: string) => Promise<void>;
   isLoading: boolean;
+  updateTaskStatus: (taskId: string, newStatus: "Pendente" | "Prioridade" | "Concluído") => Promise<void>;
 }
 
 const TasksContext = createContext<TasksContextType | undefined>(undefined);
@@ -32,7 +34,13 @@ export const TasksProvider = ({ children }: { children: ReactNode }) => {
   }, [user]);
   
   const fetchTasks = useCallback(async () => {
-    if (!user) return;
+    if (!user) {
+      // If there's no user, we might be logging out.
+      // Clear tasks and stop loading.
+      setTasks([]);
+      setIsLoading(false);
+      return;
+    };
     setIsLoading(true);
     const tasksCollectionRef = getTasksCollectionRef();
     if (!tasksCollectionRef) return;
@@ -45,7 +53,6 @@ export const TasksProvider = ({ children }: { children: ReactNode }) => {
         ...doc.data()
       } as Task));
       
-      // Sort on the client-side to avoid composite index
       tasksData.sort((a, b) => {
         const aTimestamp = a.createdAt?.seconds || 0;
         const bTimestamp = b.createdAt?.seconds || 0;
@@ -75,6 +82,7 @@ export const TasksProvider = ({ children }: { children: ReactNode }) => {
             title,
             completed: false,
             archived: false,
+            priority: false,
             createdAt: serverTimestamp(),
         });
         fetchTasks();
@@ -109,6 +117,19 @@ export const TasksProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [tasks, fetchTasks]);
   
+  const toggleTaskPriority = useCallback(async (id: string) => {
+    const task = tasks.find(t => t.id === id);
+    if (!task) return;
+
+    const taskDocRef = doc(db, 'tasks', id);
+    try {
+        await updateDoc(taskDocRef, { priority: !task.priority });
+        fetchTasks();
+    } catch (error) {
+        console.error("Error toggling task priority: ", error);
+    }
+  }, [tasks, fetchTasks]);
+
   const archiveTask = useCallback(async (id: string) => {
     const taskDocRef = doc(db, 'tasks', id);
     try {
@@ -131,8 +152,36 @@ export const TasksProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [fetchTasks, toast]);
 
+  const updateTaskStatus = useCallback(async (taskId: string, newStatus: "Pendente" | "Prioridade" | "Concluído") => {
+    const taskDocRef = doc(db, 'tasks', taskId);
+    let updateData: Partial<Task> = {};
+
+    switch (newStatus) {
+        case 'Concluído':
+            updateData.completed = true;
+            updateData.priority = false; // A completed task is not a priority
+            break;
+        case 'Prioridade':
+            updateData.completed = false;
+            updateData.priority = true;
+            break;
+        case 'Pendente':
+            updateData.completed = false;
+            updateData.priority = false;
+            break;
+    }
+
+    try {
+        await updateDoc(taskDocRef, updateData);
+        await fetchTasks();
+    } catch (error) {
+        console.error("Error updating task status:", error);
+        toast({ variant: 'destructive', title: "Erro ao atualizar status da tarefa." });
+    }
+  }, [fetchTasks, toast]);
+
   return (
-    <TasksContext.Provider value={{ tasks, addTask, updateTask, toggleTaskCompletion, archiveTask, deleteTask, isLoading }}>
+    <TasksContext.Provider value={{ tasks, addTask, updateTask, toggleTaskCompletion, archiveTask, deleteTask, isLoading, toggleTaskPriority, updateTaskStatus }}>
       {children}
     </TasksContext.Provider>
   );

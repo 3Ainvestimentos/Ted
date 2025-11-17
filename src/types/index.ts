@@ -1,5 +1,6 @@
 
 
+
 export type InitiativeStatus = 'Pendente' | 'Em execução' | 'Concluído' | 'Suspenso' | 'A Fazer' | 'Em Dia' | 'Em Risco' | 'Atrasado';
 export type InitiativePriority = 'Baixa' | 'Média' | 'Alta';
 
@@ -178,6 +179,8 @@ export interface Note {
 }
 
 // Type for Tasks
+export type TaskStatus = 'Pendente' | 'Prioridade' | 'Concluído';
+
 export interface Task {
     id: string;
     userId: string;
@@ -185,4 +188,5 @@ export interface Task {
     completed: boolean;
     archived: boolean;
     createdAt: any; // Firestore Timestamp
+    priority: boolean;
 }

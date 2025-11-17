@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent } from '@/components/ui/card';
-import { PlusCircle, Archive, Trash2, Edit, Save, X } from 'lucide-react';
+import { PlusCircle, Archive, Trash2, Edit, Save, X, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   AlertDialog,
@@ -24,7 +24,7 @@ import {
 import { AnimatePresence, motion } from 'framer-motion';
 
 export function TodoList() {
-  const { tasks, addTask, updateTask, toggleTaskCompletion, archiveTask, deleteTask, isLoading } = useTasks();
+  const { tasks, addTask, updateTask, toggleTaskCompletion, toggleTaskPriority, archiveTask, deleteTask, isLoading } = useTasks();
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
   const [editingTaskTitle, setEditingTaskTitle] = useState('');
@@ -88,7 +88,7 @@ export function TodoList() {
                 value={editingTaskTitle}
                 onChange={(e) => setEditingTaskTitle(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleEditSave()}
-                className="flex-grow"
+                className="flex-grow text-sm"
                 autoFocus
             />
         ) : (
@@ -100,6 +100,9 @@ export function TodoList() {
             </label>
         )}
         <div className="flex items-center gap-1 ml-auto">
+            <Button size="icon" variant="ghost" onClick={() => toggleTaskPriority(task.id)} className="h-8 w-8">
+              <Star className={cn("h-4 w-4", task.priority ? "fill-yellow-400 text-yellow-500" : "text-muted-foreground")} />
+            </Button>
             {editingTaskId === task.id ? (
                 <>
                     <Button size="icon" variant="ghost" onClick={handleEditSave} className="text-green-600 hover:text-green-700 h-8 w-8"><Save /></Button>
