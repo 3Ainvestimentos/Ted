@@ -16,7 +16,7 @@ export default function DashboardPage() {
   return (
     <div className="space-y-8">
       <PageHeader
-        title="Painel de Controle"
+        title="Painel Estratégico"
         description="Acesso rápido às principais áreas da plataforma."
       />
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
