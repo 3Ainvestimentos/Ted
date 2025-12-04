@@ -44,7 +44,7 @@ h1, h2, h3, h4, h5, h6 {
     --chart-5: 270 70% 65%;
 
     /* New Sidebar Theme */
-    --sidebar-background: 220 12% 98%;
+    --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 220 10% 45%;
     --sidebar-primary: 38 59% 68%;
     --sidebar-primary-foreground: 0 0% 10%;
@@ -84,7 +84,7 @@ h1, h2, h3, h4, h5, h6 {
     --chart-5: 270 70% 70%;
     
     /* New Sidebar Dark Theme */
-    --sidebar-background: 210 20% 14%;
+    --sidebar-background: 220 10% 10%;
     --sidebar-foreground: 210 20% 95%;
     --sidebar-primary: 38 59% 68%;
     --sidebar-primary-foreground: 0 0% 10%;
