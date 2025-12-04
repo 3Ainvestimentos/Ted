@@ -38,22 +38,22 @@ export function UserNav() {
       <DropdownMenuContent className="w-56 mb-2" align="start" side="top" forceMount>
          <DropdownMenuSub>
           <DropdownMenuSubTrigger>
-            <Sun className="mr-2 h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-            <Moon className="absolute mr-2 h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+            <Sun className="mr-2 h-3.5 w-3.5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+            <Moon className="absolute mr-2 h-3.5 w-3.5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
             <span>Tema</span>
           </DropdownMenuSubTrigger>
           <DropdownMenuPortal>
             <DropdownMenuSubContent>
               <DropdownMenuItem onClick={() => setTheme("light")}>
-                <Sun className="mr-2 h-4 w-4" />
+                <Sun className="mr-2 h-3.5 w-3.5" />
                 <span>Claro</span>
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setTheme("dark")}>
-                <Moon className="mr-2 h-4 w-4" />
+                <Moon className="mr-2 h-3.5 w-3.5" />
                 <span>Escuro</span>
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setTheme("system")}>
-                <Monitor className="mr-2 h-4 w-4" />
+                <Monitor className="mr-2 h-3.5 w-3.5" />
                 <span>Sistema</span>
               </DropdownMenuItem>
             </DropdownMenuSubContent>
@@ -64,7 +64,7 @@ export function UserNav() {
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
               <Link href="/settings">
-                <Shield className="mr-2 h-4 w-4" />
+                <Shield className="mr-2 h-3.5 w-3.5" />
                 <span>Sistema</span>
               </Link>
             </DropdownMenuItem>
@@ -72,7 +72,7 @@ export function UserNav() {
         )}
         <DropdownMenuSeparator />
          <DropdownMenuItem onClick={logout}>
-            <LogOut className="mr-2 h-4 w-4" />
+            <LogOut className="mr-2 h-3.5 w-3.5" />
             <span>Sair</span>
          </DropdownMenuItem>
          <DropdownMenuSeparator />
