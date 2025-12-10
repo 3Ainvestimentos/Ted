@@ -29,14 +29,14 @@ const initialProjects: DevProject[] = [
         name: 'Implementação de BI',
         items: [
             {
-                id: 'item-1-1', title: 'Definir Ferramenta', status: 'Concluído', responsible: 'Ana', deadline: '2024-07-20',
+                id: 'item-1-1', title: 'Definir Ferramenta', status: 'Concluído', responsible: 'Ana', startDate: '2024-07-10', deadline: '2024-07-20',
                 subItems: []
             },
             {
-                id: 'item-1-2', title: 'Desenvolver Dashboards', status: 'Em Andamento', responsible: 'Bruno', deadline: '2024-08-15',
+                id: 'item-1-2', title: 'Desenvolver Dashboards', status: 'Em Andamento', responsible: 'Bruno', startDate: '2024-07-21', deadline: '2024-08-15',
                 subItems: [
-                    { id: 'sub-1-2-1', title: 'Dashboard de Vendas', status: 'Em Andamento', responsible: 'Bruno', deadline: '2024-07-30' },
-                    { id: 'sub-1-2-2', title: 'Dashboard Financeiro', status: 'Pendente', responsible: 'Carlos', deadline: '2024-08-10' },
+                    { id: 'sub-1-2-1', title: 'Dashboard de Vendas', status: 'Em Andamento', responsible: 'Bruno', startDate: '2024-07-21', deadline: '2024-07-30' },
+                    { id: 'sub-1-2-2', title: 'Dashboard Financeiro', status: 'Pendente', responsible: 'Carlos', startDate: '2024-08-01', deadline: '2024-08-10' },
                 ]
             },
         ]
@@ -46,7 +46,7 @@ const initialProjects: DevProject[] = [
         name: 'Novo CRM',
         items: [
             {
-                id: 'item-2-1', title: 'Migração de Dados', status: 'Em Andamento', responsible: 'David', deadline: '2024-09-01',
+                id: 'item-2-1', title: 'Migração de Dados', status: 'Em Andamento', responsible: 'David', startDate: '2024-08-10', deadline: '2024-09-01',
                 subItems: []
             },
         ]

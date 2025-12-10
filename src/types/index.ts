@@ -2,6 +2,7 @@
 
 
 
+
 export type InitiativeStatus = 'Pendente' | 'Em execução' | 'Concluído' | 'Suspenso' | 'A Fazer' | 'Em Dia' | 'Em Risco' | 'Atrasado';
 export type InitiativePriority = 'Baixa' | 'Média' | 'Alta';
 
@@ -42,6 +43,7 @@ export interface DevProjectSubItem {
     title: string;
     status: DevProjectStatus;
     responsible: string;
+    startDate: string; // ISO Date 'YYYY-MM-DD'
     deadline: string; // ISO Date 'YYYY-MM-DD'
 }
 
@@ -50,6 +52,7 @@ export interface DevProjectItem {
     title: string;
     status: DevProjectStatus;
     responsible: string;
+    startDate: string; // ISO Date 'YYYY-MM-DD'
     deadline: string; // ISO Date 'YYYY-MM-DD'
     subItems: DevProjectSubItem[];
 }
