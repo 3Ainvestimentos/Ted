@@ -1,6 +1,7 @@
 
 
 
+
 export type InitiativeStatus = 'Pendente' | 'Em execução' | 'Concluído' | 'Suspenso' | 'A Fazer' | 'Em Dia' | 'Em Risco' | 'Atrasado';
 export type InitiativePriority = 'Baixa' | 'Média' | 'Alta';
 
@@ -32,6 +33,32 @@ export interface Initiative {
 }
 
 export interface MnaDeal extends Initiative {}
+
+// Types for Development Projects
+export type DevProjectStatus = 'Pendente' | 'Em Andamento' | 'Concluído' | 'Em Espera' | 'Cancelado';
+
+export interface DevProjectSubItem {
+    id: string;
+    title: string;
+    status: DevProjectStatus;
+    responsible: string;
+    deadline: string; // ISO Date 'YYYY-MM-DD'
+}
+
+export interface DevProjectItem {
+    id: string;
+    title: string;
+    status: DevProjectStatus;
+    responsible: string;
+    deadline: string; // ISO Date 'YYYY-MM-DD'
+    subItems: DevProjectSubItem[];
+}
+
+export interface DevProject {
+    id: string;
+    name: string;
+    items: DevProjectItem[];
+}
 
 
 export type UserRole = 'PMO' | 'Líder' | 'Colaborador';

@@ -13,6 +13,7 @@ import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { NotesProvider } from '@/contexts/notes-context';
 import { TasksProvider } from '@/contexts/tasks-context';
 import { MnaDealsProvider } from '@/contexts/m-and-as-context';
+import { DevProjectsProvider } from '@/contexts/dev-projects-context';
 
 
 export default function AppLayout({
@@ -47,33 +48,35 @@ export default function AppLayout({
           <MeetingsProvider>
             <TasksProvider>
               <NotesProvider>
-                <SidebarProvider>
-                  <div className="flex h-screen bg-background">
-                    {!isDashboardPage && (
-                      <Sidebar>
-                        <SidebarContent>
-                          <SidebarNav />
-                        </SidebarContent>
-                        <SidebarFooter>
-                          <UserNav />
-                        </SidebarFooter>
-                      </Sidebar>
-                    )}
-                    <div className="flex flex-col flex-1 overflow-hidden">
-                      <header className="flex h-14 items-center gap-4 border-b bg-background/80 px-4 backdrop-blur-lg sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
-                        {!isDashboardPage && <SidebarTrigger className="sm:hidden" />}
-                      </header>
-                      <main className="flex-1 overflow-auto p-4 md:p-6">
-                        {children}
-                      </main>
-                       {isDashboardPage && (
-                        <footer className="fixed bottom-0 left-0 p-3">
-                          <UserNav />
-                        </footer>
+                <DevProjectsProvider>
+                  <SidebarProvider>
+                    <div className="flex h-screen bg-background">
+                      {!isDashboardPage && (
+                        <Sidebar>
+                          <SidebarContent>
+                            <SidebarNav />
+                          </SidebarContent>
+                          <SidebarFooter>
+                            <UserNav />
+                          </SidebarFooter>
+                        </Sidebar>
                       )}
+                      <div className="flex flex-col flex-1 overflow-hidden">
+                        <header className="flex h-14 items-center gap-4 border-b bg-background/80 px-4 backdrop-blur-lg sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
+                          {!isDashboardPage && <SidebarTrigger className="sm:hidden" />}
+                        </header>
+                        <main className="flex-1 overflow-auto p-4 md:p-6">
+                          {children}
+                        </main>
+                        {isDashboardPage && (
+                          <footer className="fixed bottom-0 left-0 p-3">
+                            <UserNav />
+                          </footer>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                </SidebarProvider>
+                  </SidebarProvider>
+                </DevProjectsProvider>
               </NotesProvider>
             </TasksProvider>
           </MeetingsProvider>
