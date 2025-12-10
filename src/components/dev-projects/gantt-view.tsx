@@ -19,6 +19,7 @@ export interface GanttTask {
     startDateObj: Date;
     endDateObj: Date;
     isParent: boolean;
+    deadline: string;
 }
 
 interface GanttViewProps {
@@ -59,7 +60,7 @@ export function GanttView({ projects }: GanttViewProps) {
         
         const ganttTasks: GanttTask[] = allItems.map(task => {
             if (!task.startDate || !task.deadline) {
-                return { id: task.id, name: task.name, level: task.level, responsible: task.responsible, status: task.status, range: [0, 0], startDateObj: new Date(), endDateObj: new Date(), isParent: task.isParent };
+                return { id: task.id, name: task.name, level: task.level, responsible: task.responsible, status: task.status, range: [0, 0], startDateObj: new Date(), endDateObj: new Date(), isParent: task.isParent, deadline: task.deadline };
             }
 
             const taskStartDateObj = parseISO(task.startDate);
@@ -79,6 +80,7 @@ export function GanttView({ projects }: GanttViewProps) {
                 startDateObj: taskStartDateObj,
                 endDateObj: taskEndDateObj,
                 isParent: task.isParent,
+                deadline: task.deadline,
             };
         });
 
@@ -113,12 +115,14 @@ export function GanttView({ projects }: GanttViewProps) {
     }
 
     return (
-        <div className="grid grid-cols-[minmax(400px,40%)_1fr] h-full overflow-hidden border rounded-lg">
+        <div className="grid grid-cols-[minmax(450px,55%)_1fr] h-full overflow-hidden border rounded-lg">
             <div className="flex flex-col overflow-hidden">
                 <div className="p-2 border-b font-semibold text-sm">
-                    <div className="grid grid-cols-3">
+                    <div className="grid grid-cols-4 items-center">
                         <span className="col-span-2">Projeto / Item</span>
-                        <span>Responsável</span>
+                        <span className="text-center">Responsável</span>
+                        <span className="text-center">Status</span>
+                        <span className="text-center">Prazo</span>
                     </div>
                 </div>
                 <GanttTaskList tasks={tasks} onScroll={(e) => handleScroll('list')} syncScrollRef={listScrollRef} />
