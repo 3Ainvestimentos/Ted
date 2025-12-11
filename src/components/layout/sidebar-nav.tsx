@@ -20,7 +20,7 @@ export function SidebarNav() {
     <SidebarMenuItem key={item.title}>
       <SidebarMenuButton
         asChild
-        isActive={pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href))}
+        isActive={item.href !== "/" && pathname.startsWith(item.href)}
         disabled={item.disabled}
         tooltip={{ children: item.title }}
         aria-label={item.title}
