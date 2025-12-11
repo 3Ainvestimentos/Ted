@@ -66,7 +66,7 @@ export default function DevelopmentProjectsPage() {
         }).filter((p): p is NonNullable<typeof p> => p !== null);
     }, [projects, projectFilter, statusFilter, responsibleFilter, deadlineFilter]);
 
-    const STATUS_OPTIONS: DevProjectStatus[] = ['Pendente', 'Em Andamento', 'Concluído'];
+    const STATUS_OPTIONS: (DevProjectStatus | 'all')[] = ['all', 'Pendente', 'Em Andamento', 'Concluído', 'Em atraso'];
 
     return (
         <div className="space-y-6 h-full flex flex-col">
@@ -96,8 +96,7 @@ export default function DevelopmentProjectsPage() {
                 <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as any)}>
                     <SelectTrigger><SelectValue placeholder="Filtrar por status..." /></SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="all">Todos os Status</SelectItem>
-                        {STATUS_OPTIONS.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                        {STATUS_OPTIONS.map(s => <SelectItem key={s} value={s}>{s === 'all' ? 'Todos os Status' : s}</SelectItem>)}
                     </SelectContent>
                 </Select>
                 <Select value={responsibleFilter} onValueChange={setResponsibleFilter}>

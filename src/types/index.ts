@@ -4,6 +4,7 @@
 
 
 
+
 export type InitiativeStatus = 'Pendente' | 'Em execução' | 'Concluído' | 'Suspenso' | 'A Fazer' | 'Em Dia' | 'Em Risco' | 'Atrasado';
 export type InitiativePriority = 'Baixa' | 'Média' | 'Alta';
 
@@ -37,7 +38,7 @@ export interface Initiative {
 export interface MnaDeal extends Initiative {}
 
 // Types for Development Projects
-export type DevProjectStatus = 'Pendente' | 'Em Andamento' | 'Concluído';
+export type DevProjectStatus = 'Pendente' | 'Em Andamento' | 'Concluído' | 'Em atraso';
 
 export interface DevProjectSubItem {
     id: string;
