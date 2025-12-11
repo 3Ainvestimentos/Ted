@@ -3,25 +3,18 @@
 
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { ArrowRight, Handshake, Target, CalendarClock, ClipboardList, StickyNote } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-
-const iconMap: Record<string, LucideIcon> = {
-    Handshake,
-    Target,
-    CalendarClock,
-    ClipboardList,
-    StickyNote
-};
 
 interface DashboardCardProps {
     title: string;
     description: string;
     href: string;
     iconName: string;
+    iconMap: Record<string, LucideIcon>;
 }
 
-export function DashboardCard({ title, description, href, iconName }: DashboardCardProps) {
+export function DashboardCard({ title, description, href, iconName, iconMap }: DashboardCardProps) {
   const Icon = iconMap[iconName];
 
   return (
