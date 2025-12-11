@@ -1,9 +1,10 @@
 
+
 "use client";
 
 import React, { useMemo } from 'react';
 import type { DevProject, DevProjectStatus, DevProjectItem, DevProjectSubItem } from '@/types';
-import { startOfDay, endOfDay, parseISO, eachDayOfInterval, isWithinInterval, getMonth, getYear, format, isBefore } from 'date-fns';
+import { startOfDay, endOfDay, parseISO, eachDayOfInterval, isWithinInterval, getMonth, getYear, format, isToday } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Card, CardContent } from '../ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -65,8 +66,8 @@ export function GanttView({ projects, onProjectClick, onStatusChange }: GanttVie
              return { tasks: [], dateHeaders: [], monthHeaders: [] };
         }
 
-        const chartStartDate = startOfDay(validDates.reduce((min, d) => d < min ? d : min, validDates[0]));
-        const chartEndDate = endOfDay(validDates.reduce((max, d) => d > max ? d : max, validDates[0]));
+        const chartStartDate = startOfDay(validates.reduce((min, d) => d < min ? d : min, validDates[0]));
+        const chartEndDate = endOfDay(validates.reduce((max, d) => d > max ? d : max, validDates[0]));
 
         const dateHeaders = eachDayOfInterval({ start: chartStartDate, end: chartEndDate });
 
@@ -127,7 +128,7 @@ export function GanttView({ projects, onProjectClick, onStatusChange }: GanttVie
     }
     
     return (
-        <div className="border-t border-b overflow-x-auto">
+        <div className="overflow-x-auto border-y">
              <Table className="min-w-full table-fixed">
                 <TableHeader>
                     <TableRow className="bg-muted/50">
@@ -135,19 +136,15 @@ export function GanttView({ projects, onProjectClick, onStatusChange }: GanttVie
                         <TableHead className="w-32">Responsável</TableHead>
                         <TableHead className="w-40">Status</TableHead>
                         <TableHead className="w-28">Prazo</TableHead>
-                        {monthHeaders.map((month, index) => {
-                            const dayWidth = 16; 
-                            return (
-                                <TableHead 
-                                    key={index} 
-                                    colSpan={month.colSpan} 
-                                    className="text-center text-[10px] font-semibold px-0.5 whitespace-nowrap"
-                                    style={{ minWidth: `${month.colSpan * dayWidth}px` }}
-                                >
-                                    {month.name}
-                                </TableHead>
-                            )
-                        })}
+                        {monthHeaders.map((month, index) => (
+                            <TableHead 
+                                key={index} 
+                                colSpan={month.colSpan} 
+                                className="text-center text-[10px] font-semibold px-px whitespace-nowrap"
+                            >
+                                {month.name}
+                            </TableHead>
+                        ))}
                     </TableRow>
                 </TableHeader>
                  <TableBody>
@@ -194,8 +191,11 @@ export function GanttView({ projects, onProjectClick, onStatusChange }: GanttVie
                                 {dateHeaders.map((day, dayIndex) => {
                                     const isInRange = task.level > 0 && isWithinInterval(day, { start: task.startDate, end: task.endDate });
                                     const isWeekend = day.getDay() === 0 || day.getDay() === 6;
+                                    const isTodayMarker = isToday(day);
+
                                     return (
-                                        <TableCell key={dayIndex} className={cn("p-0 w-4", isWeekend && "bg-muted/50")}>
+                                        <TableCell key={dayIndex} className={cn("p-0 w-4 relative", isWeekend && "bg-muted/50", isTodayMarker && "bg-red-100/50 dark:bg-red-900/20")}>
+                                            {isTodayMarker && <div className="absolute inset-y-0 left-0 w-px bg-red-500"></div>}
                                             {isInRange && (
                                                 <div className={cn("h-full w-full opacity-70", statusColors[statusToUse])} title={`${task.name}: ${format(task.startDate, 'dd/MM')} - ${format(task.endDate, 'dd/MM')}`}>&nbsp;</div>
                                             )}
