@@ -12,7 +12,7 @@ interface GanttTimelineProps {
 
 export function GanttTimeline({ months, totalDays }: GanttTimelineProps) {
     return (
-        <Card className="rounded-b-none border-b-0">
+        <Card className="border-b-0 rounded-none rounded-tr-lg">
             <CardContent className="p-0 flex">
                 {months.map((month, index) => {
                     const widthPercentage = (month.days / totalDays) * 100;

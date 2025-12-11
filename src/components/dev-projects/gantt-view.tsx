@@ -118,7 +118,7 @@ export function GanttView({ projects, onProjectClick, onStatusChange }: GanttVie
     }
 
     return (
-        <div className="grid grid-cols-[minmax(450px,55%)_1fr] h-full overflow-hidden border rounded-lg">
+        <div className="grid grid-cols-[minmax(550px,55%)_1fr] h-full overflow-hidden border rounded-lg">
             <div className="flex flex-col overflow-hidden">
                 <div className="p-2 border-b font-semibold text-sm">
                     <div className="grid grid-cols-4 items-center">

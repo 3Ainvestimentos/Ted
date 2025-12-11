@@ -28,7 +28,7 @@ const TASK_HEIGHT = 41; // Corresponds to h-10 + 1px border from gantt-task-list
 
 export function GanttChartOnly({ tasks, totalDays, startDate, onScroll, syncScrollRef }: GanttChartOnlyProps) {
     return (
-        <Card className="rounded-l-none border-l-0 h-full flex flex-col">
+        <Card className="border-l-0 h-full flex flex-col rounded-none rounded-br-lg">
             <CardContent
                 className="p-0 flex-grow relative overflow-y-auto"
                 onScroll={onScroll}

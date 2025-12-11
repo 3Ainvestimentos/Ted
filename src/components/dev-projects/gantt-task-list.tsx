@@ -25,7 +25,7 @@ interface GanttTaskListProps {
 
 export function GanttTaskList({ tasks, onScroll, syncScrollRef, onProjectClick, onStatusChange }: GanttTaskListProps) {
     return (
-        <Card className="rounded-r-none border-r-0 border-t-0 h-full flex flex-col">
+        <Card className="border-r-0 border-t-0 h-full flex flex-col rounded-none rounded-l-lg">
             <CardContent
                 className="p-0 flex-grow overflow-y-auto"
                 ref={syncScrollRef}
@@ -47,6 +47,7 @@ export function GanttTaskList({ tasks, onScroll, syncScrollRef, onProjectClick, 
                                             {task.name}
                                         </Button>
                                     </div>
+                                    <div className="col-span-3"></div>
                                 </>
                            ) : (
                             <>
