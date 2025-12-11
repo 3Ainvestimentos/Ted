@@ -3,7 +3,7 @@
 
 import React, { useMemo } from 'react';
 import type { DevProject, DevProjectStatus, DevProjectItem, DevProjectSubItem } from '@/types';
-import { startOfDay, endOfDay, differenceInDays, parseISO, addDays, format, eachDayOfInterval, isWithinInterval, getMonth, getYear } from 'date-fns';
+import { startOfDay, endOfDay, differenceInDays, parseISO, addDays, format, eachDayOfInterval, isWithinInterval, getMonth, getYear, isBefore } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Card, CardContent } from '../ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -217,4 +217,3 @@ export function GanttView({ projects, onProjectClick, onStatusChange }: GanttVie
         </div>
     );
 }
-
