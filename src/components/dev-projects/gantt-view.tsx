@@ -3,12 +3,12 @@
 
 import React, { useMemo } from 'react';
 import type { DevProject, DevProjectStatus, DevProjectItem, DevProjectSubItem } from '@/types';
-import { startOfDay, endOfDay, differenceInDays, parseISO, addDays, format, eachDayOfInterval, isWithinInterval, getMonth, getYear, isBefore } from 'date-fns';
+import { startOfDay, endOfDay, parseISO, eachDayOfInterval, isWithinInterval, getMonth, getYear, format, isBefore } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Card, CardContent } from '../ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from '@/lib/utils';
-import { ChevronDown, ChevronRight, CornerDownRight } from 'lucide-react';
+import { ChevronDown, CornerDownRight } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 
@@ -102,7 +102,6 @@ export function GanttView({ projects, onProjectClick, onStatusChange }: GanttVie
             dateHeaders.forEach(date => {
                 const month = getMonth(date);
                 const year = getYear(date);
-                const monthYearKey = `${month}-${year}`;
 
                 if (month !== currentMonth) {
                     currentMonth = month;
@@ -136,22 +135,16 @@ export function GanttView({ projects, onProjectClick, onStatusChange }: GanttVie
                         <TableHead className="w-32">Responsável</TableHead>
                         <TableHead className="w-40">Status</TableHead>
                         <TableHead className="w-28">Prazo</TableHead>
-                        {monthHeaders.map((month, index) => (
-                            <TableHead key={index} colSpan={month.colSpan} className="text-center border-l">
-                                {month.name}
-                            </TableHead>
-                        ))}
-                    </TableRow>
-                    <TableRow className="bg-muted/50">
-                         <TableHead className="w-64 sticky left-0 bg-muted/50 z-10"></TableHead>
-                         <TableHead className="w-32"></TableHead>
-                         <TableHead className="w-40"></TableHead>
-                         <TableHead className="w-28"></TableHead>
-                        {dateHeaders.map((date, index) => {
-                            const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+                        {monthHeaders.map((month, index) => {
+                            const dayWidth = 24; // Width for each day column in pixels
                             return (
-                                <TableHead key={index} className={cn("text-center text-xs p-1 border-l", isWeekend && "bg-muted")}>
-                                    {format(date, 'd')}
+                                <TableHead 
+                                    key={index} 
+                                    colSpan={month.colSpan} 
+                                    className="text-center border-l text-xs font-semibold p-1 whitespace-nowrap"
+                                    style={{ minWidth: `${month.colSpan * dayWidth}px` }}
+                                >
+                                    {month.name}
                                 </TableHead>
                             )
                         })}
@@ -163,7 +156,7 @@ export function GanttView({ projects, onProjectClick, onStatusChange }: GanttVie
                         const statusOptions = task.isOverdue ? OVERDUE_STATUS_OPTIONS : BASE_STATUS_OPTIONS;
                         
                         return (
-                             <TableRow key={task.id} className={cn(task.isOverdue && "bg-destructive/10")}>
+                             <TableRow key={task.id} className={cn("h-10", task.isOverdue && "bg-destructive/10")}>
                                 <TableCell className="sticky left-0 bg-background z-10">
                                      <div className={cn("flex items-center gap-1 truncate",
                                         task.level === 0 && "font-bold",
@@ -202,7 +195,7 @@ export function GanttView({ projects, onProjectClick, onStatusChange }: GanttVie
                                     const isInRange = task.level > 0 && isWithinInterval(day, { start: task.startDate, end: task.endDate });
                                     const isWeekend = day.getDay() === 0 || day.getDay() === 6;
                                     return (
-                                        <TableCell key={dayIndex} className={cn("p-0 border-l", isWeekend && "bg-muted")}>
+                                        <TableCell key={dayIndex} className={cn("p-0 border-l w-6", isWeekend && "bg-muted/50")}>
                                             {isInRange && (
                                                 <div className={cn("h-full w-full opacity-70", statusColors[statusToUse])} title={`${task.name}: ${format(task.startDate, 'dd/MM')} - ${format(task.endDate, 'dd/MM')}`}>&nbsp;</div>
                                             )}
