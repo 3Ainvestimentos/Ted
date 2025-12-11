@@ -4,7 +4,7 @@
 
 import React, { useMemo } from 'react';
 import type { DevProject, DevProjectStatus, DevProjectItem, DevProjectSubItem } from '@/types';
-import { startOfDay, endOfDay, parseISO, eachDayOfInterval, isWithinInterval, getMonth, getYear, format, isToday } from 'date-fns';
+import { startOfDay, endOfDay, parseISO, eachDayOfInterval, isWithinInterval, getMonth, getYear, format, isToday, isBefore } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Card, CardContent } from '../ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -66,8 +66,8 @@ export function GanttView({ projects, onProjectClick, onStatusChange }: GanttVie
              return { tasks: [], dateHeaders: [], monthHeaders: [] };
         }
 
-        const chartStartDate = startOfDay(validates.reduce((min, d) => d < min ? d : min, validDates[0]));
-        const chartEndDate = endOfDay(validates.reduce((max, d) => d > max ? d : max, validDates[0]));
+        const chartStartDate = startOfDay(validDates.reduce((min, d) => d < min ? d : min, validDates[0]));
+        const chartEndDate = endOfDay(validDates.reduce((max, d) => d > max ? d : max, validDates[0]));
 
         const dateHeaders = eachDayOfInterval({ start: chartStartDate, end: chartEndDate });
 
