@@ -18,11 +18,9 @@ interface GanttChartOnlyProps {
 }
 
 const statusColors: Record<string, string> = {
-    'Pendente': 'hsl(var(--muted-foreground))',
+    'Pendente': 'hsl(var(--muted-foreground) / 0.5)',
     'Em Andamento': 'hsl(var(--primary))',
     'Concluído': 'hsl(var(--chart-2))',
-    'Em Espera': 'hsl(var(--chart-3))',
-    'Cancelado': 'hsl(var(--destructive))',
 };
 
 const TASK_HEIGHT = 41; // Corresponds to h-10 + 1px border from gantt-task-list

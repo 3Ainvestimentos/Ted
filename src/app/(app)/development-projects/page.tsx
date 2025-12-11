@@ -66,7 +66,7 @@ export default function DevelopmentProjectsPage() {
         }).filter((p): p is NonNullable<typeof p> => p !== null);
     }, [projects, projectFilter, statusFilter, responsibleFilter, deadlineFilter]);
 
-    const STATUS_OPTIONS: DevProjectStatus[] = ['Pendente', 'Em Andamento', 'Concluído', 'Em Espera', 'Cancelado'];
+    const STATUS_OPTIONS: DevProjectStatus[] = ['Pendente', 'Em Andamento', 'Concluído'];
 
     return (
         <div className="space-y-6 h-full flex flex-col">

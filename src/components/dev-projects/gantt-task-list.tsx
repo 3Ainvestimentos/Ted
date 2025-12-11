@@ -12,7 +12,7 @@ import type { DevProjectStatus, DevProject } from '@/types';
 import { Button } from '../ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 
-const STATUS_OPTIONS: DevProjectStatus[] = ['Pendente', 'Em Andamento', 'Concluído', 'Em Espera', 'Cancelado'];
+const STATUS_OPTIONS: DevProjectStatus[] = ['Pendente', 'Em Andamento', 'Concluído'];
 
 interface GanttTaskListProps {
     tasks: (GanttTask & { originalProject: DevProject })[];
