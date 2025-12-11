@@ -48,7 +48,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setPersistence(auth, browserLocalPersistence);
 
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser && firebaseUser.email && ALLOWED_EMAILS.includes(firebaseUser.email)) {
+      if (firebaseUser && firebaseUser.email) {
         try {
           // Buscar colaborador no Firestore pelo email
           const collaboratorsRef = collection(db, 'collaborators');
@@ -57,10 +57,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           
           let collaboratorData = null;
           if (!querySnapshot.empty) {
+            // Colaborador encontrado no Firestore
             collaboratorData = querySnapshot.docs[0].data();
-          } else {
-            // Fallback para mock data se não encontrar no Firestore
+          } else if (ALLOWED_EMAILS.includes(firebaseUser.email)) {
+            // Fallback para mock data se não encontrar no Firestore mas estiver na lista de emails permitidos
             collaboratorData = MAPPED_USERS.get(firebaseUser.email);
+          } else {
+            // Email não encontrado nem no Firestore nem na lista permitida
+            console.log("Email não autorizado:", firebaseUser.email);
+            setUser(null);
+            if (firebaseUser) {
+              signOut(auth);
+            }
+            setIsLoading(false);
+            return;
           }
           
           const userProfile: User = {
@@ -72,19 +82,45 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             permissions: collaboratorData?.permissions || {},
           };
           setUser(userProfile);
-        } catch (error) {
+        } catch (error: any) {
           console.error("Error fetching collaborator data: ", error);
-          // Fallback para mock data em caso de erro
-          const collaboratorData = MAPPED_USERS.get(firebaseUser.email);
-          const userProfile: User = {
-            uid: firebaseUser.uid,
-            name: firebaseUser.displayName,
-            email: firebaseUser.email,
-            role: collaboratorData?.cargo as UserRole || 'Colaborador',
-            userType: collaboratorData?.userType || 'Usuário padrão',
-            permissions: collaboratorData?.permissions || {},
-          };
-          setUser(userProfile);
+          // Em caso de erro (ex: permissão negada), verificar se está na lista de emails permitidos como fallback
+          if (ALLOWED_EMAILS.includes(firebaseUser.email)) {
+            const collaboratorData = MAPPED_USERS.get(firebaseUser.email);
+            const userProfile: User = {
+              uid: firebaseUser.uid,
+              name: firebaseUser.displayName,
+              email: firebaseUser.email,
+              role: collaboratorData?.cargo as UserRole || 'Colaborador',
+              userType: collaboratorData?.userType || 'Usuário padrão',
+              permissions: collaboratorData?.permissions || {},
+            };
+            setUser(userProfile);
+          } else {
+            // Se não estiver na lista permitida e deu erro, verificar se é erro de permissão
+            // Se for erro de permissão, pode ser que o usuário esteja no Firestore mas não consegue ler
+            // Nesse caso, tentar usar dados básicos do Firebase Auth
+            if (error?.code === 'permission-denied') {
+              console.warn("Permissão negada ao buscar colaborador, mas usuário autenticado. Usando dados básicos.");
+              // Criar perfil básico com dados do Firebase Auth
+              const userProfile: User = {
+                uid: firebaseUser.uid,
+                name: firebaseUser.displayName,
+                email: firebaseUser.email,
+                role: 'Colaborador' as UserRole,
+                userType: 'Usuário padrão',
+                permissions: {},
+              };
+              setUser(userProfile);
+            } else {
+              // Se não estiver na lista permitida e não for erro de permissão, fazer logout
+              console.log("Email não autorizado e erro não é de permissão:", firebaseUser.email);
+              setUser(null);
+              if (firebaseUser) {
+                signOut(auth);
+              }
+            }
+          }
         }
       } else {
         setUser(null);

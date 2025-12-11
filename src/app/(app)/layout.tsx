@@ -33,33 +33,23 @@ export default function AppLayout({
 
     // Verificar permissões de acesso à página atual
     if (isAuthenticated && !isLoading && !isUnderMaintenance) {
-      // Painel Estratégico: apenas Administradores
-      if (pathname === '/') {
-        if (!isAdmin) {
-          // Redirecionar para primeira página permitida
-          router.replace('/strategic-initiatives');
-        }
-        return;
-      }
+      // Todos podem acessar a página inicial (/)
+      // A página inicial filtra os cards internamente baseado nas permissões
 
       // Página de Settings: apenas Administradores
       if (pathname.startsWith('/settings')) {
         if (!isAdmin) {
-          router.replace('/strategic-initiatives');
+          router.replace('/');
         }
         return;
       }
 
-      // Verificar permissão para outras páginas (exceto login)
-      if (pathname !== '/login') {
+      // Verificar permissão para outras páginas (exceto login e página inicial)
+      if (pathname !== '/login' && pathname !== '/') {
         const permissionKey = pathname.startsWith('/') ? pathname.substring(1) : pathname;
         if (!hasPermission(permissionKey)) {
-          // Redirecionar para primeira página permitida ou dashboard se admin
-          if (isAdmin) {
-            router.replace('/');
-          } else {
-            router.replace('/strategic-initiatives');
-          }
+          // Redirecionar para página inicial se não tiver permissão
+          router.replace('/');
         }
       }
     }
