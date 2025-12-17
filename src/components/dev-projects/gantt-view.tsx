@@ -4,7 +4,7 @@
 
 import React, { useMemo } from 'react';
 import type { DevProject, DevProjectStatus, DevProjectItem, DevProjectSubItem } from '@/types';
-import { startOfDay, endOfDay, parseISO, eachDayOfInterval, isWithinInterval, getMonth, getYear, format, isToday, isBefore } from 'date-fns';
+import { startOfDay, endOfDay, parseISO, eachDayOfInterval, isWithinInterval, getMonth, getYear, format, isToday, isBefore, startOfMonth, endOfMonth, eachMonthOfInterval, isSameMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Card, CardContent } from '../ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -12,6 +12,8 @@ import { cn } from '@/lib/utils';
 import { ChevronDown, CornerDownRight } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { Badge } from '../ui/badge';
+import { useProjectComments } from '@/contexts/project-comments-context';
 
 const OVERDUE_STATUS_OPTIONS: DevProjectStatus[] = ['Em atraso', 'Concluído'];
 const BASE_STATUS_OPTIONS: DevProjectStatus[] = ['Pendente', 'Em Andamento', 'Concluído'];
@@ -27,15 +29,21 @@ interface GanttTask {
     isParent: boolean;
     originalProject: DevProject;
     isOverdue: boolean;
+    itemId?: string;
+    subItemId?: string;
 }
 
 interface GanttViewProps {
     projects: DevProject[];
     onProjectClick: (project: DevProject) => void;
+    onItemClick?: (projectId: string, itemId: string, itemTitle: string) => void;
+    onSubItemClick?: (projectId: string, itemId: string, subItemId: string, subItemTitle: string) => void;
     onStatusChange: (projectId: string, itemId: string, newStatus: DevProjectStatus) => void;
 }
 
-export function GanttView({ projects, onProjectClick, onStatusChange }: GanttViewProps) {
+export function GanttView({ projects, onProjectClick, onItemClick, onSubItemClick, onStatusChange }: GanttViewProps) {
+    const { getUnreadCount } = useProjectComments();
+    
     const { tasks, dateHeaders, monthHeaders } = useMemo(() => {
         if (!projects || projects.length === 0) {
             return { tasks: [], dateHeaders: [], monthHeaders: [] };
@@ -82,10 +90,10 @@ export function GanttView({ projects, onProjectClick, onStatusChange }: GanttVie
                 isOverdue: false,
             }, ...p.items.flatMap(i => [
                 {
-                    id: i.id, name: i.title, level: 1, responsible: i.responsible, status: i.status, startDate: parseISO(i.startDate), endDate: parseISO(i.deadline), isParent: i.subItems.length > 0, originalProject: p, isOverdue: isBefore(parseISO(i.deadline), startOfDay(new Date())) && i.status !== 'Concluído'
+                    id: i.id, name: i.title, level: 1, responsible: i.responsible, status: i.status, startDate: parseISO(i.startDate), endDate: parseISO(i.deadline), isParent: i.subItems.length > 0, originalProject: p, isOverdue: isBefore(parseISO(i.deadline), startOfDay(new Date())) && i.status !== 'Concluído', itemId: i.id
                 },
                 ...i.subItems.map(si => ({
-                    id: si.id, name: si.title, level: 2, responsible: si.responsible, status: si.status, startDate: parseISO(si.startDate), endDate: parseISO(si.deadline), isParent: false, originalProject: p, isOverdue: isBefore(parseISO(si.deadline), startOfDay(new Date())) && si.status !== 'Concluído'
+                    id: si.id, name: si.title, level: 2, responsible: si.responsible, status: si.status, startDate: parseISO(si.startDate), endDate: parseISO(si.deadline), isParent: false, originalProject: p, isOverdue: isBefore(parseISO(si.deadline), startOfDay(new Date())) && si.status !== 'Concluído', itemId: i.id, subItemId: si.id
                 }))
             ])]
         }).flat();
@@ -133,7 +141,8 @@ export function GanttView({ projects, onProjectClick, onStatusChange }: GanttVie
                             <TableHead 
                                 key={index} 
                                 colSpan={month.colSpan} 
-                                className="text-center text-[10px] font-semibold px-px whitespace-nowrap"
+                                className="text-center text-[10px] font-semibold whitespace-nowrap"
+                                style={{ padding: '0 1px' }}
                             >
                                 {month.name}
                             </TableHead>
@@ -160,7 +169,44 @@ export function GanttView({ projects, onProjectClick, onStatusChange }: GanttVie
                                             {task.name}
                                         </Button>
                                     ) : (
-                                        <span className="truncate">{task.name}</span>
+                                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                                            <Button
+                                                variant="ghost"
+                                                className="p-0 h-auto text-current truncate flex-1 text-left justify-start hover:underline"
+                                                onClick={() => {
+                                                    if (task.level === 2 && task.subItemId && task.itemId && onSubItemClick) {
+                                                        onSubItemClick(task.originalProject.id, task.itemId, task.subItemId, task.name);
+                                                    } else if (task.level === 1 && task.itemId && onItemClick) {
+                                                        onItemClick(task.originalProject.id, task.itemId, task.name);
+                                                    }
+                                                }}
+                                            >
+                                                {task.name}
+                                            </Button>
+                                            {task.level > 0 && (() => {
+                                                const unreadCount = getUnreadCount(
+                                                    task.originalProject.id,
+                                                    task.itemId,
+                                                    task.subItemId
+                                                );
+                                                return unreadCount > 0 ? (
+                                                    <Badge
+                                                        variant="destructive"
+                                                        className="h-5 min-w-5 px-1.5 text-xs flex-shrink-0"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            if (task.level === 2 && task.subItemId && task.itemId && onSubItemClick) {
+                                                                onSubItemClick(task.originalProject.id, task.itemId, task.subItemId, task.name);
+                                                            } else if (task.level === 1 && task.itemId && onItemClick) {
+                                                                onItemClick(task.originalProject.id, task.itemId, task.name);
+                                                            }
+                                                        }}
+                                                    >
+                                                        {unreadCount}
+                                                    </Badge>
+                                                ) : null;
+                                            })()}
+                                        </div>
                                     )}
                                     </div>
                                 </TableCell>
@@ -196,7 +242,18 @@ export function GanttView({ projects, onProjectClick, onStatusChange }: GanttVie
                                     }
 
                                     return (
-                                        <TableCell key={dayIndex} className={cn("p-0 w-4 relative", isWeekend && "bg-muted/50", isTodayMarker && "bg-red-100/50 dark:bg-red-900/20")}>
+                                        <TableCell 
+                                            key={dayIndex} 
+                                            className={cn("relative", isWeekend && "bg-muted/50", isTodayMarker && "bg-red-100/50 dark:bg-red-900/20")}
+                                            style={{ 
+                                                width: '1px', 
+                                                minWidth: '1px', 
+                                                maxWidth: '1px',
+                                                padding: '0',
+                                                margin: '0',
+                                                border: 'none'
+                                            }}
+                                        >
                                             {isTodayMarker && <div className="absolute inset-y-0 left-0 w-px bg-red-500"></div>}
                                             {isInRange && (
                                                 <div className={cn("h-full w-full opacity-70", barColor)} title={`${task.name}: ${format(task.startDate, 'dd/MM')} - ${format(task.endDate, 'dd/MM')}`}>&nbsp;</div>

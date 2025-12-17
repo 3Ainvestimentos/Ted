@@ -14,6 +14,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { GanttView } from '@/components/dev-projects/gantt-view';
 import { PlusCircle } from 'lucide-react';
 import { UpsertProjectModal } from '@/components/dev-projects/upsert-project-modal';
+import { ProjectCommentsModal } from '@/components/dev-projects/project-comments-modal';
 
 export default function DevelopmentProjectsPage() {
     const { projects, allResponsibles, isLoading, updateItemStatus } = useDevProjects();
@@ -27,12 +28,59 @@ export default function DevelopmentProjectsPage() {
     // Modal State
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingProject, setEditingProject] = useState<DevProject | null>(null);
-
+    
+    // Comments Modal State
+    const [isCommentsModalOpen, setIsCommentsModalOpen] = useState(false);
+    const [commentsModalData, setCommentsModalData] = useState<{
+        projectId: string;
+        projectName: string;
+        itemId?: string;
+        itemTitle?: string;
+        subItemId?: string;
+        subItemTitle?: string;
+    } | null>(null);
 
     const handleOpenModal = (project: DevProject | null) => {
         setEditingProject(project);
         setIsModalOpen(true);
     };
+
+    const handleItemClick = useCallback((projectId: string, itemId: string, itemTitle: string) => {
+        const project = projects.find(p => p.id === projectId);
+        if (project) {
+            const item = project.items.find(i => i.id === itemId);
+            if (item) {
+                setCommentsModalData({
+                    projectId,
+                    projectName: project.name,
+                    itemId,
+                    itemTitle: item.title,
+                });
+                setIsCommentsModalOpen(true);
+            }
+        }
+    }, [projects]);
+
+    const handleSubItemClick = useCallback((projectId: string, itemId: string, subItemId: string, subItemTitle: string) => {
+        const project = projects.find(p => p.id === projectId);
+        if (project) {
+            const item = project.items.find(i => i.id === itemId);
+            if (item) {
+                const subItem = item.subItems.find(si => si.id === subItemId);
+                if (subItem) {
+                    setCommentsModalData({
+                        projectId,
+                        projectName: project.name,
+                        itemId,
+                        itemTitle: item.title,
+                        subItemId,
+                        subItemTitle: subItem.title,
+                    });
+                    setIsCommentsModalOpen(true);
+                }
+            }
+        }
+    }, [projects]);
 
     const filteredProjects = useMemo(() => {
         let tempProjects = [...projects];
@@ -75,6 +123,23 @@ export default function DevelopmentProjectsPage() {
                 onOpenChange={setIsModalOpen}
                 project={editingProject}
              />
+             {commentsModalData && (
+                <ProjectCommentsModal
+                    isOpen={isCommentsModalOpen}
+                    onOpenChange={(open) => {
+                        setIsCommentsModalOpen(open);
+                        if (!open) {
+                            setCommentsModalData(null);
+                        }
+                    }}
+                    projectId={commentsModalData.projectId}
+                    projectName={commentsModalData.projectName}
+                    itemId={commentsModalData.itemId}
+                    itemTitle={commentsModalData.itemTitle}
+                    subItemId={commentsModalData.subItemId}
+                    subItemTitle={commentsModalData.subItemTitle}
+                />
+             )}
              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <PageHeader
                     title="Desenvolvimento"
@@ -127,6 +192,8 @@ export default function DevelopmentProjectsPage() {
                     <GanttView 
                         projects={filteredProjects} 
                         onProjectClick={(project) => handleOpenModal(project)}
+                        onItemClick={handleItemClick}
+                        onSubItemClick={handleSubItemClick}
                         onStatusChange={updateItemStatus}
                     />
                 </div>

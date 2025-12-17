@@ -7,6 +7,7 @@ import { ThemeProvider } from '@/components/layout/theme-provider';
 import { AuditLogProvider } from '@/contexts/audit-log-context';
 import { SettingsProvider } from '@/contexts/settings-context';
 import { TeamControlProvider } from '@/contexts/team-control-context';
+import { ProjectCommentsProvider } from '@/contexts/project-comments-context';
 
 
 export const metadata: Metadata = {
@@ -37,7 +38,9 @@ export default function RootLayout({
             <AuthProvider>
               <AuditLogProvider>
                 <TeamControlProvider>
-                  {children}
+                  <ProjectCommentsProvider>
+                    {children}
+                  </ProjectCommentsProvider>
                 </TeamControlProvider>
                 <Toaster />
               </AuditLogProvider>

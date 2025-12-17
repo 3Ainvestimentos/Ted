@@ -65,6 +65,20 @@ export interface DevProject {
     items: DevProjectItem[];
 }
 
+// Types for Project Comments
+export interface ProjectComment {
+    id: string;
+    projectId: string;
+    itemId?: string;
+    subItemId?: string;
+    authorId: string;
+    authorName: string;
+    authorEmail: string;
+    content: string;
+    timestamp: any; // Firestore Timestamp
+    readByAdmin: boolean;
+    readAt?: any; // Firestore Timestamp (quando foi lido)
+}
 
 export type UserRole = 'PMO' | 'Líder' | 'Colaborador';
 export type UserType = 'Administrador' | 'Usuário padrão';
