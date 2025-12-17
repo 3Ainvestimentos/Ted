@@ -1,4 +1,3 @@
-
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
@@ -36,6 +35,20 @@ const nextConfig: NextConfig = {
         pathname: '/**',
       }
     ],
+  },
+  async headers() {
+    return [
+      {
+        // Aplicar a todas as rotas
+        source: '/:path*',
+        headers: [
+          {
+            key: 'Content-Security-Policy',
+            value: "frame-ancestors 'self' https://www.3arivaconnect.com.br;",
+          },
+        ],
+      },
+    ];
   },
 };
 
