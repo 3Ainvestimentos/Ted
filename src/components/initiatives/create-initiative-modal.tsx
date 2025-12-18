@@ -8,13 +8,16 @@ import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import type { InitiativeFormData } from "./initiative-form";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Upload } from "lucide-react";
 
 interface CreateInitiativeModalProps {
     isOpen: boolean;
     onOpenChange: (open: boolean) => void;
+    onImportClick?: () => void;
 }
 
-export function CreateInitiativeModal({ isOpen, onOpenChange }: CreateInitiativeModalProps) {
+export function CreateInitiativeModal({ isOpen, onOpenChange, onImportClick }: CreateInitiativeModalProps) {
     const { addInitiative } = useInitiatives();
     const { toast } = useToast();
     const router = useRouter();
@@ -33,6 +36,13 @@ export function CreateInitiativeModal({ isOpen, onOpenChange }: CreateInitiative
         onOpenChange(false);
     };
 
+    const handleImportClick = () => {
+        onOpenChange(false);
+        if (onImportClick) {
+            onImportClick();
+        }
+    };
+
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto">
@@ -42,6 +52,17 @@ export function CreateInitiativeModal({ isOpen, onOpenChange }: CreateInitiative
                         Preencha as informações abaixo para cadastrar uma nova iniciativa estratégica.
                     </DialogDescription>
                 </DialogHeader>
+                {onImportClick && (
+                    <div className="flex justify-end pb-4 border-b">
+                        <Button 
+                            variant="outline" 
+                            onClick={handleImportClick}
+                            size="sm"
+                        >
+                            <Upload className="mr-2 h-4 w-4" /> Importar CSV
+                        </Button>
+                    </div>
+                )}
                 <InitiativeForm 
                     onSubmit={handleFormSubmit} 
                     onCancel={() => onOpenChange(false)} 

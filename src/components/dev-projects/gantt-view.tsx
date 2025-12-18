@@ -4,7 +4,7 @@
 
 import React, { useMemo } from 'react';
 import type { DevProject, DevProjectStatus, DevProjectItem, DevProjectSubItem } from '@/types';
-import { startOfDay, endOfDay, parseISO, eachDayOfInterval, isWithinInterval, getMonth, getYear, format, isToday, isBefore, startOfMonth, endOfMonth, eachMonthOfInterval, isSameMonth } from 'date-fns';
+import { startOfDay, endOfDay, parseISO, eachDayOfInterval, isWithinInterval, getMonth, getYear, format, isToday, isBefore, startOfMonth, endOfMonth, eachMonthOfInterval, isSameMonth, addMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Card, CardContent } from '../ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -58,17 +58,10 @@ export function GanttView({ projects, onProjectClick, onItemClick, onSubItemClic
             });
         });
 
-        const validDates = allItems
-            .map(item => 'startDate' in item ? [parseISO(item.startDate), parseISO(item.deadline)] : [])
-            .flat()
-            .filter(date => date instanceof Date && !isNaN(date.getTime()));
-
-        if (validDates.length === 0) {
-             return { tasks: [], dateHeaders: [], monthHeaders: [] };
-        }
-
-        const chartStartDate = startOfDay(validDates.reduce((min, d) => d < min ? d : min, validDates[0]));
-        const chartEndDate = endOfDay(validDates.reduce((max, d) => d > max ? d : max, validDates[0]));
+        // Calendário fixo: mês atual + próximos 5 meses (6 meses total)
+        const today = new Date();
+        const chartStartDate = startOfMonth(today);
+        const chartEndDate = endOfMonth(addMonths(today, 5)); // 5 meses à frente = 6 meses total
 
         const dateHeaders = eachDayOfInterval({ start: chartStartDate, end: chartEndDate });
 
@@ -129,14 +122,14 @@ export function GanttView({ projects, onProjectClick, onItemClick, onSubItemClic
     }
     
     return (
-        <div className="overflow-x-auto border-y">
-             <Table className="min-w-full table-fixed">
+        <div className="border-y w-full">
+             <Table className="w-full table-fixed">
                 <TableHeader>
                     <TableRow className="bg-muted/50">
-                        <TableHead className="w-64 sticky left-0 bg-muted/50 z-10">Projeto / Item</TableHead>
-                        <TableHead className="w-32">Responsável</TableHead>
-                        <TableHead className="w-40">Status</TableHead>
-                        <TableHead className="w-28">Prazo</TableHead>
+                        <TableHead className="w-64 sticky left-0 bg-muted/50 z-10 text-[10px]">Projeto / Item</TableHead>
+                        <TableHead className="w-32 text-[10px]">Responsável</TableHead>
+                        <TableHead className="w-40 text-[10px]">Status</TableHead>
+                        <TableHead className="w-28 text-[10px]">Prazo</TableHead>
                         {monthHeaders.map((month, index) => (
                             <TableHead 
                                 key={index} 
@@ -156,7 +149,7 @@ export function GanttView({ projects, onProjectClick, onItemClick, onSubItemClic
                         
                         return (
                              <TableRow key={task.id} className={cn("h-8", task.isOverdue && "bg-destructive/10")}>
-                                <TableCell className="sticky left-0 bg-background z-10">
+                                <TableCell className="sticky left-0 bg-background z-10 text-[10px]">
                                      <div className={cn("flex items-center gap-1 truncate",
                                         task.level === 0 && "font-bold",
                                         task.level === 1 && "pl-4",
@@ -165,14 +158,14 @@ export function GanttView({ projects, onProjectClick, onItemClick, onSubItemClic
                                      {task.level === 0 ? <ChevronDown className="h-4 w-4" /> : task.level === 1 && task.isParent ? <ChevronDown className="h-4 w-4" /> : task.level === 2 ? <CornerDownRight className="h-4 w-4 text-muted-foreground"/> : <span className="w-4 h-4"></span>}
 
                                     {task.level === 0 ? (
-                                        <Button variant="link" className="p-0 h-auto text-current font-bold truncate" onClick={() => onProjectClick(task.originalProject)}>
+                                        <Button variant="link" className="p-0 h-auto text-current font-bold truncate text-[10px]" onClick={() => onProjectClick(task.originalProject)}>
                                             {task.name}
                                         </Button>
                                     ) : (
                                         <div className="flex items-center gap-2 flex-1 min-w-0">
                                             <Button
                                                 variant="ghost"
-                                                className="p-0 h-auto text-current truncate flex-1 text-left justify-start hover:underline"
+                                                className="p-0 h-auto text-current truncate flex-1 text-left justify-start hover:underline text-[10px]"
                                                 onClick={() => {
                                                     if (task.level === 2 && task.subItemId && task.itemId && onSubItemClick) {
                                                         onSubItemClick(task.originalProject.id, task.itemId, task.subItemId, task.name);
@@ -192,7 +185,7 @@ export function GanttView({ projects, onProjectClick, onItemClick, onSubItemClic
                                                 return unreadCount > 0 ? (
                                                     <Badge
                                                         variant="destructive"
-                                                        className="h-5 min-w-5 px-1.5 text-xs flex-shrink-0"
+                                                        className="h-5 min-w-5 px-1.5 text-[10px] flex-shrink-0"
                                                         onClick={(e) => {
                                                             e.stopPropagation();
                                                             if (task.level === 2 && task.subItemId && task.itemId && onSubItemClick) {
@@ -210,23 +203,23 @@ export function GanttView({ projects, onProjectClick, onItemClick, onSubItemClic
                                     )}
                                     </div>
                                 </TableCell>
-                                <TableCell>{task.responsible}</TableCell>
+                                <TableCell className="text-[10px]">{task.responsible}</TableCell>
                                 <TableCell>
                                     {task.level > 0 && (
                                         <Select 
                                             value={statusToUse} 
                                             onValueChange={(newStatus: DevProjectStatus) => onStatusChange(task.originalProject.id, task.id, newStatus)}
                                         >
-                                            <SelectTrigger className="h-8 text-xs px-2 w-[130px]">
+                                            <SelectTrigger className="h-8 text-[10px] px-2 w-[130px]">
                                                 <SelectValue />
                                             </SelectTrigger>
-                                            <SelectContent>
-                                                {statusOptions.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                                            <SelectContent className="text-[10px]">
+                                                {statusOptions.map(s => <SelectItem key={s} value={s} className="text-[10px]">{s}</SelectItem>)}
                                             </SelectContent>
                                         </Select>
                                     )}
                                 </TableCell>
-                                <TableCell>{task.level > 0 ? format(task.endDate, 'dd/MM/yy') : ''}</TableCell>
+                                <TableCell className="text-[10px]">{task.level > 0 ? format(task.endDate, 'dd/MM/yy') : ''}</TableCell>
                                 {dateHeaders.map((day, dayIndex) => {
                                     const isInRange = task.level > 0 && isWithinInterval(day, { start: task.startDate, end: task.endDate });
                                     const isWeekend = day.getDay() === 0 || day.getDay() === 6;

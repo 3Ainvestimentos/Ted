@@ -1,6 +1,6 @@
 
 import type { NavItem, UserRole, Initiative, InitiativeStatus, InitiativePriority, RecurringMeeting, Collaborator } from '@/types';
-import { LayoutDashboard, Target, CalendarClock, Settings, Shield, User, BarChart3, ListTodo, CircleCheck, AlertTriangle, Clock, CheckCircle, TrendingUp, TrendingDown, Minus, Lightbulb, FileText, Bug, PlayCircle, PauseCircle, CheckSquare, StickyNote, ClipboardList, Users, Handshake, Code, AppWindow } from 'lucide-react';
+import { LayoutDashboard, Target, CalendarClock, Settings, Shield, User, BarChart3, ListTodo, CircleCheck, AlertTriangle, Clock, CheckCircle, TrendingUp, TrendingDown, Minus, Lightbulb, FileText, Bug, PlayCircle, PauseCircle, CheckSquare, StickyNote, ClipboardList, Users, Handshake, Code, AppWindow, Activity } from 'lucide-react';
 
 export const NAV_ITEMS_CONFIG: NavItem[] = [
   { title: 'Painel Estratégico', href: '/', icon: LayoutDashboard },
@@ -9,6 +9,7 @@ export const NAV_ITEMS_CONFIG: NavItem[] = [
   { title: 'M&As', href: '/m-and-as', icon: Handshake },
   { title: 'Agenda de Reuniões', href: '/meeting-agenda', icon: CalendarClock },
   { title: 'Tarefas', href: '/tasks', icon: ClipboardList },
+  { title: 'Atividades', href: '/activities', icon: Activity },
   { title: 'Anotações', href: '/notes', icon: StickyNote },
 ];
 
@@ -19,6 +20,7 @@ export const PAGE_PERMISSIONS_MAP: Record<string, string> = {
   'M&As': 'm-and-as',
   'Agenda de Reuniões': 'meeting-agenda',
   'Tarefas': 'tasks',
+  'Atividades': 'activities',
   'Anotações': 'notes',
 };
 
@@ -29,6 +31,7 @@ export const PERMISSIONABLE_PAGES = [
   { title: 'M&As', key: 'm-and-as' },
   { title: 'Agenda de Reuniões', key: 'meeting-agenda' },
   { title: 'Tarefas', key: 'tasks' },
+  { title: 'Atividades', key: 'activities' },
   { title: 'Anotações', key: 'notes' },
 ];
 

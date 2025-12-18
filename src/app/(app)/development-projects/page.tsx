@@ -188,7 +188,7 @@ export default function DevelopmentProjectsPage() {
                     <Skeleton className="h-full w-full" />
                 </div>
             ) : (
-                <div className="flex-grow overflow-hidden">
+                <div className="flex-grow w-full">
                     <GanttView 
                         projects={filteredProjects} 
                         onProjectClick={(project) => handleOpenModal(project)}

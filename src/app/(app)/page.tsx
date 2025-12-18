@@ -3,7 +3,7 @@
 
 import { PageHeader } from "@/components/layout/page-header";
 import { DashboardCard } from "@/components/dashboard/dashboard-card";
-import { Handshake, Target, CalendarClock, ClipboardList, StickyNote, AppWindow } from "lucide-react";
+import { Handshake, Target, CalendarClock, ClipboardList, StickyNote, AppWindow, Activity } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 
@@ -13,6 +13,7 @@ const dashboardItems: { title: string; href: string; icon: string; description: 
     { title: 'M&As', href: '/m-and-as', icon: 'Handshake', description: 'Gerencie o funil de oportunidades de M&A.', permissionKey: 'm-and-as' },
     { title: 'Agenda de Reuniões', href: '/meeting-agenda', icon: 'CalendarClock', description: 'Visualize e organize seus compromissos.', permissionKey: 'meeting-agenda' },
     { title: 'Tarefas', href: '/tasks', icon: 'ClipboardList', description: 'Gerencie sua lista de tarefas diárias.', permissionKey: 'tasks' },
+    { title: 'Atividades', href: '/activities', icon: 'Activity', description: 'Subitens que devem ser concluídos na semana vigente.', permissionKey: 'activities' },
     { title: 'Anotações', href: '/notes', icon: 'StickyNote', description: 'Seu bloco de notas pessoal para acesso rápido.', permissionKey: 'notes' },
 ];
 
@@ -23,6 +24,7 @@ const iconMap: Record<string, LucideIcon> = {
     ClipboardList,
     StickyNote,
     AppWindow,
+    Activity,
 };
 
 export default function DashboardPage() {

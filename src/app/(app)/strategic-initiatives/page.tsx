@@ -3,10 +3,11 @@
 
 import React, { useState, useRef, useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, LayoutGrid, List, Upload, Download, Loader2 } from "lucide-react";
+import { PlusCircle, LayoutGrid, List, Upload, Download, Loader2, LayoutDashboard } from "lucide-react";
 import { useInitiatives } from "@/contexts/initiatives-context";
 import { InitiativesTable } from "@/components/initiatives/initiatives-table";
 import { InitiativesKanban } from "@/components/initiatives/initiatives-kanban";
+import { InitiativesDashboard } from "@/components/initiatives/initiatives-dashboard";
 import { PageHeader } from "@/components/layout/page-header";
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
@@ -18,11 +19,11 @@ import { InitiativeDossierModal } from "@/components/initiatives/initiative-doss
 import { ImportInitiativesModal } from "@/components/initiatives/import-initiatives-modal";
 
 
-type ViewMode = "table" | "kanban";
+type ViewMode = "dashboard" | "table" | "kanban";
 
 export default function InitiativesPage() {
-  const { initiatives, isLoading } = useInitiatives();
-  const [viewMode, setViewMode] = useState<ViewMode>("table");
+  const { initiatives, isLoading, updateInitiativeStatus } = useInitiatives();
+  const [viewMode, setViewMode] = useState<ViewMode>("dashboard");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [selectedInitiative, setSelectedInitiative] = useState<Initiative | null>(null);
@@ -39,7 +40,11 @@ export default function InitiativesPage() {
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <CreateInitiativeModal isOpen={isCreateModalOpen} onOpenChange={setIsCreateModalOpen} />
+      <CreateInitiativeModal 
+        isOpen={isCreateModalOpen} 
+        onOpenChange={setIsCreateModalOpen}
+        onImportClick={() => setIsImportModalOpen(true)}
+      />
       <ImportInitiativesModal isOpen={isImportModalOpen} onOpenChange={setIsImportModalOpen} />
       
       {selectedInitiative && (
@@ -58,13 +63,22 @@ export default function InitiativesPage() {
           <div className="flex items-center gap-2 self-end sm:self-center flex-wrap">
             <div className="p-1 bg-muted rounded-lg flex items-center">
               <Button 
+                variant={viewMode === 'dashboard' ? 'secondary' : 'ghost'} 
+                size="sm" 
+                onClick={() => setViewMode('dashboard')}
+                className="h-8 px-3"
+              >
+                <LayoutDashboard className="h-4 w-4" />
+                <span className="ml-2 hidden sm:inline">Dashboard</span>
+              </Button>
+              <Button 
                 variant={viewMode === 'table' ? 'secondary' : 'ghost'} 
                 size="sm" 
                 onClick={() => setViewMode('table')}
                 className="h-8 px-3"
               >
                 <List className="h-4 w-4" />
-                <span className="ml-2 hidden sm:inline">Tabela</span>
+                <span className="ml-2 hidden sm:inline">Tabela/Gantt</span>
               </Button>
               <Button 
                 variant={viewMode === 'kanban' ? 'secondary' : 'ghost'} 
@@ -79,9 +93,6 @@ export default function InitiativesPage() {
             <Button onClick={() => setIsCreateModalOpen(true)}>
               <PlusCircle className="mr-2 h-4 w-4" /> Criar
             </Button>
-             <Button variant="outline" onClick={() => setIsImportModalOpen(true)}>
-              <Upload className="mr-2 h-4 w-4" /> Importar CSV
-            </Button>
           </div>
         </div>
         
@@ -90,8 +101,14 @@ export default function InitiativesPage() {
                 <Skeleton className="h-12 w-full" />
                 <Skeleton className="h-48 w-full" />
             </div>
+        ) : viewMode === 'dashboard' ? (
+          <InitiativesDashboard initiatives={activeInitiatives} />
         ) : viewMode === 'table' ? (
-          <InitiativesTable initiatives={initiatives} onInitiativeClick={openDossier} />
+          <InitiativesTable 
+            initiatives={initiatives} 
+            onInitiativeClick={openDossier}
+            onStatusChange={updateInitiativeStatus}
+          />
         ) : (
           <InitiativesKanban initiatives={activeInitiatives} onInitiativeClick={openDossier} />
         )}
